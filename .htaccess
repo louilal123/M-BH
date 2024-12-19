@@ -1,0 +1,15 @@
+RewriteEngine On
+
+# Redirect non-existent files to corresponding PHP files
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteRule ^([^\.]+)$ $1.php [NC,L]
+
+# Custom error handling
+ErrorDocument 404 /404.html
+ErrorDocument 403 /403.html
+
+# Catch-all rule for routing (if needed)
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteRule ^ index.php [L]
