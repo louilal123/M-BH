@@ -65,15 +65,15 @@ include 'includes/session.php';?>
 
                           <td><?php echo htmlspecialchars($payment['payment_method'], ENT_QUOTES, 'UTF-8'); ?></td>
                           <td>
-  <?php 
-    $status = htmlspecialchars($payment['payment_status'], ENT_QUOTES, 'UTF-8');
-    if ($status == 'completed') {
-        echo '<span class="badge bg-success">Completed</span>';
-    } else {
-        echo '<span class="badge bg-secondary">' . $status . '</span>';
-    }
-  ?>
-</td>
+                            <?php 
+                              $status = htmlspecialchars($payment['payment_status'], ENT_QUOTES, 'UTF-8');
+                              if ($status == 'completed') {
+                                  echo '<span class="badge bg-success">Completed</span>';
+                              } else {
+                                  echo '<span class="badge bg-secondary">' . $status . '</span>';
+                              }
+                            ?>
+                          </td>
 
                           <td>
                         

@@ -1,5 +1,6 @@
 <style>
   /* Sidebar styles */
+  
   #sidebar {
     
     min-height: 100vh;

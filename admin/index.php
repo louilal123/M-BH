@@ -65,11 +65,7 @@
     z-index: 2;
     transition: transform 0.3s ease;
   }
-  
-  .card:hover {
-    transform: translateY(-5px);
-  }
-  
+ 
   .card-body {
     padding: 2.5rem;
   }
@@ -114,8 +110,8 @@
   }
   
   .btn-login {
-    background: white;
-    color: #764ba2;
+    background: dark;
+    color: white;
     border: none;
     border-radius: 8px;
     padding: 12px;
@@ -166,8 +162,10 @@
       <section class="section register min-vh-100 d-flex flex-column align-items-center justify-content-center py-4">
         <div class="container">
           <div class="row justify-content-center">
-            <div class="d-flex justify-content-center mb-5">
-              <h1 class="system-title">MECMEC BOARDING HOUSE MANAGEMENT SYSTEM</h1>
+          <img src="assets/img/logo.png" style="height: 100px; width: 120px; margin: auto; border-radius: 100%;" alt="">
+           
+            <div class="d-flex justify-content-center mb-5 mt-2">
+               <h1 class="system-title">MECMEC BOARDING HOUSE MANAGEMENT SYSTEM</h1>
             </div>
             <div class="col-lg-4 col-md-6 d-flex flex-column align-items-center justify-content-center">
               <div class="card mb-3">
@@ -196,7 +194,7 @@
                       </div>
                     </div>
                     <div class="col-12">
-                      <button class="btn btn-login w-100" type="submit">Login</button>
+                      <button class="btn btn-dark btn-login w-100" type="submit">Login</button>
                     </div>
                   </form>
                 </div>
