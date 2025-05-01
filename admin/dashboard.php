@@ -149,7 +149,7 @@ $totalIncome = $rowIncome['totalIncome'];
                                 <button class="px-3 py-1 text-xs text-gray-500 hover:bg-gray-100 rounded-md">Yearly</button>
                             </div>
                         </div>
-                        <div class="chart-container" id="revenue-chart"></div>
+                        <div class="chart-container" id="tenantsChart"></div>
                     </div>
                     <div class="bg-white rounded-lg shadow p-5 animate-fade-in" style="animation-delay: 0.5s;">
                         <h3 class="font-bold text-gray-700 mb-4">Room Occupancy</h3>
@@ -157,7 +157,7 @@ $totalIncome = $rowIncome['totalIncome'];
                     </div>
                 </div>
 
-           
+         
 
                 <!-- Recent Tenants Table -->
                 <div class="bg-white rounded-lg shadow overflow-hidden animate-fade-in" style="animation-delay: 0.8s;">
@@ -373,6 +373,35 @@ $totalIncome = $rowIncome['totalIncome'];
     </div>
 
    <?php include "includes-new/footer.php" ?>
-   
+   <script>fetch('functions/tenants_chart.php');
+  .then(res => res.json())
+  .then(data => {
+    const ctx = document.getElementById('tenantsChart').getContext('2d');
+    new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: [data.month],
+        datasets: [{
+          label: 'New Tenants This Month',
+          data: [data.total],
+          backgroundColor: 'rgba(79, 70, 229, 0.6)', // Indigo-600
+          borderColor: 'rgba(79, 70, 229, 1)',
+          borderWidth: 1
+        }]
+      },
+      options: {
+        responsive: true,
+        scales: {
+          y: {
+            beginAtZero: true,
+            ticks: {
+              stepSize: 1
+            }
+          }
+        }
+      }
+    });
+  });
+</script>
 </body>
 </html>
