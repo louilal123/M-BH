@@ -1,4 +1,5 @@
-  <!-- Login Modal -->
+<?php include "profile-photo.php
+" ?>  <!-- Login Modal -->
   <div id="login-modal" class="modal hidden">
     <div class="modal-content">
       <div class="flex justify-between items-center mb-6">
@@ -226,7 +227,7 @@
         <li class="dropdown">
           <div class="flex items-center gap-2 cursor-pointer">
             <div class="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center text-primary">
-              <i class="fas fa-user text-white"></i>
+            <?php echo htmlspecialchars($user['photo']); ?>
             </div>
             <span class="text-white"><?php echo htmlspecialchars($_SESSION['name']); ?></span>
             <i class="fas fa-chevron-down text-xs mt-1 text-white"></i>
