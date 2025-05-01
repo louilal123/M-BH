@@ -77,13 +77,15 @@ $totalIncome = $rowIncome['totalIncome'];
                             <div>
                                 <p class="text-gray-500 text-sm">Total Tenants</p>
                                 <h3 class="text-2xl font-bold"><?php echo $tenantCount; ?> </h3>
-                                <p class="text-green-600 text-sm mt-1 flex items-center">
+                                <p class="text-blue-600 text-sm mt-1 flex items-center">
                                    
                                     <span>8% from last month</span>
                                 </p>
                             </div>
-                            <div class="bg-blue-100 p-3 rounded-full">
-                                <i class="fas fa-users text-blue-500 text-xl"></i>
+                            <div class="bg-blue-100 dark:bg-blue-900/30 p-3 rounded-lg">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-blue-600 dark:text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                </svg>
                             </div>
                         </div>
                     </div>
@@ -92,7 +94,7 @@ $totalIncome = $rowIncome['totalIncome'];
                             <div>
                                 <p class="text-gray-500 text-sm">Occupied Rooms</p>
                                 <h3 class="text-2xl font-bold">28/30</h3>
-                                <p class="text-green-600 text-sm mt-1 flex items-center">
+                                <p class="text-blue-600 text-sm mt-1 flex items-center">
                                     <i class="fas fa-arrow-up mr-1"></i>
                                     <span>93% occupancy rate</span>
                                 </p>
@@ -107,13 +109,15 @@ $totalIncome = $rowIncome['totalIncome'];
                             <div>
                                 <p class="text-gray-500 text-sm">Monthly Revenue</p>
                                 <h3 class="text-2xl font-bold"><?php echo number_format($totalIncome, 2); ?> </h3>
-                                <p class="text-green-600 text-sm mt-1 flex items-center">
+                                <p class="text-blue-600 text-sm mt-1 flex items-center">
                                     <i class="fas fa-arrow-up mr-1"></i>
                                     <span>12% from last month</span>
                                 </p>
                             </div>
-                            <div class="bg-green-100 p-3 rounded-full">
-                                <i class="fas fa-dollar-sign text-green-500 text-xl"></i>
+                            <div class="bg-indigo-100 dark:bg-indigo-900/30 p-3 rounded-lg">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-indigo-600 dark:text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
                             </div>
                         </div>
                     </div>

@@ -1,74 +1,108 @@
 <?php
-// Include the database connection
-require_once '../admin/functions/connection.php';
+// functions/signup_process.php
+session_start();
+include "../admin/functions/connection.php";
 
-// Process form data when form is submitted
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    // Validate inputs
-    $errors = [];
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    // Get form data
+    $firstName = htmlspecialchars(trim($_POST['first_name']));
+    $lastName = htmlspecialchars(trim($_POST['last_name']));
+    $name = $firstName . ' ' . $lastName;
+    $email = filter_var(trim($_POST['email']), FILTER_SANITIZE_EMAIL);
+    $password = trim($_POST['password']);
+    $confirmPassword = trim($_POST['confirm_password']);
+    $occupation = htmlspecialchars(trim($_POST['occupation']));
+    $phone = htmlspecialchars(trim($_POST['phone']));
+    $address = isset($_POST['address']) ? htmlspecialchars(trim($_POST['address'])) : '';
     
+    // Validate email format
+    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        $_SESSION['status'] = "Invalid email format.";
+        $_SESSION['status_icon'] = "error";
+        header("Location: ../index.php");
+        exit();
+    }
+
     // Check if passwords match
-    if ($_POST['password'] !== $_POST['confirm_password']) {
-        $errors[] = "Passwords do not match.";
+    if ($password !== $confirmPassword) {
+        $_SESSION['status'] = "Passwords do not match.";
+        $_SESSION['status_icon'] = "error";
+        header("Location: ../index.php");
+        exit();
     }
-    
-    // Check if email already exists
-    $email_check = $conn->prepare("SELECT email FROM tenants WHERE email = ?");
-    $email_check->bind_param("s", $_POST['email']);
-    $email_check->execute();
-    $email_check->store_result();
-    
-    if ($email_check->num_rows > 0) {
-        $errors[] = "Email already exists.";
+
+    // Check for duplicate email
+    $emailCheckStmt = $conn->prepare("SELECT email FROM tenants WHERE email = ?");
+    $emailCheckStmt->bind_param("s", $email);
+    $emailCheckStmt->execute();
+    $emailCheckStmt->store_result();
+
+    if ($emailCheckStmt->num_rows > 0) {
+        $_SESSION['status'] = "This email is already registered.";
+        $_SESSION['status_icon'] = "error";
+        $emailCheckStmt->close();
+        header("Location: ../index.php");
+        exit();
     }
-    $email_check->close();
-    
-    // If no errors, proceed with registration
-    if (empty($errors)) {
-        // Prepare an insert statement
-        $stmt = $conn->prepare("INSERT INTO tenants (name, email, phone, password, occupation, created_at) VALUES (?, ?, ?, ?, ?, NOW())");
-        
-        // Combine first and last name
-        $name = $_POST['first_name'] . ' ' . $_POST['last_name'];
-        $email = $_POST['email'];
-        $phone = $_POST['phone'];
-        $occupation = $_POST['occupation'];
-        
-        // Hash the password
-        $hashed_password = password_hash($_POST['password'], PASSWORD_DEFAULT);
-        
-        $stmt->bind_param("sssss", $name, $email, $phone, $hashed_password, $occupation);
-        
-        if ($stmt->execute()) {
-            // Registration successful, start session
-            session_start();
-            
-            // Get the newly created user
-            $result = $conn->query("SELECT * FROM tenants WHERE email = '$email'");
-            $user = $result->fetch_assoc();
-            
-            // Store data in session variables
-            $_SESSION["loggedin"] = true;
-            $_SESSION["tenant_id"] = $user['tenant_id'];
-            $_SESSION["name"] = $user['name'];
-            $_SESSION["email"] = $user['email'];
-            $_SESSION["occupation"] = $user['occupation'];
-            
-            // Redirect to dashboard or home page
-            header("location: ../index.php");
-            exit;
+    $emailCheckStmt->close();
+
+    // Handle Photo Upload (optional)
+    $photo = null;
+    if (isset($_FILES['photo']) && $_FILES['photo']['error'] === UPLOAD_ERR_OK) {
+        $photoTmpPath = $_FILES['photo']['tmp_name'];
+        $photoName = time() . '_' . basename($_FILES['photo']['name']);
+        $uploadDir = '../admin/uploads/';
+        $uploadPath = $uploadDir . $photoName;
+
+        // Ensure upload directory exists
+        if (!is_dir($uploadDir)) {
+            mkdir($uploadDir, 0777, true);
+        }
+
+        // Move the file
+        if (move_uploaded_file($photoTmpPath, $uploadPath)) {
+            $photo = $photoName;
         } else {
-            echo "Something went wrong. Please try again later.";
-        }
-        
-        $stmt->close();
-    } else {
-        // Display errors
-        foreach ($errors as $error) {
-            echo "<p class='text-red-500'>$error</p>";
+            $_SESSION['status'] = "Failed to upload photo.";
+            $_SESSION['status_icon'] = "error";
+            header("Location: ../index.php");
+            exit();
         }
     }
+
+    // Hash the password
+    $hashedPassword = password_hash($password, PASSWORD_BCRYPT);
+
+    // Insert data into database
+    $stmt = $conn->prepare("INSERT INTO tenants (name, email, password, phone, address, occupation, photo, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, NOW())");
+    $stmt->bind_param("ssssssss", $name, $email, $hashedPassword, $phone,  $address, $occupation, $photo);
     
+    if ($stmt->execute()) {
+        // Get the newly created user
+        $result = $conn->query("SELECT * FROM tenants WHERE email = '$email'");
+        $user = $result->fetch_assoc();
+        
+        // Store data in session variables
+        $_SESSION['loggedin'] = true;
+        $_SESSION['tenant_id'] = $user['tenant_id'];
+        $_SESSION['name'] = $user['name'];
+        $_SESSION['email'] = $user['email'];
+        $_SESSION['occupation'] = $user['occupation'];
+        
+        $_SESSION['status'] = "Registration successful. You may now signup with your account!";
+        $_SESSION['status_icon'] = "success";
+        $_SESSION['show_login_modal'] = true;
+        header("Location: ../index.php");
+        exit();
+    } else {
+        $_SESSION['status'] = "Something went wrong. Please try again.";
+        $_SESSION['status_icon'] = "error";
+        $_SESSION['show_login_modal'] = true;
+        header("Location: ../index.php");
+        exit();
+    }
+
+    $stmt->close();
     $conn->close();
 }
 ?>
