@@ -1,0 +1,249 @@
+
+:root {
+  --primary: #1e40af;
+  --primary-dark: #1e3a8a;
+  --accent: #f97316;
+  --light: #f8fafc;
+  --dark: #0f172a;
+  --text-light: #64748b;
+  --text-dark: #1e293b;
+}
+
+/* Base Styles */
+body {
+  font-family: 'Inter', sans-serif;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Poppins', sans-serif;
+}
+
+/* Dark Mode Styles */
+.dark {
+  --bg-color: var(--dark);
+  --text-color: var(--light);
+  color-scheme: dark;
+}
+
+/* Light Mode Styles */
+.light {
+  --bg-color: var(--light);
+  --text-color: var(--text-dark);
+  color-scheme: light;
+}
+
+/* Common Styles */
+.section-padding {
+  padding: 5rem 1.5rem;
+}
+
+@media (min-width: 768px) {
+  .section-padding {
+    padding: 6rem 2rem;
+  }
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.6s ease-out forwards;
+}
+
+.animate-delay-100 {
+  animation-delay: 0.1s;
+}
+
+.animate-delay-200 {
+  animation-delay: 0.2s;
+}
+
+.animate-delay-300 {
+  animation-delay: 0.3s;
+}
+
+/* Card hover effect */
+.room-card:hover img {
+  transform: scale(1.05);
+}
+
+.room-card img {
+  transition: transform 0.5s ease;
+}
+
+/* Glass effect for cards */
+.glass-card {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.dark .glass-card {
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Parallax effect */
+.parallax {
+  background-attachment: fixed;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+
+/* Dropdown Menu */
+.dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+.dropdown-content {
+  visibility: hidden;
+  opacity: 0;
+  position: absolute;
+  min-width: 200px;
+  transform: translateY(10px);
+  transition: all 0.3s ease-in-out;
+  z-index: 100;
+}
+
+.dropdown:hover .dropdown-content {
+  visibility: visible;
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Navbar Transition */
+.navbar {
+  transition: all 0.3s ease;
+}
+
+.navbar-transparent {
+  background-color: transparent;
+  box-shadow: none;
+}
+
+.navbar-scrolled {
+  background-color: rgba(42, 0, 159, 0.95);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+ color: #1e293b;
+}
+.navbar-scrolled .nav-link,
+.navbar-scrolled .nav-btn {
+color: #1e293b; /* slate-800 */
+}
+
+.navbar-transparent .nav-link,
+.navbar-transparent .nav-btn {
+color: white;
+}.navbar-scrolled .nav-link:hover,
+.navbar-scrolled .nav-btn:hover {
+color: #0f172a; /* darker */
+}
+
+
+.dark .navbar-scrolled {
+  background-color: rgba(15, 23, 42, 0.95);
+}
+
+/* Auth Modal */
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 1000;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(5px);
+}
+
+.modal-content {
+  position: relative;
+  background: white;
+  margin: 10% auto;
+  padding: 25px;
+  border-radius: 1rem;
+  width: 90%;
+  max-width: 500px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  transform: scale(0.8);
+  opacity: 0;
+  transition: all 0.3s ease;
+}
+
+.dark .modal-content {
+  background: #1e293b;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.modal.active .modal-content {
+  transform: scale(1);
+  opacity: 1;
+}
+
+.modal.active {
+  display: block;
+}
+
+/* Swiper slideshow styles */
+.swiper {
+  width: 100%;
+  height: 100%;
+}
+
+.swiper-slide {
+  text-align: center;
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.dark .swiper-slide {
+  background: #1e293b;
+}
+
+.swiper-slide img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.swiper-pagination-bullet {
+  width: 12px;
+  height: 12px;
+  background: white;
+  opacity: 0.5;
+  transition: all 0.3s ease;
+}
+
+.swiper-pagination-bullet-active {
+  opacity: 1;
+  background: var(--accent);
+}
+
+/* Wave Animation */
+@keyframes wave {
+  0% {
+    transform: translateX(0) translateZ(0) scaleY(1);
+  }
+  50% {
+    transform: translateX(-25%) translateZ(0) scaleY(0.8);
+  }
+  100% {
+    transform: translateX(-50%) translateZ(0) scaleY(1);
+  }
+}
+
+.animate-wave {
+  animation: wave 15s cubic-bezier(0.36, 0.45, 0.63, 0.53) infinite;
+  transform-origin: center bottom;
+}

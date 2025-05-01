@@ -1,350 +1,306 @@
-<?php
-include 'includes/session.php';?>
+<?php include 'includes/session.php'; ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <?php include "includes/header.php" ?>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Boarding House Management</title>
+    <?php include "includes-new/header.php";?>
 </head>
-<body>
-  <div class="d-flex w-100">
-    <!-- Sidebar -->
-    <?php include "includes/sidebar.php" ?>
+<body class="bg-gray-50 text-gray-800">
+    <div class="flex h-screen overflow-hidden">
+        <?php include "includes-new/sidebar.php" ?>
+        
+        <!-- Main Content -->
+        <div class="flex-1 flex flex-col overflow-hidden">
 
-    <!-- Main Content -->
-    <div id="content" class="flex-grow-1">
-      <!-- Top Navigation -->
-      <?php include "includes/topnav.php" ?>
+        <?php include "includes-new/topnav.php" ?>
 
-      <div class="container-fluid mt-4">
-        <div class="row mt-4">
-          <div class="col-lg-12">
-            <div class="card">
-              <div class="card-header bg-dark">
-              <h5 class="card-title text-light">List of Tenants</h5>
-              </div>
-              <div class="card-body">
-               
-                <div class="d-flex justify-content-end mb-3">
-                  <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addnewtenant">
-                    Add New Tenant
-                  </button>
-                </div>
-</button>
-
-
-                <div class="">
-                <table class="table table-striped table-bordered" id="myTable">
-                 <thead class="thead-dark">
-                    <tr>
-                        <th>#</th>
-                        <th>Photo</th>
-                        <th>Full Name</th>
-                        <th>Email</th>
-                        <th>Phone</th>
-                        <th>Address</th>
-                        <th>Created</th>
-                        <th>Status</th>
-                        <th>Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                      <?php
-                      
-                      include('functions/connection.php');
-                      $query = "SELECT tenant_id, name, email, contact, address, created_at, status, photo FROM tenants";
-                      $result = $conn->query($query);
-
-                      if ($result->num_rows > 0):
-                          $tenants = $result->fetch_all(MYSQLI_ASSOC);
-                          foreach ($tenants as $tenant): ?>
-                              <tr>
-                    <td><?php echo htmlspecialchars($tenant['tenant_id'], ENT_QUOTES, 'UTF-8'); ?></td>
-                    <td>
-                        <?php if (!empty($tenant['photo'])): ?>
-                            <img src="uploads/tenants/<?php echo htmlspecialchars($tenant['photo'], ENT_QUOTES, 'UTF-8'); ?>" alt="Tenant Photo" class="img-thumbnail" width="50" height="50">
-                        <?php else: ?>
-                            <span>No photo</span>
-                        <?php endif; ?>
-                    </td>
-                    <td><?php echo htmlspecialchars($tenant['name'], ENT_QUOTES, 'UTF-8'); ?></td>
-                    <td><?php echo htmlspecialchars($tenant['email'], ENT_QUOTES, 'UTF-8'); ?></td>
-                    <td><?php echo htmlspecialchars($tenant['contact'], ENT_QUOTES, 'UTF-8'); ?></td>
-                    <td><?php echo htmlspecialchars($tenant['address'], ENT_QUOTES, 'UTF-8'); ?></td>
-                    <td><?php echo htmlspecialchars($tenant['created_at'], ENT_QUOTES, 'UTF-8'); ?></td>
-                    <td>
-                        <?php 
-                        $status = htmlspecialchars($tenant['status'], ENT_QUOTES, 'UTF-8'); 
-                        if ($status === 'active') {
-                            echo '<span class="badge bg-success">Active</span>';
-                        } else {
-                            echo '<span class="badge bg-secondary">Inactive</span>';
-                        } 
-                        ?>
-                          </td>
-                          <td>
-                          <button 
-                          type="button" 
-                          class="btn btn-success btn-sm editTenantBtn" 
-                          data-bs-toggle="modal" 
-                          data-bs-target="#editTenantModal" 
-                          data-id="<?php echo $tenant['tenant_id']; ?>"
-                          data-name="<?php echo htmlspecialchars($tenant['name'], ENT_QUOTES, 'UTF-8'); ?>"
-                          data-email="<?php echo htmlspecialchars($tenant['email'], ENT_QUOTES, 'UTF-8'); ?>"
-                          data-contact="<?php echo htmlspecialchars($tenant['contact'], ENT_QUOTES, 'UTF-8'); ?>"
-                          data-address="<?php echo htmlspecialchars($tenant['address'], ENT_QUOTES, 'UTF-8'); ?>"
-                          data-status="<?php echo htmlspecialchars($tenant['status'], ENT_QUOTES, 'UTF-8'); ?>"
-                          data-photo="<?php echo htmlspecialchars($tenant['photo'], ENT_QUOTES, 'UTF-8'); ?>"> 
-                          Edit
-                      </button>
-
-                                            <button 
-                                              type="button" 
-                                              class="btn btn-danger btn-sm deleteTenantBtn" 
-                                              data-id="<?php echo $tenant['tenant_id']; ?>">
-                                              Delete
-                                            </button>
-                                    </td>
-                                </tr>
-                            <?php endforeach;
-                       ?>
-                         
-                        <?php endif; ?>
-                    </tbody>
-                </table>
-
-
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
+            <!-- Main Content Area -->
+            <main class="flex-1 overflow-y-auto p-6 bg-gray-100">
+                <!-- Dashboard Header -->
+                <div class="flex flex-col md:flex-row md:items-center justify-between mb-6">
+                    <div>
+                        <h1 class="text-2xl font-bold text-gray-800">Tenant Management</h1>
+                    </div>
+                    <div class="mt-4 md:mt-0 flex space-x-3">
+        <button 
+          class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 flex items-center"
+          onclick="openModal('addTenantModal')"
+        >
+          <i class="fas fa-plus mr-2"></i>
+          <span>Add Tenant</span>
+        </button>
  
+</div>
 
-  <div class="modal fade" id="editTenantModal" tabindex="-1" aria-labelledby="editTenantModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered modal-xl">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="editTenantModalLabel">Edit Tenant Information</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-        <form action="functions/edit_tenant.php" method="POST" enctype="multipart/form-data">
-          <input type="hidden" name="tenant_id" id="tenant_id">
+                </div>
 
-          <!-- Full Name -->
-          <div class="mb-3">
-            <label for="name" class="form-label">Full Name</label>
-            <input type="text" class="form-control" id="name" name="name" required oninput="validateAlphanumeric(this)">
-          </div>
+                <!-- Tenant Table Card -->
+                <div class="bg-white rounded-lg shadow-sm overflow-hidden">
+                    <div class="p-4">
+                        <div class="overflow-x-hidden">
+                            <table class="min-w-full divide-y divide-gray-200" id="example">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">#</th>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Photo</th>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Full Name</th>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Phone</th>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="bg-white divide-y divide-gray-200">
+                                    <?php
+                                    include('functions/connection.php');
+                                    $query = "SELECT tenant_id, name, email, contact, address, created_at, status, photo FROM tenants";
+                                    $result = $conn->query($query);
 
-          <!-- Email -->
-          <div class="mb-3">
-            <label for="email" class="form-label">Email</label>
-            <input type="email" class="form-control" id="email" name="email" required>
-          </div>
-
-          <!-- Phone -->
-          <div class="mb-3">
-            <label for="contact" class="form-label">Phone</label>
-            <input type="text" class="form-control" id="contact" name="contact" required oninput="validatePhone(this)">
-          </div>
-
-          <!-- Address -->
-          <div class="mb-3">
-            <label for="address" class="form-label">Address</label>
-            <input type="text" class="form-control" id="address" name="address" required oninput="validateAlphanumeric(this)">
-          </div>
-
-          <!-- Status -->
-          <div class="mb-3">
-            <label for="status" class="form-label">Status</label>
-            <select class="form-select" id="status" name="status" required>
-              <option value="active">Active</option>
-              <option value="inactive">Inactive</option>
-            </select>
-          </div>
-
-          <!-- Current Photo -->
-          <div class="mb-3">
-            <label for="currentPhoto" class="form-label">Current Photo</label>
-            <div>
-              <img id="currentPhotoPreview" src="uploads/tenants/default.png" alt="Tenant Photo" class="img-thumbnail" style="max-width: 100px;">
-            </div>
-          </div>
-
-          <!-- Change Photo -->
-          <div class="mb-3">
-            <label for="photo" class="form-label">Change Photo</label>
-            <input type="file" class="form-control" id="photo" name="photo" accept="image/*">
-            <small class="text-muted">Upload a JPEG, PNG, or GIF image. Max size: 2MB.</small>
-          </div>
-
-          <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-            <button type="submit" name="save_tenant" class="btn btn-primary">Save Changes</button>
-          </div>
-        </form>
-      </div>
+                                    if ($result->num_rows > 0):
+                                        $tenants = $result->fetch_all(MYSQLI_ASSOC);
+                                        foreach ($tenants as $tenant): ?>
+                                            <tr>
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                    <?php echo htmlspecialchars($tenant['tenant_id'], ENT_QUOTES, 'UTF-8'); ?>
+                                                </td>
+                                                <td class="px-6 py-4 whitespace-nowrap">
+                                                    <?php if (!empty($tenant['photo'])): ?>
+                                                        <img 
+                                                            src="uploads/tenants/<?php echo htmlspecialchars($tenant['photo'], ENT_QUOTES, 'UTF-8'); ?>" 
+                                                            alt="Tenant Photo" 
+                                                            class="h-10 w-10 rounded-full object-cover"
+                                                        >
+                                                    <?php else: ?>
+                                                        <div class="h-10 w-10 rounded-full bg-gray-200 flex items-center justify-center">
+                                                            <i class="fas fa-user text-gray-400"></i>
+                                                        </div>
+                                                    <?php endif; ?>
+                                                </td>
+                                                <td class="px-6 py-4 whitespace-nowrap">
+                                                    <div class="text-sm font-medium text-gray-900"><?php echo htmlspecialchars($tenant['name'], ENT_QUOTES, 'UTF-8'); ?></div>
+                                                    <div class="text-sm text-gray-500"><?php echo htmlspecialchars($tenant['address'], ENT_QUOTES, 'UTF-8'); ?></div>
+                                                </td>
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                    <?php echo htmlspecialchars($tenant['email'], ENT_QUOTES, 'UTF-8'); ?>
+                                                </td>
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                    <?php echo htmlspecialchars($tenant['contact'], ENT_QUOTES, 'UTF-8'); ?>
+                                                </td>
+                                                <td class="px-6 py-4 whitespace-nowrap">
+                                                    <?php 
+                                                    $status = htmlspecialchars($tenant['status'], ENT_QUOTES, 'UTF-8'); 
+                                                    if ($status === 'active') {
+                                                        echo '<span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Active</span>';
+                                                    } else {
+                                                        echo '<span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">Inactive</span>';
+                                                    } 
+                                                    ?>
+                                                </td>
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                                    <div class="flex space-x-2">
+                                                    <button class="editTenantBtn px-3 py-1 bg-green-800 text-white rounded hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm flex items-center"
+  data-id="<?php echo $tenant['tenant_id']; ?>"
+  data-name="<?php echo htmlspecialchars($tenant['name']); ?>"
+  data-email="<?php echo htmlspecialchars($tenant['email']); ?>"
+  data-contact="<?php echo htmlspecialchars($tenant['contact']); ?>"
+  data-address="<?php echo htmlspecialchars($tenant['address']); ?>"
+  data-status="<?php echo htmlspecialchars($tenant['status']); ?>"
+  data-photo="<?php echo htmlspecialchars($tenant['photo']); ?>">
+  <i class="fas fa-edit mr-1 text-xs"></i> Edit
+</button>
+                                                        <button 
+                                                            type="button" 
+                                                            class="px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 text-sm flex items-center deleteTenantBtn"
+                                                            data-id="<?php echo $tenant['tenant_id']; ?>"
+                                                        >
+                                                            <i class="fas fa-trash-alt mr-1 text-xs"></i> Delete
+                                                        </button>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        <?php endforeach;
+                                    endif; ?>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
     </div>
+
+<!-- Edit Tenant Modal -->
+<div id="editTenantModal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4">
+  <div class="fixed inset-0 bg-gray-500/75" onclick="closeModal('editTenantModal')"></div>
+  <div class="relative w-full max-w-2xl bg-white rounded-lg shadow-xl">
+    <div class="flex justify-between items-center px-6 py-4 border-b">
+      <h3 class="text-lg font-semibold text-gray-800">Edit Tenant</h3>
+      <button class="text-gray-400 hover:text-gray-500" onclick="closeModal('editTenantModal')">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    <form action="functions/edit_tenant.php" method="POST" enctype="multipart/form-data" class="bg-gray-50 p-6">
+      <input type="hidden" name="tenant_id" id="tenant_id">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div><label class="block text-sm font-medium text-gray-700 mb-1">Full Name<input type="text" id="name" name="name" required oninput="validateAlphanumeric(this)" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"></label></div>
+        <div><label class="block text-sm font-medium text-gray-700 mb-1">Email<input type="email" id="email" name="email" required class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"></label></div>
+        <div><label class="block text-sm font-medium text-gray-700 mb-1">Phone<input type="text" id="contact" name="contact" required oninput="validatePhone(this)" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"></label></div>
+        <div><label class="block text-sm font-medium text-gray-700 mb-1">Status<select id="status" name="status" required class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"><option value="active">Active</option><option value="inactive">Inactive</option></select></label></div>
+        <div class="col-span-2"><label class="block text-sm font-medium text-gray-700 mb-1">Address<input type="text" id="address" name="address" required oninput="validateAlphanumeric(this)" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"></label></div>
+        <div><label class="block text-sm font-medium text-gray-700 mb-1">Current Photo<div class="mt-1"><img id="currentPhotoPreview" src="uploads/tenants/default.png" alt="Photo" class="h-24 w-24 rounded-md object-cover border border-gray-200"></div></label></div>
+        <div><label class="block text-sm font-medium text-gray-700 mb-1">Change Photo<input type="file" id="photo" name="photo" accept="image/*" class="w-full px-3 py-2 text-sm text-gray-700 border border-gray-300 rounded-md cursor-pointer focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"><p class="mt-1 text-xs text-gray-500">JPEG, PNG or GIF. Max 2MB.</p></label></div>
+      </div>
+      <div class="flex justify-end space-x-3 mt-6 px-2">
+        <button type="button" onclick="closeModal('editTenantModal')" class="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500">Cancel</button>
+        <button type="submit" name="save_tenant" class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500">Save Changes</button>
+      </div>
+    </form>
+  </div>
+</div>
+<!-- Add Tenant Modal -->
+<div id="addTenantModal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4">
+  <div class="fixed inset-0 bg-gray-500/75" onclick="closeModal('addTenantModal')"></div>
+  <div class="relative w-full max-w-2xl bg-white rounded-lg shadow-xl">
+    <div class="flex justify-between items-center px-6 py-4 border-b">
+      <h3 class="text-lg font-semibold text-gray-800">Add New Tenant</h3>
+      <button class="text-gray-400 hover:text-gray-500" onclick="closeModal('addTenantModal')">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    <form action="functions/add_tenant.php" enctype="multipart/form-data" method="POST" class="bg-gray-50 p-6">
+      <input type="hidden" name="password" value="123">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div><label class="block text-sm font-medium text-gray-700 mb-1">Full Name<input type="text" name="name" required oninput="validateAlphanumeric(this)" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"></label></div>
+        <div><label class="block text-sm font-medium text-gray-700 mb-1">Email<input type="email" name="email" required class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"></label></div>
+        <div><label class="block text-sm font-medium text-gray-700 mb-1">Contact<input type="tel" name="contact" required oninput="validatePhoneNumber(this)" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"></label></div>
+        <div><label class="block text-sm font-medium text-gray-700 mb-1">Photo<input type="file" name="photo" accept="image/*" class="w-full px-3 py-2 text-sm text-gray-700 border border-gray-300 rounded-md cursor-pointer focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"></label></div>
+        <div class="col-span-2"><label class="block text-sm font-medium text-gray-700 mb-1">Address<textarea name="address" rows="3" required oninput="validateAlphanumeric(this)" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"></textarea></label></div>
+      </div>
+      <div class="flex justify-end space-x-3 mt-6 px-2">
+        <button type="button" onclick="closeModal('addTenantModal')" class="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500">Cancel</button>
+        <button type="submit" name="edit_event" class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500">Save</button>
+      </div>
+    </form>
   </div>
 </div>
 
-<div class="modal fade" id="addnewtenant" tabindex="-1" aria-labelledby="signupModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered modal-xl">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="signupModalLabel">Add New Tenant</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-        <form action="functions/signup.php" enctype="multipart/form-data" method="POST" class="mt-3">
-          <!-- Full Name -->
-          <div class="mb-3">
-            <label for="name" class="form-label">Full Name</label>
-            <input type="text" name="name" id="name" class="form-control" required oninput="validateAlphanumeric(this)">
-          </div>
-
-          <!-- Email Address -->
-          <div class="mb-3">
-            <label for="email" class="form-label">Email Address</label>
-            <input type="email" name="email" id="email" class="form-control" required>
-          </div>
-
-          <!-- Hidden Password -->
-          <input type="hidden" name="password" id="password" class="form-control" value="123">
-
-         <!-- Contact Number -->
-<div class="mb-3">
-  <label for="contact" class="form-label">Contact Number</label>
-  <input type="tel" name="contact" id="contact" class="form-control" required oninput="validatePhoneNumber(this)">
-</div>
-
-<script>
-  function validatePhoneNumber(input) {
-    // Ensure the input only contains numbers and is limited to 11 digits
-    input.value = input.value.replace(/[^0-9]/g, '').slice(0, 11);
-  }
-</script>
-
-
-          <!-- Address -->
-          <div class="mb-3">
-            <label for="address" class="form-label">Address</label>
-            <textarea name="address" id="address" class="form-control" rows="3" required oninput="validateAlphanumeric(this)"></textarea>
-          </div>
-
-          <!-- Photo -->
-          <div class="mb-3">
-            <label for="photo" class="form-label">Upload Photo</label>
-            <input type="file" name="photo" id="photo" class="form-control" accept="image/*">
-          </div>
-
-          <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-            <button type="submit" name="edit_event" class="btn btn-primary">Save</button>
-          </div>
-        </form>
-      </div>
-    </div>
-  </div>
-</div>
-
-
-
-  <?php include "includes/footer.php" ?>
-
- <script>
-  // JavaScript to handle modal population with tenant data
-$(document).ready(function () {
-    $('.editTenantBtn').on('click', function () {
-        var tenantId = $(this).data('id');
-        var name = $(this).data('name');
-        var email = $(this).data('email');
-        var contact = $(this).data('contact');
-        var address = $(this).data('address');
-        var status = $(this).data('status');
-        var photo = $(this).data('photo'); // Add this to handle the photo
-
-        // Populate modal fields with tenant data
-        $('#tenant_id').val(tenantId);
-        $('#name').val(name);
-        $('#email').val(email);
-        $('#contact').val(contact);
-        $('#address').val(address);
-        $('#status').val(status);
-
-        // Update the photo preview if a photo exists
-        if (photo) {
-            $('#currentPhotoPreview').attr('src', 'uploads/tenants/' + photo);
-        } else {
-            $('#currentPhotoPreview').attr('src', 'uploads/tenants/default.png');
-        }
+    <?php include "includes-new/footer.php" ?>
+    <script>
+// Edit button click handlers (should be in your table row generation code)
+document.addEventListener('DOMContentLoaded', function() {
+  document.querySelectorAll('.editTenantBtn').forEach(button => {
+    button.addEventListener('click', function() {
+      // Get data attributes
+      const tenantId = this.getAttribute('data-id');
+      const name = this.getAttribute('data-name');
+      const email = this.getAttribute('data-email');
+      const contact = this.getAttribute('data-contact');
+      const address = this.getAttribute('data-address');
+      const status = this.getAttribute('data-status');
+      const photo = this.getAttribute('data-photo');
+      
+      // Populate form fields
+      document.getElementById('tenant_id').value = tenantId;
+      document.getElementById('name').value = name;
+      document.getElementById('email').value = email;
+      document.getElementById('contact').value = contact;
+      document.getElementById('address').value = address;
+      document.getElementById('status').value = status;
+      
+      // Set photo preview
+      const photoPreview = document.getElementById('currentPhotoPreview');
+      if (photo) {
+        photoPreview.src = 'uploads/tenants/' + photo;
+      } else {
+        photoPreview.src = 'uploads/tenants/default.png';
+      }
+      
+      openModal('editTenantModal');
     });
+  });
 });
 
- </script>
+// Modal control functions (should be shared with add modal)
+function openModal(modalId) {
+  document.getElementById(modalId).classList.remove('hidden');
+  document.body.classList.add('overflow-hidden');
+}
 
-  <script>
-    $(document).ready(function () {
-      // When the delete button is clicked
-      $('.deleteTenantBtn').on('click', function (e) {
-        e.preventDefault(); // Prevent default button behavior
+function closeModal(modalId) {
+  document.getElementById(modalId).classList.add('hidden');
+  document.body.classList.remove('overflow-hidden');
+}
 
-        const tenantId = $(this).data('id'); // Get the ID of the tenant
-
-        Swal.fire({
-          title: 'Are you sure?',
-          text: 'This action cannot be undone!',
-          icon: 'warning',
-          showCancelButton: true,
-          confirmButtonColor: '#d33',
-          cancelButtonColor: '#3085d6',
-          confirmButtonText: 'Delete',
-          cancelButtonText: 'Cancel'
-        }).then((result) => {
-          if (result.isConfirmed) {
-            // Redirect to the delete script with the tenant ID
-            window.location.href = `functions/delete_tenant.php?id=${tenantId}`;
-          }
-        });
-      });
+// Close modal when clicking outside
+window.addEventListener('click', function(event) {
+  if (event.target.classList.contains('fixed') && event.target.classList.contains('inset-0')) {
+    const modals = document.querySelectorAll('.fixed.inset-0.hidden');
+    modals.forEach(modal => {
+      if (!modal.classList.contains('hidden')) {
+        modal.classList.add('hidden');
+        document.body.classList.remove('overflow-hidden');
+      }
     });
-  </script>
-  
-<script>
-  // Validation: Allow only alphabets and spaces
-  function validateName(input) {
-    input.value = input.value.replace(/[^A-Za-z\s]/g, ''); // Keep only alphabets and spaces
   }
-
-  // Validation: Allow only numeric values
-  function validateNumeric(input) {
-    input.value = input.value.replace(/[^0-9]/g, ''); // Keep only numbers
-  }
-
-  // Validation: Allow alphanumeric values with spaces
-  function validateAlphanumeric(input) {
-    input.value = input.value.replace(/[^A-Za-z0-9\s]/g, ''); // Keep alphabets, numbers, and spaces
-  }
-
-  // Validation: Allow only special characters (example for specific cases)
-  function validateSpecialCharacters(input) {
-    input.value = input.value.replace(/[A-Za-z0-9]/g, ''); // Remove alphabets and numbers
-  }
-
-  // Validation: Disable future dates
-  function disableFutureDates(input) {
-    const today = new Date().toISOString().split('T')[0]; // Get today's date in YYYY-MM-DD format
-    if (input.value > today) {
-      input.value = today; // Reset to today's date if a future date is selected
-      alert('Future dates are not allowed.');
-    }
-  }
+});
 </script>
+    <script>
+        // Initialize DataTable with Tailwind styling
+        $(document).ready(function() {
+         
 
 
-</body>
+            // Delete confirmation
+            $('.deleteTenantBtn').on('click', function(e) {
+                e.preventDefault();
+                const tenantId = $(this).data('id');
+
+                Swal.fire({
+                    title: 'Are you sure?',
+                    text: 'This action cannot be undone!',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#d33',
+                    cancelButtonColor: '#3085d6',
+                    confirmButtonText: 'Delete',
+                    cancelButtonText: 'Cancel'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        window.location.href = `functions/delete_tenant.php?id=${tenantId}`;
+                    }
+                });
+            });
+
+            // Validation functions
+            function validateName(input) {
+                input.value = input.value.replace(/[^A-Za-z\s]/g, '');
+            }
+
+            function validateNumeric(input) {
+                input.value = input.value.replace(/[^0-9]/g, '');
+            }
+
+            function validateAlphanumeric(input) {
+                input.value = input.value.replace(/[^A-Za-z0-9\s]/g, '');
+            }
+
+            function validateSpecialCharacters(input) {
+                input.value = input.value.replace(/[A-Za-z0-9]/g, '');
+            }
+
+            function validatePhoneNumber(input) {
+                input.value = input.value.replace(/[^0-9]/g, '').slice(0, 11);
+            }
+
+            function disableFutureDates(input) {
+                const today = new Date().toISOString().split('T')[0];
+                if (input.value > today) {
+                    input.value = today;
+                    alert('Future dates are not allowed.');
+                }
+            }
+        });
+    </script></body>
 </html>

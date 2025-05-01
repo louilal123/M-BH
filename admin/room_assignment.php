@@ -67,14 +67,14 @@ include 'includes/session.php';?>
                            
                               <td>
                               <button type="button" class="btn btn-success btn-sm editBookingBtn" data-bs-toggle="modal" data-bs-target="#editBookingModal" 
-  data-id="<?php echo $booking['booking_id']; ?>"
-  data-tenant="<?php echo htmlspecialchars($booking['tenant_name'], ENT_QUOTES, 'UTF-8'); ?>"
-  data-room="<?php echo htmlspecialchars($booking['room_number'], ENT_QUOTES, 'UTF-8'); ?>"
-  data-checkin="<?php echo htmlspecialchars($booking['check_in_date'], ENT_QUOTES, 'UTF-8'); ?>"
-  data-checkout="<?php echo htmlspecialchars($booking['check_out_date'], ENT_QUOTES, 'UTF-8'); ?>"
->
-  Edit
-</button>
+                                data-id="<?php echo $booking['booking_id']; ?>"
+                                data-tenant="<?php echo htmlspecialchars($booking['tenant_name'], ENT_QUOTES, 'UTF-8'); ?>"
+                                data-room="<?php echo htmlspecialchars($booking['room_number'], ENT_QUOTES, 'UTF-8'); ?>"
+                                data-checkin="<?php echo htmlspecialchars($booking['check_in_date'], ENT_QUOTES, 'UTF-8'); ?>"
+                                data-checkout="<?php echo htmlspecialchars($booking['check_out_date'], ENT_QUOTES, 'UTF-8'); ?>"
+                              >
+                                Edit
+                              </button>
 
 
                                 <button 

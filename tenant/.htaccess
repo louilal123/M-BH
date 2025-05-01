@@ -1,0 +1,9 @@
+RewriteEngine On
+RewriteBase /tenant/
+
+# If the request is not an existing file or directory
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+
+# Route all requests to index.php with the full path as a query string
+RewriteRule ^(.*)$ index.php?page=$1 [QSA,L]

@@ -1,5 +1,5 @@
 <?php
-
+//C:\xampp\htdocs\M-BH\admin\functions\connection.php
 // Database connection
 $servername = "localhost";
 $username = "root";
