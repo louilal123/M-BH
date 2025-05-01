@@ -1,5 +1,4 @@
-<?php include "profile-photo.php
-" ?>  <!-- Login Modal -->
+  <!-- Login Modal -->
   <div id="login-modal" class="modal hidden">
     <div class="modal-content">
       <div class="flex justify-between items-center mb-6">
@@ -227,7 +226,8 @@
         <li class="dropdown">
           <div class="flex items-center gap-2 cursor-pointer">
             <div class="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center text-primary">
-            <?php echo htmlspecialchars($user['photo']); ?>
+           
+           <img src="<?php echo htmlspecialchars($_SESSION['photo']); ?>" class="w-20 h-8 rounded-full" alt="">
             </div>
             <span class="text-white"><?php echo htmlspecialchars($_SESSION['name']); ?></span>
             <i class="fas fa-chevron-down text-xs mt-1 text-white"></i>
