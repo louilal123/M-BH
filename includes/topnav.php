@@ -241,9 +241,9 @@
               <a href="profile.php" class="block px-2 py-1 hover:bg-slate-100 dark:hover:bg-slate-700 rounded transition text-slate-700 dark:text-slate-300">
                 <i class="fas fa-user-circle mr-2"></i> Profile
               </a>
-              <a href="notifications.php" class="block px-2 py-1 hover:bg-slate-100 dark:hover:bg-slate-700 rounded transition text-slate-700 dark:text-slate-300">
-                <i class="fas fa-bell mr-2"></i> Notifications
-              </a>
+              <a href="#" onclick="openNotificationsModal(event)" class="block px-2 py-1 hover:bg-slate-100 dark:hover:bg-slate-700 rounded transition text-slate-700 dark:text-slate-300">
+  <i class="fas fa-bell mr-2"></i> Notifications
+</a>
               <a href="functions/logout.php" class="block px-2 py-1 hover:bg-slate-100 dark:hover:bg-slate-700 rounded transition text-slate-700 dark:text-slate-300">
                 <i class="fas fa-sign-out-alt mr-2"></i> Logout
               </a>
@@ -349,4 +349,92 @@
     </ul>
   </div>
 </header>
+<!-- Notifications Modal -->
+<div id="notificationsModal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4">
+  <!-- Backdrop -->
+  <div class="absolute inset-0 bg-black bg-opacity-50"></div>
+  
+  <!-- Modal Container (centered) -->
+  <div class="relative bg-white dark:bg-slate-800 rounded-lg shadow-xl w-full max-w-md max-h-[80vh] flex flex-col">
+    <!-- Modal Header -->
+    <div class="flex justify-between items-center p-4 border-b border-slate-200 dark:border-slate-700">
+      <h3 class="text-lg font-semibold">Notifications</h3>
+      <button onclick="closeNotificationsModal()" class="text-slate-400 hover:text-slate-500 dark:hover:text-slate-300 text-xl">
+        &times;
+      </button>
+    </div>
+    
+    <!-- Modal Content -->
+    <div class="overflow-y-auto flex-1 p-4">
+      <!-- Notification Items -->
+      <div class="space-y-3">
+        <!-- Sample Notification 1 -->
+        <div class="flex items-start gap-3 p-3 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
+          <div class="mt-1 flex-shrink-0">
+            <div class="bg-blue-100 dark:bg-blue-900 p-2 rounded-full">
+              <i class="fas fa-receipt text-blue-500 dark:text-blue-300 text-sm"></i>
+            </div>
+          </div>
+          <div>
+            <p class="font-medium">Payment Received</p>
+            <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">Your payment of ₱8,000 was processed</p>
+            <p class="text-xs text-slate-400 mt-2">2 hours ago</p>
+          </div>
+        </div>
+        
+        <!-- Sample Notification 2 -->
+        <div class="flex items-start gap-3 p-3 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
+          <div class="mt-1 flex-shrink-0">
+            <div class="bg-green-100 dark:bg-green-900 p-2 rounded-full">
+              <i class="fas fa-check-circle text-green-500 dark:text-green-300 text-sm"></i>
+            </div>
+          </div>
+          <div>
+            <p class="font-medium">Booking Confirmed</p>
+            <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">Room #203 has been reserved for you</p>
+            <p class="text-xs text-slate-400 mt-2">1 day ago</p>
+          </div>
+        </div>
+        
+        <!-- Sample Notification 3 -->
+        <div class="flex items-start gap-3 p-3 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
+          <div class="mt-1 flex-shrink-0">
+            <div class="bg-yellow-100 dark:bg-yellow-900 p-2 rounded-full">
+              <i class="fas fa-exclamation-circle text-yellow-500 dark:text-yellow-300 text-sm"></i>
+            </div>
+          </div>
+          <div>
+            <p class="font-medium">Payment Due</p>
+            <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">Upcoming payment due in 3 days</p>
+            <p class="text-xs text-slate-400 mt-2">3 days ago</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Modal Footer -->
+    <div class="p-4 border-t border-slate-200 dark:border-slate-700 text-center">
+      <button onclick="closeNotificationsModal()" class="text-primary hover:text-primary-dark font-medium px-4 py-2">
+        Close Notifications
+      </button>
+    </div>
+  </div>
+</div>
+<script>
+  function openNotificationsModal(event) {
+    event.preventDefault();
+    document.getElementById('notificationsModal').classList.remove('hidden');
+  }
+
+  function closeNotificationsModal() {
+    document.getElementById('notificationsModal').classList.add('hidden');
+  }
+
+  // Close modal when clicking outside
+  document.getElementById('notificationsModal').addEventListener('click', function(e) {
+    if (e.target === this) {
+      closeNotificationsModal();
+    }
+  });
+</script>
 

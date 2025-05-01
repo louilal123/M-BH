@@ -24,13 +24,7 @@
                         <h1 class="text-2xl font-bold text-gray-800">Tenant Management</h1>
                     </div>
                     <div class="mt-4 md:mt-0 flex space-x-3">
-        <button 
-          class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 flex items-center"
-          onclick="openModal('addTenantModal')"
-        >
-          <i class="fas fa-plus mr-2"></i>
-          <span>Add Tenant</span>
-        </button>
+   
  
 </div>
 
@@ -159,32 +153,7 @@
     </form>
   </div>
 </div>
-<!-- Add Tenant Modal -->
-<div id="addTenantModal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4">
-  <div class="fixed inset-0 bg-gray-500/75" onclick="closeModal('addTenantModal')"></div>
-  <div class="relative w-full max-w-2xl bg-white rounded-lg shadow-xl">
-    <div class="flex justify-between items-center px-6 py-4 border-b">
-      <h3 class="text-lg font-semibold text-gray-800">Add New Tenant</h3>
-      <button class="text-gray-400 hover:text-gray-500" onclick="closeModal('addTenantModal')">
-        <i class="fas fa-times"></i>
-      </button>
-    </div>
-    <form action="functions/add_tenant.php" enctype="multipart/form-data" method="POST" class="bg-gray-50 p-6">
-      <input type="hidden" name="password" value="123">
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div><label class="block text-sm font-medium text-gray-700 mb-1">Full Name<input type="text" name="name" required oninput="validateAlphanumeric(this)" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"></label></div>
-        <div><label class="block text-sm font-medium text-gray-700 mb-1">Email<input type="email" name="email" required class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"></label></div>
-        <div><label class="block text-sm font-medium text-gray-700 mb-1">Contact<input type="tel" name="contact" required oninput="validatePhoneNumber(this)" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"></label></div>
-        <div><label class="block text-sm font-medium text-gray-700 mb-1">Photo<input type="file" name="photo" accept="image/*" class="w-full px-3 py-2 text-sm text-gray-700 border border-gray-300 rounded-md cursor-pointer focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"></label></div>
-        <div class="col-span-2"><label class="block text-sm font-medium text-gray-700 mb-1">Address<textarea name="address" rows="3" required oninput="validateAlphanumeric(this)" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"></textarea></label></div>
-      </div>
-      <div class="flex justify-end space-x-3 mt-6 px-2">
-        <button type="button" onclick="closeModal('addTenantModal')" class="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500">Cancel</button>
-        <button type="submit" name="edit_event" class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500">Save</button>
-      </div>
-    </form>
-  </div>
-</div>
+
 
     <?php include "includes-new/footer.php" ?>
     <script>
