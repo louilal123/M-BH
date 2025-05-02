@@ -1,4 +1,39 @@
-  <!-- Login Modal -->
+
+<!-- Amenities Modal (place this near your </body> tag) -->
+<div id="amenitiesModal" class="fixed inset-0 z-50 hidden overflow-y-auto bg-black bg-opacity-50">
+    <div class="flex items-center justify-center min-h-screen p-4">
+        <div class="bg-white dark:bg-slate-800 rounded-lg shadow-xl w-full max-w-2xl max-h-[80vh] overflow-hidden">
+            <div class="p-6">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-xl font-bold text-slate-800 dark:text-white">All Amenities</h3>
+                    <button onclick="closeAmenitiesModal()" class="text-slate-400 hover:text-slate-600 dark:hover:text-white">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 overflow-y-auto max-h-[60vh] pr-2">
+                    <?php
+                    $allAmenities = $conn->query("SELECT * FROM amenities ORDER BY name ASC");
+                    while ($amenity = $allAmenities->fetch_assoc()):
+                    ?>
+                    <div class="flex items-center gap-3 p-3 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition">
+                        <div class="w-10 h-10 bg-primary/10 dark:bg-primary/20 rounded-lg flex items-center justify-center shrink-0">
+                            <i class="fas <?php echo htmlspecialchars($amenity['icon']); ?> text-primary dark:text-primary-light"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-medium text-slate-800 dark:text-white">
+                                <?php echo htmlspecialchars($amenity['name']); ?>
+                            </h4>
+                            <p class="text-sm text-slate-500 dark:text-slate-400">
+                                <?php echo htmlspecialchars($amenity['description']); ?>
+                            </p>
+                        </div>
+                    </div>
+                    <?php endwhile; ?>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>  <!-- Login Modal -->
   <div id="login-modal" class="modal hidden">
     <div class="modal-content">
       <div class="flex justify-between items-center mb-6">
@@ -172,44 +207,60 @@
         </div>
       </li>
       <li class="dropdown">
-        <a href="#amenities" class="text-white hover:text-primary-light font-medium transition flex items-center gap-1">
-          Amenities
-          <i class="fas fa-chevron-down text-xs mt-1"></i>
-        </a>
-        <div class="dropdown-content bg-white dark:bg-slate-800 rounded-lg shadow-lg p-4 top-full">
-          <div class="grid grid-cols-2 gap-3">
-            <a href="#" class="flex items-center gap-3 p-2 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition">
-              <div class="w-10 h-10 bg-primary/10 dark:bg-primary/20 rounded-lg flex items-center justify-center">
-                <i class="fas fa-wifi text-primary dark:text-primary-light"></i>
-              </div>
-              <span class="text-slate-800 dark:text-white">WiFi</span>
-            </a>
-            <a href="#" class="flex items-center gap-3 p-2 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition">
-              <div class="w-10 h-10 bg-primary/10 dark:bg-primary/20 rounded-lg flex items-center justify-center">
-                <i class="fas fa-kitchen-set text-primary dark:text-primary-light"></i>
-              </div>
-              <span class="text-slate-800 dark:text-white">Kitchen</span>
-            </a>
-            <a href="#" class="flex items-center gap-3 p-2 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition">
-              <div class="w-10 h-10 bg-primary/10 dark:bg-primary/20 rounded-lg flex items-center justify-center">
-                <i class="fas fa-couch text-primary dark:text-primary-light"></i>
-              </div>
-              <span class="text-slate-800 dark:text-white">Lounge</span>
-            </a>
-            <a href="#" class="flex items-center gap-3 p-2 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition">
-              <div class="w-10 h-10 bg-primary/10 dark:bg-primary/20 rounded-lg flex items-center justify-center">
-                <i class="fas fa-washer text-primary dark:text-primary-light"></i>
-              </div>
-              <span class="text-slate-800 dark:text-white">Laundry</span>
-            </a>
-          </div>
-          <div class="border-t border-slate-200 dark:border-slate-700 pt-2 mt-2">
-            <a href="#amenities" class="text-primary dark:text-primary-light hover:underline text-sm font-medium">
-              View All Amenities →
-            </a>
-          </div>
+    <a href="#amenities" class="text-white hover:text-primary-light font-medium transition flex items-center gap-1">
+        Amenities
+        <i class="fas fa-chevron-down text-xs mt-1"></i>
+    </a>
+    <div class="dropdown-content bg-white dark:bg-slate-800 rounded-lg shadow-lg p-4 top-full w-[400px]">
+        <div class="grid grid-cols-2 gap-3">
+            <?php
+            include "admin/functions/connection.php";
+            
+            // Get limited amenities
+            $limit = 6; // Even number works better for 2-column layout
+            $stmt = $conn->prepare("SELECT * FROM amenities ORDER BY name ASC LIMIT ?");
+            if ($stmt) {
+                $stmt->bind_param("i", $limit);
+                if ($stmt->execute()) {
+                    $limitedAmenities = $stmt->get_result();
+                    
+                    while ($amenity = $limitedAmenities->fetch_assoc()):
+                    ?>
+                    <a href="#amenity-<?php echo htmlspecialchars($amenity['amenity_id']); ?>" 
+                      class="flex flex-col items-center text-center gap-2 p-3 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition">
+                        <div class="w-10 h-10 bg-primary/10 dark:bg-primary/20 rounded-full flex items-center justify-center">
+                            <i class="fas <?php echo htmlspecialchars($amenity['icon']); ?> text-primary dark:text-primary-light text-lg"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-medium text-slate-800 dark:text-white text-sm">
+                                <?php echo htmlspecialchars($amenity['name']); ?>
+                            </h4>
+                        </div>
+                    </a>
+                    <?php endwhile;
+                    
+                    // Get total count
+                    $countResult = $conn->query("SELECT COUNT(*) as total FROM amenities");
+                    if ($countResult) {
+                        $totalAmenities = $countResult->fetch_assoc()['total'];
+                        $countResult->free();
+                    }
+                }
+                $stmt->close();
+            }
+            ?>
         </div>
-      </li>
+        <div class="border-t border-slate-200 dark:border-slate-700 pt-3 mt-3 text-center">
+            <button onclick="openAmenitiesModal()" 
+                    class="text-primary dark:text-primary-light hover:underline text-sm font-medium inline-flex items-center gap-1">
+                View All <?php echo isset($totalAmenities) ? htmlspecialchars($totalAmenities) : ''; ?> Amenities
+                <i class="fas fa-external-link-alt text-xs"></i>
+            </button>
+        </div>
+    </div>
+</li>
+
+
       <li><a href="#gallery" class="text-white hover:text-primary-light font-medium transition">Gallery</a></li>
       <li><a href="#testimonials" class="text-white hover:text-primary-light font-medium transition">Testimonials</a></li>
       <li><a href="#contact" class="text-white hover:text-primary-light font-medium transition">Contact</a></li>
@@ -227,7 +278,8 @@
           <div class="flex items-center gap-2 cursor-pointer">
             <div class="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center text-primary">
            
-           <img src="<?php echo htmlspecialchars($_SESSION['photo']); ?>" class="w-20 h-8 rounded-full" alt="">
+            <img src="<?php echo htmlspecialchars($tenantData['photo'] ?? 'default.jpg'); ?>"class="w-20 h-8 rounded-full" alt="Profile Photo">
+
             </div>
             <span class="text-white"><?php echo htmlspecialchars($_SESSION['name']); ?></span>
             <i class="fas fa-chevron-down text-xs mt-1 text-white"></i>
@@ -243,8 +295,8 @@
                 <i class="fas fa-user-circle mr-2"></i> Profile
               </a>
               <a href="#" onclick="openNotificationsModal(event)" class="block px-2 py-1 hover:bg-slate-100 dark:hover:bg-slate-700 rounded transition text-slate-700 dark:text-slate-300">
-  <i class="fas fa-bell mr-2"></i> Notifications
-</a>
+                <i class="fas fa-bell mr-2"></i> Notifications
+              </a>
               <a href="functions/logout.php" class="block px-2 py-1 hover:bg-slate-100 dark:hover:bg-slate-700 rounded transition text-slate-700 dark:text-slate-300">
                 <i class="fas fa-sign-out-alt mr-2"></i> Logout
               </a>

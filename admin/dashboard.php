@@ -23,12 +23,6 @@ $resultBookings = mysqli_query($conn, $queryBookings);
 $rowBookings = mysqli_fetch_assoc($resultBookings);
 $bookingstCount = $rowBookings['bookingCount'];
 
-// Query for the total income (sum of amount_paid)
-$queryIncome = "SELECT SUM(amount_paid) as totalIncome FROM payments WHERE payment_status = 'completed'";
-$resultIncome = mysqli_query($conn, $queryIncome);
-$rowIncome = mysqli_fetch_assoc($resultIncome);
-$totalIncome = $rowIncome['totalIncome'];
-
 ?>
 <!DOCTYPE html>
 <html lang="en">

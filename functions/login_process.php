@@ -5,6 +5,10 @@ include "../admin/functions/connection.php";
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $email = trim($_POST["email"]);
     $password = trim($_POST["password"]);
+    
+    // Get client info for history
+    $ip_address = $_SERVER['REMOTE_ADDR'];
+    $user_agent = $_SERVER['HTTP_USER_AGENT'];
 
     $stmt = $conn->prepare("SELECT * FROM tenants WHERE email = ?");
     $stmt->bind_param("s", $email);
@@ -14,23 +18,38 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     if ($result && $result->num_rows === 1) {
         $user = $result->fetch_assoc();
         if (password_verify($password, $user["password"])) {
-            // Login successful
+            // Login successful - record success
+            $log_stmt = $conn->prepare("INSERT INTO login_history (tenant_id, ip_address, user_agent, login_status) VALUES (?, ?, ?, 'success')");
+            $log_stmt->bind_param("iss", $user['tenant_id'], $ip_address, $user_agent);
+            $log_stmt->execute();
+            
             $_SESSION["loggedin"] = true;
             $_SESSION["tenant_id"] = $user["tenant_id"];
             $_SESSION["name"] = $user["name"];
             $_SESSION["email"] = $user["email"];
             $_SESSION["occupation"] = $user["occupation"];
             $_SESSION["status"] = "Welcome back!";
-            $_SESSION["photo"] = $user["photo"] ?? 'default.jpg'; // Default photo if not set
+            $_SESSION["photo"] = $user["photo"];
             $_SESSION["status_icon"] = "success";
             header("Location: ../index.php");
             exit();
         } else {
+            // Record failed password attempt
+            $log_stmt = $conn->prepare("INSERT INTO login_history (tenant_id, ip_address, user_agent, login_status) VALUES (?, ?, ?, 'failed_password')");
+            $log_stmt->bind_param("iss", $user['tenant_id'], $ip_address, $user_agent);
+            $log_stmt->execute();
+            
             $_SESSION["status"] = "Incorrect password.";
             $_SESSION["status_icon"] = "error";
         }
     } else {
-        $_SESSION["status"] = "Credentials doesnt macth any account.";
+        // Record failed email attempt (if you want to track unknown emails)
+        // Note: We don't have a tenant_id here, so you might need to adjust
+        $log_stmt = $conn->prepare("INSERT INTO login_history (tenant_id, ip_address, user_agent, login_status) VALUES (NULL, ?, ?, 'failed_email')");
+        $log_stmt->bind_param("ss", $ip_address, $user_agent);
+        $log_stmt->execute();
+        
+        $_SESSION["status"] = "Credentials doesn't match any account.";
         $_SESSION["status_icon"] = "error";
     }
 

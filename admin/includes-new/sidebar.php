@@ -29,6 +29,12 @@
                     <span>Rooms</span>
                 </div>
             </a>
+            <a href="room_types.php" class="block">
+                <div class="sidebar-item p-3 flex items-center space-x-3 rounded cursor-pointer <?php echo basename($_SERVER['PHP_SELF']) == 'room_types.php' ? 'bg-indigo-100 text-indigo-700 font-semibold' : 'hover:bg-gray-100'; ?>">
+                    <i class="fas fa-door-open w-5 text-center"></i>
+                    <span>Room Types</span>
+                </div>
+            </a>
             <a href="payments.php" class="block">
                 <div class="sidebar-item p-3 flex items-center space-x-3 rounded cursor-pointer <?php echo basename($_SERVER['PHP_SELF']) == 'payments.php' ? 'bg-indigo-100 text-indigo-700 font-semibold' : 'hover:bg-gray-100'; ?>">
                     <i class="fas fa-file-invoice-dollar w-5 text-center"></i>

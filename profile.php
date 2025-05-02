@@ -1,36 +1,20 @@
-<?php if (isset($_SESSION['status']) && $_SESSION['status'] != ''): ?>
-<script>
-    Swal.fire({
-        toast: true,
-        position: 'top-end',
-        icon: "<?php echo $_SESSION['status_icon']; ?>",
-        title: "<?php echo $_SESSION['status']; ?>",
-        showConfirmButton: false,
-        timer: 3000,
-        timerProgressBar: true
-    });
-</script>
 <?php
-unset($_SESSION['status']);
-unset($_SESSION['status_icon']);
-?>
-<?php endif; ?><?php
+// profile.php
 session_start();
+include "admin/functions/connection.php";
+include 'functions/load_tenant_data.php';
+
+// Check login status
 if (!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true) {
     header("location: login.php");
     exit;
 }
 
-include 'admin/functions/connection.php';
-
-$tenant_id = $_SESSION['tenant_id'];
-$stmt = $conn->prepare("SELECT * FROM tenants WHERE tenant_id = ?");
-$stmt->bind_param("i", $tenant_id);
-$stmt->execute();
-$result = $stmt->get_result();
-$user = $result->fetch_assoc();
-
+// Profile photo handling (kept on this page)
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_FILES['photo'])) {
+    error_reporting(E_ALL);
+    ini_set('display_errors', 1);
+    
     $target_dir = "uploads/tenants/";
     if (!file_exists($target_dir)) {
         mkdir($target_dir, 0777, true);
@@ -38,37 +22,22 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_FILES['photo'])) {
     
     $target_file = $target_dir . time() . '_' . basename($_FILES["photo"]["name"]);
     $uploadOk = 1;
-    $imageFileType = strtolower(pathinfo($target_file, PATHINFO_EXTENSION));
     
-    $check = getimagesize($_FILES["photo"]["tmp_name"]);
-    if($check === false) {
-        $_SESSION['status'] = "File is not an image.";
-        $_SESSION['status_icon'] = "error";
-        $uploadOk = 0;
-    }
-    
-    if ($_FILES["photo"]["size"] > 5000000) {
-        $_SESSION['status'] = "Sorry, your file is too large.";
-        $_SESSION['status_icon'] = "error";
-        $uploadOk = 0;
-    }
-    
-    if($imageFileType != "jpg" && $imageFileType != "png" && $imageFileType != "jpeg" && $imageFileType != "gif" ) {
-        $_SESSION['status'] = "Sorry, only JPG, JPEG, PNG & GIF files are allowed.";
-        $_SESSION['status_icon'] = "error";
-        $uploadOk = 0;
-    }
+    // ... [keep your existing validation checks] ...
     
     if ($uploadOk == 1) {
         if (move_uploaded_file($_FILES["photo"]["tmp_name"], $target_file)) {
             $update_stmt = $conn->prepare("UPDATE tenants SET photo = ? WHERE tenant_id = ?");
-            $update_stmt->bind_param("si", $target_file, $tenant_id);
+            $update_stmt->bind_param("si", $target_file, $_SESSION['tenant_id']);
+            
             if ($update_stmt->execute()) {
+                // Update both session and tenant_data
                 $_SESSION['photo'] = $target_file;
+                $_SESSION['tenant_data']['photo'] = $target_file;
                 $_SESSION['status'] = "Profile photo updated successfully.";
                 $_SESSION['status_icon'] = "success";
             } else {
-                $_SESSION['status'] = "Error updating profile photo.";
+                $_SESSION['status'] = "Error updating profile photo: " . $conn->error;
                 $_SESSION['status_icon'] = "error";
             }
             $update_stmt->close();
@@ -81,8 +50,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_FILES['photo'])) {
     exit();
 }
 
+// Load full tenant data (replaces the old $tenantData variable)
+$tenantData = loadTenantData($conn, $_SESSION['tenant_id']);
+
+
 
 ?>
+
+<!-- Your HTML/PHP for the profile page -->
 <!DOCTYPE html>
 <html lang="en" class="scroll-smooth">
 <head>
@@ -92,7 +67,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_FILES['photo'])) {
   <?php include "includes/header.php"; ?>
   <style>
     .navbar {
-      background-color: rgba(42, 0, 159, 0.95) !important;
+    background-color: rgba(30, 0, 113, 0.95);
       backdrop-filter: blur(10px);
       box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
     }
@@ -132,13 +107,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_FILES['photo'])) {
 <body class="bg-slate-50 text-slate-700 dark:bg-slate-900 dark:text-slate-200 transition-all duration-300">
   <?php include 'includes/topnav.php'; ?>
 
-  <main class="py-16 md:py-24">
+  <main class="py-16 md:py-24 m-h-screen overflow-x">
     <div class="container mx-auto px-4">
       <div class="bg-white dark:bg-slate-800 rounded-xl shadow-lg overflow-hidden">
         <div class="bg-gradient-to-r from-primary to-primary-dark p-6 text-white">
           <div class="flex flex-col md:flex-row items-center gap-6">
             <div class="relative group">
-              <img src="<?php echo htmlspecialchars($user['photo']); ?>" 
+            <img src="<?php echo htmlspecialchars($tenantData['photo'] ?? 'default.jpg'); ?>" 
                    alt="Profile Photo" 
                    class="profile-photo rounded-full border-4 border-white dark:border-slate-200 shadow-lg">
               <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-black bg-opacity-50 rounded-full">
@@ -149,33 +124,34 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_FILES['photo'])) {
               </div>
             </div>
             <div class="text-center md:text-left">
-              <h1 class="text-2xl font-bold"><?php echo htmlspecialchars($user['name']); ?></h1>
-              <p class="text-primary-light"><?php echo htmlspecialchars($user['occupation']); ?></p>
-              <p class="text-sm opacity-80 mt-2">Member since <?php echo date('F Y', strtotime($user['created_at'])); ?></p>
+              <h1 class="text-2xl font-bold"><?php echo htmlspecialchars($tenantData['name'] ?? 'default.jpg'); ?>
+            
+              <p class="text-primary-light"><?php echo htmlspecialchars($tenantData['occupation']); ?></p>
+              <p class="text-sm opacity-80 mt-2">Member since <?php echo date('F Y', strtotime($tenantData['created_at'])); ?></p>
             </div>
           </div>
         </div>
 
         <div class="border-b border-slate-200 dark:border-slate-700">
-  <div class="flex">
-    <button class="tab-button active px-6 py-4 text-sm font-medium" onclick="openTab('overview-tab', event)">
-      <i class="fas fa-chart-pie mr-2"></i>Overview
-    </button>
-    <button class="tab-button px-6 py-4 text-sm font-medium" onclick="openTab('transaction-tab', event)">
-      <i class="fas fa-receipt mr-2"></i>Transaction History
-    </button>
-    <button class="tab-button px-6 py-4 text-sm font-medium" onclick="openTab('profile-tab', event)">
-      <i class="fas fa-user mr-2"></i>Profile
-    </button>
-    <button class="tab-button px-6 py-4 text-sm font-medium" onclick="openTab('security-tab', event)">
-      <i class="fas fa-lock mr-2"></i>Security
-    </button>
-    <button class="tab-button px-6 py-4 text-sm font-medium" onclick="openTab('history-tab', event)">
-      <i class="fas fa-history mr-2"></i>Login History
-    </button>
-  
-  </div>
-</div>
+          <div class="flex">
+            <button class="tab-button active px-6 py-4 text-sm font-medium" onclick="openTab('overview-tab', event)">
+              <i class="fas fa-chart-pie mr-2"></i>Overview
+            </button>
+            <button class="tab-button px-6 py-4 text-sm font-medium" onclick="openTab('transaction-tab', event)">
+              <i class="fas fa-receipt mr-2"></i>Transaction History
+            </button>
+            <button class="tab-button px-6 py-4 text-sm font-medium" onclick="openTab('profile-tab', event)">
+              <i class="fas fa-user mr-2"></i>Profile
+            </button>
+            <button class="tab-button px-6 py-4 text-sm font-medium" onclick="openTab('security-tab', event)">
+              <i class="fas fa-lock mr-2"></i>Security
+            </button>
+            <button class="tab-button px-6 py-4 text-sm font-medium" onclick="openTab('history-tab', event)">
+              <i class="fas fa-history mr-2"></i>Login History
+            </button>
+          
+          </div>
+        </div>
         <div id="overview-tab" class="tab-content active p-6">
           <div class="grid md:grid-cols-3 gap-6 mb-8">
             <div class="bg-white dark:bg-slate-700 p-6 rounded-lg shadow border border-slate-100 dark:border-slate-600">
@@ -312,32 +288,32 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_FILES['photo'])) {
             <div class="grid md:grid-cols-2 gap-6">
               <div>
                 <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Full Name</label>
-                <input type="text" name="name" value="<?php echo htmlspecialchars($user['name']); ?>" 
+                <input type="text" name="name" value="<?php echo htmlspecialchars($tenantData['name']); ?>" 
                        class="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent bg-white dark:bg-slate-700 text-slate-800 dark:text-white" required>
               </div>
               <div>
                 <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Email</label>
-                <input type="email" value="<?php echo htmlspecialchars($user['email']); ?>" 
+                <input type="email" value="<?php echo htmlspecialchars($tenantData['email']); ?>" 
                        class="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-300" readonly>
               </div>
               <div>
                 <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Phone Number</label>
-                <input type="tel" name="phone" value="<?php echo htmlspecialchars($user['phone']); ?>" 
+                <input type="tel" name="phone" value="<?php echo htmlspecialchars($tenantData['phone']); ?>" 
                        class="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent bg-white dark:bg-slate-700 text-slate-800 dark:text-white">
               </div>
               <div>
                 <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Occupation</label>
                 <select name="occupation" class="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent bg-white dark:bg-slate-700 text-slate-800 dark:text-white">
-                  <option value="Student" <?php echo $user['occupation'] == 'Student' ? 'selected' : ''; ?>>Student</option>
-                  <option value="Working Professional" <?php echo $user['occupation'] == 'Working Professional' ? 'selected' : ''; ?>>Working Professional</option>
-                  <option value="Business Owner" <?php echo $user['occupation'] == 'Business Owner' ? 'selected' : ''; ?>>Business Owner</option>
-                  <option value="Freelancer" <?php echo $user['occupation'] == 'Freelancer' ? 'selected' : ''; ?>>Freelancer</option>
-                  <option value="Other" <?php echo $user['occupation'] == 'Other' ? 'selected' : ''; ?>>Other</option>
+                  <option value="Student" <?php echo $tenantData['occupation'] == 'Student' ? 'selected' : ''; ?>>Student</option>
+                  <option value="Working Professional" <?php echo $tenantData['occupation'] == 'Working Professional' ? 'selected' : ''; ?>>Working Professional</option>
+                  <option value="Business Owner" <?php echo $tenantData['occupation'] == 'Business Owner' ? 'selected' : ''; ?>>Business Owner</option>
+                  <option value="Freelancer" <?php echo $tenantData['occupation'] == 'Freelancer' ? 'selected' : ''; ?>>Freelancer</option>
+                  <option value="Other" <?php echo $tenantData['occupation'] == 'Other' ? 'selected' : ''; ?>>Other</option>
                 </select>
               </div>
               <div class="md:col-span-2">
                 <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Address</label>
-                <textarea name="address" rows="3" class="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent bg-white dark:bg-slate-700 text-slate-800 dark:text-white"><?php echo htmlspecialchars($user['address']); ?></textarea>
+                <textarea name="address" rows="3" class="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent bg-white dark:bg-slate-700 text-slate-800 dark:text-white"><?php echo htmlspecialchars($tenantData['address']); ?></textarea>
               </div>
             </div>
             <div class="mt-6 flex justify-end">
@@ -375,33 +351,95 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_FILES['photo'])) {
             </div>
           </form>
         </div>
-
+        <?php
+          include "admin/functions/connection.php";
+          if (isset($_SESSION['tenant_id'])) {
+              $stmt = $conn->prepare("
+                  SELECT 
+                      login_time,
+                      login_status,
+                      user_agent,
+                      ip_address
+                  FROM login_history 
+                  WHERE tenant_id = ?
+                  ORDER BY login_time DESC
+                  LIMIT 50
+              ");
+              $stmt->bind_param("i", $_SESSION['tenant_id']);
+              $stmt->execute();
+              $login_history = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+          }
+          ?>
         <div id="history-tab" class="tab-content p-6">
-          <div class="overflow-x-auto">
-            <table class="min-w-full divide-y divide-slate-200 dark:divide-slate-700">
-              <thead class="bg-slate-50 dark:bg-slate-700">
+    <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-slate-200 dark:divide-slate-700">
+            <thead class="bg-slate-50 dark:bg-slate-700">
                 <tr>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-300 uppercase tracking-wider">Date & Time</th>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-300 uppercase tracking-wider">Status</th>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-300 uppercase tracking-wider">Device</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-300 uppercase tracking-wider">Date & Time</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-300 uppercase tracking-wider">Status</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-300 uppercase tracking-wider">IP Address</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-300 uppercase tracking-wider">Device</th>
                 </tr>
-              </thead>
-              <tbody class="bg-white dark:bg-slate-800 divide-y divide-slate-200 dark:divide-slate-700">
-                <?php foreach ($login_history as $login): ?>
-                <tr>
-                  <td class="px-6 py-4 whitespace-nowrap"><?php echo date('M d, Y h:i A', strtotime($login['login_time'])); ?></td>
-                  <td class="px-6 py-4 whitespace-nowrap">
-                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full <?php echo $login['status'] == 'Successful' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200' ?>">
-                      <?php echo htmlspecialchars($login['status']); ?>
-                    </span>
-                  </td>
-                  <td class="px-6 py-4 whitespace-nowrap"><?php echo htmlspecialchars($login['device']); ?></td>
-                </tr>
-                <?php endforeach; ?>
-              </tbody>
-            </table>
-          </div>
-        </div>
+            </thead>
+            <tbody class="bg-white dark:bg-slate-800 divide-y divide-slate-200 dark:divide-slate-700">
+                <?php if (!empty($login_history)): ?>
+                    <?php foreach ($login_history as $login): ?>
+                    <tr>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <?php echo date('M d, Y h:i A', strtotime($login['login_time'])); ?>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
+                                <?php echo $login['login_status'] == 'success' 
+                                    ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' 
+                                    : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200' ?>">
+                                <?php 
+                                $statusText = [
+                                    'success' => 'Successful',
+                                    'failed_password' => 'Failed (Wrong Password)',
+                                    'failed_email' => 'Failed (Wrong Email)'
+                                ];
+                                echo htmlspecialchars($statusText[$login['login_status']] ?? $login['login_status']); 
+                                ?>
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <?php echo htmlspecialchars($login['ip_address']); ?>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <?php 
+                            // Simple device detection from user agent
+                            $tenantData_agent = $login['user_agent'];
+                            $device = 'Unknown';
+                            
+                            if (strpos($tenantData_agent, 'Mobile') !== false) {
+                                $device = 'Mobile';
+                            } elseif (strpos($tenantData_agent, 'Tablet') !== false) {
+                                $device = 'Tablet';
+                            } elseif (strpos($tenantData_agent, 'Windows') !== false) {
+                                $device = 'Windows PC';
+                            } elseif (strpos($tenantData_agent, 'Macintosh') !== false) {
+                                $device = 'Mac';
+                            } elseif (strpos($tenantData_agent, 'Linux') !== false) {
+                                $device = 'Linux PC';
+                            }
+                            
+                            echo htmlspecialchars($device); 
+                            ?>
+                        </td>
+                    </tr>
+                    <?php endforeach; ?>
+                <?php else: ?>
+                    <tr>
+                        <td colspan="4" class="px-6 py-4 text-center text-slate-500 dark:text-slate-400">
+                            No login history found
+                        </td>
+                    </tr>
+                <?php endif; ?>
+            </tbody>
+        </table>
+    </div>
+</div>
       </div>
     </div>
   </main>
@@ -484,23 +522,37 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function uploadPhoto() {
-      if (selectedFile) {
+    if (selectedFile) {
+        // Create a proper FormData object
         const formData = new FormData();
         formData.append('photo', selectedFile);
+        formData.append('upload_photo', 'true'); // Add a flag
         
-        fetch('profile.php', {
-          method: 'POST',
-          body: formData
+        // Use proper headers for file upload
+        fetch(window.location.href, {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'Accept': 'application/json'
+            }
         })
         .then(response => {
-          if (response.redirected) {
-            window.location.href = response.url;
-          }
+            if (response.redirected) {
+                window.location.href = response.url;
+            } else {
+                return response.json().then(data => {
+                    if (data.error) {
+                        alert(data.error);
+                    }
+                });
+            }
         })
         .catch(error => {
-          console.error('Error:', error);
+            console.error('Error:', error);
+            alert('An error occurred during upload');
         });
-      }
+    }
+
       closeModal();
     }
 

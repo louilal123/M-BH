@@ -147,6 +147,23 @@ function closeModal(modalId) {
         }
       });
     });
+
+function openAmenitiesModal() {
+    document.getElementById('amenitiesModal').classList.remove('hidden');
+    document.body.classList.add('overflow-hidden');
+}
+
+function closeAmenitiesModal() {
+    document.getElementById('amenitiesModal').classList.add('hidden');
+    document.body.classList.remove('overflow-hidden');
+}
+
+// Close modal when clicking outside
+document.getElementById('amenitiesModal').addEventListener('click', function(e) {
+    if (e.target === this) {
+        closeAmenitiesModal();
+    }
+});
   </script>
 
 <script>

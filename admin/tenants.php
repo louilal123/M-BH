@@ -63,7 +63,7 @@
                                                 <td class="px-6 py-4 whitespace-nowrap">
                                                     <?php if (!empty($tenant['photo'])): ?>
                                                         <img 
-                                                            src="uploads/tenants/<?php echo htmlspecialchars($tenant['photo'], ENT_QUOTES, 'UTF-8'); ?>" 
+                                                            src="../<?php echo htmlspecialchars($tenant['photo'], ENT_QUOTES, 'UTF-8'); ?>" 
                                                             alt="Tenant Photo" 
                                                             class="h-10 w-10 rounded-full object-cover"
                                                         >

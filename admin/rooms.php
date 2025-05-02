@@ -7,7 +7,7 @@
     <title>Room Management</title>
     <?php include "includes-new/header.php"; ?>
 </head>
-<body class="bg-gray-50 text-gray-800 font-sans">
+<body class="bg-gray-50 text-gray-800 ">
     <div class="flex h-screen overflow-hidden">
         <?php include "includes-new/sidebar.php" ?>
         

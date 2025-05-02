@@ -27,7 +27,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $stmt->close();
     $conn->close();
     
-    header("Location: profile.php");
+    header("Location: ../profile.php");
     exit();
 }
 ?>

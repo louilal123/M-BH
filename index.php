@@ -1,6 +1,16 @@
-<?php // At the top of signup_process.php
-session_start();
- ?><!DOCTYPE html>
+<?php session_start();
+require_once 'admin/functions/connection.php';
+require_once 'functions/load_tenant_data.php'; ?><?php // At the top of signup_process.php
+
+// Load full tenant data (replaces the old $user variable)
+$tenantData = loadTenantData($conn, $_SESSION['tenant_id']);
+
+
+
+
+ ?>
+
+ <!DOCTYPE html>
 <html lang="en" class="scroll-smooth">
 <head>
  <?php include "includes/header.php"; ?>
@@ -543,7 +553,10 @@ session_start();
   
   <!-- Map Section -->
   <section class="h-96 relative">
-    <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3861.8021890461913!2d121.04882707464766!3d14.556475382637242!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3397c8efd99aad53%3A0xb64b39847a866fde!2sUniversity%20of%20the%20Philippines%20Diliman!5e0!3m2!1sen!2sph!4v1685346062261!5m2!1sen!2sph" width="100%" height="100%" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+  <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3912.9695977702677!2d123.72098687486427!3d11.263645088916297!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x33a8812c39e534e1%3A0xc4b9b1f22b82e5e7!2sAnaliza%20Boarding%20House!5e0!3m2!1sen!2sph!4v1746154692947!5m2!1sen!2sph"   width="100%" height="100%" style="border:0;" allowfullscreen="" 
+    loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+      width="100%" height="100%" style="border:0;" allowfullscreen="" 
+      loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
   </section>
   
   <!-- CTA Section -->
