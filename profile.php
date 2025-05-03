@@ -1,4 +1,4 @@
-<?php
+ <?php
 // profile.php
 session_start();
 include "admin/functions/connection.php";
@@ -10,45 +10,7 @@ if (!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true) {
     exit;
 }
 
-// Profile photo handling (kept on this page)
-if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_FILES['photo'])) {
-    error_reporting(E_ALL);
-    ini_set('display_errors', 1);
-    
-    $target_dir = "uploads/tenants/";
-    if (!file_exists($target_dir)) {
-        mkdir($target_dir, 0777, true);
-    }
-    
-    $target_file = $target_dir . time() . '_' . basename($_FILES["photo"]["name"]);
-    $uploadOk = 1;
-    
-    // ... [keep your existing validation checks] ...
-    
-    if ($uploadOk == 1) {
-        if (move_uploaded_file($_FILES["photo"]["tmp_name"], $target_file)) {
-            $update_stmt = $conn->prepare("UPDATE tenants SET photo = ? WHERE tenant_id = ?");
-            $update_stmt->bind_param("si", $target_file, $_SESSION['tenant_id']);
-            
-            if ($update_stmt->execute()) {
-                // Update both session and tenant_data
-                $_SESSION['photo'] = $target_file;
-                $_SESSION['tenant_data']['photo'] = $target_file;
-                $_SESSION['status'] = "Profile photo updated successfully.";
-                $_SESSION['status_icon'] = "success";
-            } else {
-                $_SESSION['status'] = "Error updating profile photo: " . $conn->error;
-                $_SESSION['status_icon'] = "error";
-            }
-            $update_stmt->close();
-        } else {
-            $_SESSION['status'] = "Sorry, there was an error uploading your file.";
-            $_SESSION['status_icon'] = "error";
-        }
-    }
-    header("Location: profile.php");
-    exit();
-}
+
 
 // Load full tenant data (replaces the old $tenantData variable)
 $tenantData = loadTenantData($conn, $_SESSION['tenant_id']);
@@ -133,24 +95,24 @@ $tenantData = loadTenantData($conn, $_SESSION['tenant_id']);
         </div>
 
         <div class="border-b border-slate-200 dark:border-slate-700 overflow-x-auto">
-  <div class="flex flex-wrap sm:flex-nowrap">
-    <button class="tab-button active px-4 sm:px-6 py-3 text-sm font-medium whitespace-nowrap" onclick="openTab('overview-tab', event)">
-      <i class="fas fa-chart-pie mr-2"></i>Overview
-    </button>
-    <button class="tab-button px-4 sm:px-6 py-3 text-sm font-medium whitespace-nowrap" onclick="openTab('transaction-tab', event)">
-      <i class="fas fa-receipt mr-2"></i>Transaction History
-    </button>
-    <button class="tab-button px-4 sm:px-6 py-3 text-sm font-medium whitespace-nowrap" onclick="openTab('profile-tab', event)">
-      <i class="fas fa-user mr-2"></i>Profile
-    </button>
-    <button class="tab-button px-4 sm:px-6 py-3 text-sm font-medium whitespace-nowrap" onclick="openTab('security-tab', event)">
-      <i class="fas fa-lock mr-2"></i>Security
-    </button>
-    <button class="tab-button px-4 sm:px-6 py-3 text-sm font-medium whitespace-nowrap" onclick="openTab('history-tab', event)">
-      <i class="fas fa-history mr-2"></i>Login History
-    </button>
-  </div>
-</div>
+        <div class="flex flex-wrap sm:flex-nowrap">
+          <button class="tab-button active px-4 sm:px-6 py-3 text-sm font-medium whitespace-nowrap" onclick="openTab('overview-tab', event)">
+            <i class="fas fa-chart-pie mr-2"></i>Overview
+          </button>
+          <button class="tab-button px-4 sm:px-6 py-3 text-sm font-medium whitespace-nowrap" onclick="openTab('transaction-tab', event)">
+            <i class="fas fa-receipt mr-2"></i>Transaction History
+          </button>
+          <button class="tab-button px-4 sm:px-6 py-3 text-sm font-medium whitespace-nowrap" onclick="openTab('profile-tab', event)">
+            <i class="fas fa-user mr-2"></i>Profile
+          </button>
+          <button class="tab-button px-4 sm:px-6 py-3 text-sm font-medium whitespace-nowrap" onclick="openTab('security-tab', event)">
+            <i class="fas fa-lock mr-2"></i>Security
+          </button>
+          <button class="tab-button px-4 sm:px-6 py-3 text-sm font-medium whitespace-nowrap" onclick="openTab('history-tab', event)">
+            <i class="fas fa-history mr-2"></i>Login History
+          </button>
+        </div>
+      </div>
 
         <div id="overview-tab" class="tab-content active p-6">
           <div class="grid md:grid-cols-3 gap-6 mb-8">
@@ -468,95 +430,184 @@ $tenantData = loadTenantData($conn, $_SESSION['tenant_id']);
     </div>
   </div>
 </div>
+<?php include "includes/footer.php" ?>
+  
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+  // Tab switching functionality
+  function openTab(tabId, event) {
+    document.querySelectorAll('.tab-content').forEach(function(content) {
+      content.classList.remove('active');
+    });
+    document.querySelectorAll('.tab-button').forEach(function(button) {
+      button.classList.remove('active');
+    });
+    document.getElementById(tabId).classList.add('active');
+    event.currentTarget.classList.add('active');
+  }
 
-  <?php include "includes/footer.php" ?>
-  <script>
-   function openTab(tabId, event) {
-  // Hide all tab contents
-  document.querySelectorAll('.tab-content').forEach(content => {
-    content.classList.remove('active');
+  // Initialize first tab as active
+  document.addEventListener('DOMContentLoaded', function() {
+    document.querySelector('.tab-button').classList.add('active');
+    document.querySelector('.tab-content').classList.add('active');
+    
+    // Show SweetAlert notification if status exists
+    <?php if (isset($_SESSION['status'])) : ?>
+      setTimeout(function() {
+        Swal.fire({
+          toast: true,
+          position: 'top-end',
+          icon: "<?php echo $_SESSION['status_icon']; ?>",
+          title: "<?php echo $_SESSION['status']; ?>",
+          showConfirmButton: false,
+          timer: 3000,
+          timerProgressBar: true
+        });
+        
+        // Clear the status after showing
+        <?php 
+          unset($_SESSION['status']);
+          unset($_SESSION['status_icon']);
+        ?>
+      }, 100);
+    <?php endif; ?>
   });
-  
-  // Remove active class from all tab buttons
-  document.querySelectorAll('.tab-button').forEach(button => {
-    button.classList.remove('active');
+
+  // Photo upload preview and confirmation
+  var photoUpload = document.getElementById('photoUpload');
+  var previewModal = document.getElementById('previewModal');
+  var imagePreview = document.getElementById('imagePreview');
+  var selectedFile = null;
+
+  photoUpload.addEventListener('change', function(event) {
+    var file = event.target.files[0];
+    if (!file) return;
+    
+    // Validate file type
+    var validTypes = ['image/jpeg', 'image/png', 'image/gif'];
+    if (validTypes.indexOf(file.type) === -1) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Invalid File Type',
+        text: 'Please upload a JPG, PNG, or GIF image'
+      });
+      photoUpload.value = '';
+      return;
+    }
+    
+    // Validate file size (5MB max)
+    if (file.size > 5 * 1024 * 1024) {
+      Swal.fire({
+        icon: 'error',
+        title: 'File Too Large',
+        text: 'Maximum file size is 5MB'
+      });
+      photoUpload.value = '';
+      return;
+    }
+
+    selectedFile = file;
+    var reader = new FileReader();
+    reader.onload = function(e) {
+      imagePreview.src = e.target.result;
+      previewModal.classList.remove('hidden');
+    }
+    reader.readAsDataURL(file);
   });
-  
-  // Show the selected tab content
-  document.getElementById(tabId).classList.add('active');
-  
-  // Add active class to clicked button
-  event.currentTarget.classList.add('active');
-}
 
-// Initialize first tab as active on page load
-document.addEventListener('DOMContentLoaded', function() {
-  // Show the first tab by default
-  document.querySelector('.tab-button').classList.add('active');
-  document.querySelector('.tab-content').classList.add('active');
-});
+  function closeModal() {
+    previewModal.classList.add('hidden');
+    photoUpload.value = '';
+    selectedFile = null;
+  }
+  function uploadPhoto() {
+    if (!selectedFile) {
+        closeModal();
+        return;
+    }
 
-    // Photo upload preview and confirmation
-    const photoUpload = document.getElementById('photoUpload');
-    const previewModal = document.getElementById('previewModal');
-    const imagePreview = document.getElementById('imagePreview');
-    let selectedFile = null;
+    const submitBtn = document.querySelector('#previewModal button[onclick="uploadPhoto()"]');
+    const originalText = submitBtn.innerHTML;
+    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Uploading...';
+    submitBtn.disabled = true;
 
-    photoUpload.addEventListener('change', function(event) {
-      const file = event.target.files[0];
-      if (file) {
-        selectedFile = file;
-        const reader = new FileReader();
-        reader.onload = function(e) {
-          imagePreview.src = e.target.result;
-          previewModal.classList.remove('hidden');
+    const formData = new FormData();
+    formData.append('photo', selectedFile);
+
+    // Show loading state
+    Swal.fire({
+        title: 'Uploading Photo',
+        html: 'Please wait while we update your profile photo...',
+        allowOutsideClick: false,
+        didOpen: () => {
+            Swal.showLoading();
         }
-        reader.readAsDataURL(file);
-      }
     });
 
-    function closeModal() {
-      previewModal.classList.add('hidden');
-      photoUpload.value = '';
-      selectedFile = null;
-    }
-
-    function uploadPhoto() {
-    if (selectedFile) {
-        // Create a proper FormData object
-        const formData = new FormData();
-        formData.append('photo', selectedFile);
-        formData.append('upload_photo', 'true'); // Add a flag
-        
-        // Use proper headers for file upload
-        fetch(window.location.href, {
-            method: 'POST',
-            body: formData,
-            headers: {
-                'Accept': 'application/json'
-            }
-        })
-        .then(response => {
-            if (response.redirected) {
-                window.location.href = response.url;
-            } else {
-                return response.json().then(data => {
-                    if (data.error) {
-                        alert(data.error);
-                    }
-                });
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('An error occurred during upload');
+    fetch('functions/upload_photo.php', {  // Make sure this points to the correct path
+        method: 'POST',
+        body: formData
+    })
+    .then(response => {
+        if (!response.ok) {
+            return response.json().then(err => { throw err; });
+        }
+        return response.json();
+    })
+    .then(data => {
+        if (data.status === 'success') {
+            // Update the profile photo immediately
+            document.querySelector('.profile-photo').src = data.photo_url + '?' + new Date().getTime();
+            
+            Swal.fire({
+                icon: 'success',
+                title: 'Success!',
+                position: 'top',
+                toast: true,
+                text: data.message,
+                timer: 2000,
+                showConfirmButton: false
+            });
+            
+            closeModal();
+        } else {
+            throw data;
+        }
+    })
+    .catch(error => {
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: error.message || 'An error occurred during upload',
+            timer: 3000,
+            showConfirmButton: false
         });
-    }
+    })
+    .finally(() => {
+        submitBtn.innerHTML = originalText;
+        submitBtn.disabled = false;
+    });
+}
 
-      closeModal();
-    }
+  // Logout confirmation
+  document.getElementById('logoutBtn').addEventListener('click', function(e) {
+    e.preventDefault(); 
 
-  </script>
-
+    Swal.fire({
+        title: 'Are you sure?',
+        text: 'You are about to log out!',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        cancelButtonText: 'Cancel',
+        confirmButtonText: 'Logout',
+    }).then((result) => {
+        if (result.isConfirmed) {
+            window.location.href = 'functions/logout.php';
+        }
+    });
+});
+</script>
 </body>
 </html>

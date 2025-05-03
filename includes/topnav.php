@@ -166,7 +166,7 @@
     
     <!-- Desktop Navigation -->
     <ul class="hidden md:flex items-center gap-6">
-      <li><a href="index.php##home" class="text-white hover:text-primary-light font-medium transition">Home</a></li>
+      <li><a href="index.php#home" class="text-white hover:text-primary-light font-medium transition">Home</a></li>
       <li class="dropdown">
         <a href="#rooms" class="text-white hover:text-primary-light font-medium transition flex items-center gap-1">
           Rooms

@@ -188,22 +188,7 @@ document.getElementById('amenitiesModal').addEventListener('click', function(e) 
     </script>
 
     
-<?php if (isset($_SESSION['status']) && $_SESSION['status'] != ''): ?>
-<script>
-    Swal.fire({
-        toast: true,
-        position: 'top-end',
-        icon: "<?php echo $_SESSION['status_icon']; ?>",
-        title: "<?php echo $_SESSION['status']; ?>",
-        showConfirmButton: false,
-        timer: 3000,
-        timerProgressBar: true
-    });
-</script>
-<?php
-unset($_SESSION['status']);
-unset($_SESSION['status_icon']);
-?>
-<?php endif; ?>
+
+
 
    
