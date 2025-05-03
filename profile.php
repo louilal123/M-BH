@@ -544,7 +544,7 @@ $tenantData = loadTenantData($conn, $_SESSION['tenant_id']);
         }
     });
 
-    fetch('functions/upload_photo.php', {  // Make sure this points to the correct path
+    fetch('functions/upload_photo.php', {  
         method: 'POST',
         body: formData
     })
@@ -556,7 +556,6 @@ $tenantData = loadTenantData($conn, $_SESSION['tenant_id']);
     })
     .then(data => {
         if (data.status === 'success') {
-            // Update the profile photo immediately
             document.querySelector('.profile-photo').src = data.photo_url + '?' + new Date().getTime();
             
             Swal.fire({
@@ -589,7 +588,6 @@ $tenantData = loadTenantData($conn, $_SESSION['tenant_id']);
     });
 }
 
-  // Logout confirmation
   document.getElementById('logoutBtn').addEventListener('click', function(e) {
     e.preventDefault(); 
 

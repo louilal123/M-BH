@@ -1,31 +1,51 @@
 <?php
 session_start();
-include('connection.php'); // Database connection
+include 'connection.php';
 
 if (isset($_GET['id'])) {
-    $typeId = mysqli_real_escape_string($conn, $_GET['id']);
-
+    $room_id = $_GET['id'];
+    
     try {
-        // Delete the room type
-        $query = "DELETE FROM rooms WHERE room_id = '$typeId'";
-        if (mysqli_query($conn, $query)) {
-            $_SESSION['status'] = "Room deleted successfully!";
-            $_SESSION['status_icon'] = "success";
-        } else {
-            $_SESSION['status'] = "Failed to delete room type due to a database error.";
-            $_SESSION['status_icon'] = "error";
+        // First, get all images associated with this room
+        $stmt = $conn->prepare("SELECT image_path FROM room_images WHERE room_id = ?");
+        $stmt->bind_param("i", $room_id);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        
+        // Delete all image files
+        while ($row = $result->fetch_assoc()) {
+            $image_path = '../uploads/rooms/' . $row['image_path'];
+            if (file_exists($image_path)) {
+                unlink($image_path);
+            }
         }
-    } catch (mysqli_sql_exception $e) {
-        // Handle foreign key constraint violation
-        $_SESSION['status'] = "Cannot delete the room. It is referenced in other records.";
-        $_SESSION['status_icon'] = "error";
+        
+        // Then delete the room and its images from database
+        $conn->begin_transaction();
+        
+        // Delete images first
+        $stmt = $conn->prepare("DELETE FROM room_images WHERE room_id = ?");
+        $stmt->bind_param("i", $room_id);
+        $stmt->execute();
+        
+        // Now delete the room
+        $stmt = $conn->prepare("DELETE FROM rooms WHERE room_id = ?");
+        $stmt->bind_param("i", $room_id);
+        $stmt->execute();
+        
+        $conn->commit();
+        
+        $_SESSION['success'] = 'Room deleted successfully';
+        $_SESSION['status_icon'] = 'success';
+        $_SESSION['status'] = 'Room deleted successfully';
     } catch (Exception $e) {
-        // Handle any other exceptions
-        $_SESSION['status'] = $e->getMessage();
-        $_SESSION['status_icon'] = "error";
+        $conn->rollback();
+        $_SESSION['error'] = 'Error deleting room: ' . $e->getMessage();
     }
-
-    header("Location: ../rooms.php");
-    exit();
+    
+    header('location: ../rooms.php');
+} else {
+    $_SESSION['error'] = 'Invalid request';
+    header('location: ../rooms.php');
 }
 ?>

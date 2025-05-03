@@ -153,22 +153,21 @@
   <?php unset($_SESSION['show_login_modal']); ?>
 <?php endif; ?>
 
-<!-- Navigation -->
-<header class="navbar fixed w-full top-0 z-50 navbar-transparent transition-all duration-300">
+<header class="navbar fixed w-full top-0 z-50 transition-all duration-300 
+  border-b border-white/20 dark:border-white/10">
   <nav class="container mx-auto px-4 py-4 flex items-center justify-between">
     <a href="index.php" class="flex items-center gap-2">
     <span class="text-4xl font-bold bg-gradient-to-r from-blue-600 to-blue-400 bg-clip-text text-transparent 
               group-hover:from-blue-500 group-hover:to-blue-300 transition-all duration-500">
     MECMEC
-  </span>
-
+  </span> <span class="text-orange-400 dark:text-white text-lg font-semibold mt-3">BH</span>
     </a>
     
     <!-- Desktop Navigation -->
     <ul class="hidden md:flex items-center gap-6">
-      <li><a href="index.php#home" class="text-white hover:text-primary-light font-medium transition">Home</a></li>
+      <li><a href="index.php##home" class="text-white hover:text-primary-light font-medium transition">Home</a></li>
       <li class="dropdown">
-        <a href="#rooms" class="text-white hover:text-primary-light font-medium transition flex items-center gap-1">
+        <a href="rooms" class="text-white hover:text-primary-light font-medium transition flex items-center gap-1">
           Rooms
           <i class="fas fa-chevron-down text-xs mt-1"></i>
         </a>
@@ -329,7 +328,7 @@
           </button>
         </li>
         <li>
-          <button onclick="openModal('signup-modal')" class="ml-4 bg-primary hover:bg-primary-dark text-white px-5 py-2 rounded-full shadow-md transition">
+          <button onclick="openModal('signup-modal')" class="ml-0 bg-primary hover:bg-primary-dark text-white px-5 py-2 rounded-full shadow-md transition">
             Sign Up
           </button>
         </li>

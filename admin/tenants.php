@@ -162,10 +162,11 @@
         <div><label class="block text-sm font-medium text-gray-700 mb-1">Email<input type="email" id="email" name="email" required class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"></label></div>
         <div><label class="block text-sm font-medium text-gray-700 mb-1">Phone<input type="text" id="phone" name="phone" required oninput="validatePhone(this)" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"></label></div>
         <div><label class="block text-sm font-medium text-gray-700 mb-1">Occupation<input type="text" id="occupation" name="occupation" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"></label></div>
-        <div><label class="block text-sm font-medium text-gray-700 mb-1">Contact<input type="text" id="contact" name="contact" required oninput="validatePhone(this)" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"></label></div>
+      
         <div><label class="block text-sm font-medium text-gray-700 mb-1">Status<select id="status" name="status" required class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"><option value="active">Active</option><option value="inactive">Inactive</option></select></label></div>
         <div class="col-span-2"><label class="block text-sm font-medium text-gray-700 mb-1">Address<input type="text" id="address" name="address" required oninput="validateAlphanumeric(this)" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"></label></div>
-        <div><label class="block text-sm font-medium text-gray-700 mb-1">Current Photo<div class="mt-1"><img id="currentPhotoPreview" src="uploads/tenants/default.png" alt="Photo" class="h-24 w-24 rounded-md object-cover border border-gray-200"></div></label></div>
+        <div><label class="block text-sm font-medium text-gray-700 mb-1">Current Photo<div class="mt-1">
+            <img id="currentPhotoPreview"  alt="Photo" class="h-24 w-24 rounded-md object-cover border border-gray-200"></div></label></div>
         <div><label class="block text-sm font-medium text-gray-700 mb-1">Change Photo<input type="file" id="photo" name="photo" accept="image/*" class="w-full px-3 py-2 text-sm text-gray-700 border border-gray-300 rounded-md cursor-pointer focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"><p class="mt-1 text-xs text-gray-500">JPEG, PNG or GIF. Max 2MB.</p></label></div>
       </div>
       <div class="flex justify-end space-x-3 mt-6 px-2">
@@ -189,24 +190,21 @@
         <div class="bg-gray-50 p-6">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div class="col-span-2 flex justify-center">
-                    <img id="viewPhotoPreview" src="uploads/tenants/default.png" alt="Tenant Photo" class="h-32 w-32 rounded-full object-cover border-4 border-white shadow">
+                    <img id="viewPhotoPreview" alt="Tenant Photo" class="h-32 w-32 rounded-full object-cover border-4 border-white shadow">
                 </div>
-                <div>
+                <div class="col-span-2">
                     <label class="block text-sm font-medium text-gray-500">Full Name</label>
                     <p id="viewName" class="mt-1 text-sm text-gray-900 font-medium"></p>
                 </div>
-                <div>
+                <div class="col-span-2">
                     <label class="block text-sm font-medium text-gray-500">Email</label>
                     <p id="viewEmail" class="mt-1 text-sm text-gray-900"></p>
                 </div>
-                <div>
+                <div class="col-span-2">
                     <label class="block text-sm font-medium text-gray-500">Phone</label>
                     <p id="viewPhone" class="mt-1 text-sm text-gray-900"></p>
                 </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-500">Contact</label>
-                    <p id="viewContact" class="mt-1 text-sm text-gray-900"></p>
-                </div>
+              
                 <div>
                     <label class="block text-sm font-medium text-gray-500">Occupation</label>
                     <p id="viewOccupation" class="mt-1 text-sm text-gray-900"></p>
@@ -243,7 +241,7 @@ document.addEventListener('DOMContentLoaded', function() {
       const email = this.getAttribute('data-email');
       const phone = this.getAttribute('data-phone');
       const occupation = this.getAttribute('data-occupation');
-      const contact = this.getAttribute('data-contact');
+    
       const address = this.getAttribute('data-address');
       const status = this.getAttribute('data-status');
       const photo = this.getAttribute('data-photo');
@@ -254,16 +252,16 @@ document.addEventListener('DOMContentLoaded', function() {
       document.getElementById('email').value = email;
       document.getElementById('phone').value = phone;
       document.getElementById('occupation').value = occupation || '';
-      document.getElementById('contact').value = contact;
+      
       document.getElementById('address').value = address;
       document.getElementById('status').value = status;
       
       // Set photo preview
       const photoPreview = document.getElementById('currentPhotoPreview');
       if (photo) {
-        photoPreview.src = 'uploads/tenants/' + photo;
+        photoPreview.src = '' + photo;
       } else {
-        photoPreview.src = 'uploads/tenants/default.png';
+        photoPreview.src = '../uploads/tenants/default.png';
       }
       
       openModal('editTenantModal');
@@ -279,7 +277,7 @@ document.addEventListener('DOMContentLoaded', function() {
       const email = this.getAttribute('data-email');
       const phone = this.getAttribute('data-phone');
       const occupation = this.getAttribute('data-occupation');
-      const contact = this.getAttribute('data-contact');
+     
       const address = this.getAttribute('data-address');
       const status = this.getAttribute('data-status');
       const photo = this.getAttribute('data-photo');
@@ -297,7 +295,7 @@ document.addEventListener('DOMContentLoaded', function() {
       document.getElementById('viewEmail').textContent = email;
       document.getElementById('viewPhone').textContent = phone;
       document.getElementById('viewOccupation').textContent = occupation || 'N/A';
-      document.getElementById('viewContact').textContent = contact;
+     
       document.getElementById('viewAddress').textContent = address;
       document.getElementById('viewStatus').textContent = status.charAt(0).toUpperCase() + status.slice(1);
       document.getElementById('viewCreated').textContent = formattedDate;

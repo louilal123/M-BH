@@ -118,7 +118,7 @@ if (isset($_SESSION['tenant_id'])) {
   </section>
 
   <!-- Room Types Section with Parallax background -->
-  <section id="rooms" class="py-16 md:py-24 relative">
+  <section id="rooms" class=" py-16 md:py-24 relative">
     <div class="absolute inset-0 parallax opacity-20 dark:opacity-10" style="background-image: url('https://images.unsplash.com/photo-1560448204-603b3fc33ddc?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80');"></div>
     <div class="bg-slate-50/80 dark:bg-slate-800/80 backdrop-blur-sm absolute inset-0"></div>
     <div class="container mx-auto px-4 relative">

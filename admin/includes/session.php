@@ -3,7 +3,7 @@ session_start();
 
 if (!isset($_SESSION['admin_id'])) {
     http_response_code(404); 
-    include('../404.html'); 
+    include('404.html'); 
     
     exit;
 }

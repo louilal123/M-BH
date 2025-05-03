@@ -28,9 +28,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             $_SESSION["name"] = $user["name"];
             $_SESSION["email"] = $user["email"];
             $_SESSION["occupation"] = $user["occupation"];
-            $_SESSION["status"] = "Welcome back!";
+            $_SESSION["status1"] = "Welcome back!";
             $_SESSION["photo"] = $user["photo"];
-            $_SESSION["status_icon"] = "success";
+            $_SESSION["status_icon1"] = "success";
             header("Location: ../index.php");
             exit();
         } else {
@@ -39,18 +39,16 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             $log_stmt->bind_param("iss", $user['tenant_id'], $ip_address, $user_agent);
             $log_stmt->execute();
             
-            $_SESSION["status"] = "Incorrect password.";
-            $_SESSION["status_icon"] = "error";
+            $_SESSION["status1"] = "Incorrect password.";
+            $_SESSION["status_icon1"] = "error";
         }
     } else {
-        // Record failed email attempt (if you want to track unknown emails)
-        // Note: We don't have a tenant_id here, so you might need to adjust
         $log_stmt = $conn->prepare("INSERT INTO login_history (tenant_id, ip_address, user_agent, login_status) VALUES (NULL, ?, ?, 'failed_email')");
         $log_stmt->bind_param("ss", $ip_address, $user_agent);
         $log_stmt->execute();
         
-        $_SESSION["status"] = "Credentials doesn't match any account.";
-        $_SESSION["status_icon"] = "error";
+        $_SESSION["status1"] = "Credentials doesn't match any account.";
+        $_SESSION["status_icon1"] = "error";
     }
 
     // Show login modal again
