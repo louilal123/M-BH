@@ -132,26 +132,26 @@ $tenantData = loadTenantData($conn, $_SESSION['tenant_id']);
           </div>
         </div>
 
-        <div class="border-b border-slate-200 dark:border-slate-700">
-          <div class="flex">
-            <button class="tab-button active px-6 py-4 text-sm font-medium" onclick="openTab('overview-tab', event)">
-              <i class="fas fa-chart-pie mr-2"></i>Overview
-            </button>
-            <button class="tab-button px-6 py-4 text-sm font-medium" onclick="openTab('transaction-tab', event)">
-              <i class="fas fa-receipt mr-2"></i>Transaction History
-            </button>
-            <button class="tab-button px-6 py-4 text-sm font-medium" onclick="openTab('profile-tab', event)">
-              <i class="fas fa-user mr-2"></i>Profile
-            </button>
-            <button class="tab-button px-6 py-4 text-sm font-medium" onclick="openTab('security-tab', event)">
-              <i class="fas fa-lock mr-2"></i>Security
-            </button>
-            <button class="tab-button px-6 py-4 text-sm font-medium" onclick="openTab('history-tab', event)">
-              <i class="fas fa-history mr-2"></i>Login History
-            </button>
-          
-          </div>
-        </div>
+        <div class="border-b border-slate-200 dark:border-slate-700 overflow-x-auto">
+  <div class="flex flex-wrap sm:flex-nowrap">
+    <button class="tab-button active px-4 sm:px-6 py-3 text-sm font-medium whitespace-nowrap" onclick="openTab('overview-tab', event)">
+      <i class="fas fa-chart-pie mr-2"></i>Overview
+    </button>
+    <button class="tab-button px-4 sm:px-6 py-3 text-sm font-medium whitespace-nowrap" onclick="openTab('transaction-tab', event)">
+      <i class="fas fa-receipt mr-2"></i>Transaction History
+    </button>
+    <button class="tab-button px-4 sm:px-6 py-3 text-sm font-medium whitespace-nowrap" onclick="openTab('profile-tab', event)">
+      <i class="fas fa-user mr-2"></i>Profile
+    </button>
+    <button class="tab-button px-4 sm:px-6 py-3 text-sm font-medium whitespace-nowrap" onclick="openTab('security-tab', event)">
+      <i class="fas fa-lock mr-2"></i>Security
+    </button>
+    <button class="tab-button px-4 sm:px-6 py-3 text-sm font-medium whitespace-nowrap" onclick="openTab('history-tab', event)">
+      <i class="fas fa-history mr-2"></i>Login History
+    </button>
+  </div>
+</div>
+
         <div id="overview-tab" class="tab-content active p-6">
           <div class="grid md:grid-cols-3 gap-6 mb-8">
             <div class="bg-white dark:bg-slate-700 p-6 rounded-lg shadow border border-slate-100 dark:border-slate-600">

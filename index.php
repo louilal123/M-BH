@@ -1,14 +1,15 @@
-<?php session_start();
+<?php
+session_start();
 require_once 'admin/functions/connection.php';
-require_once 'functions/load_tenant_data.php'; ?><?php // At the top of signup_process.php
+require_once 'functions/load_tenant_data.php';
 
-// Load full tenant data (replaces the old $user variable)
-$tenantData = loadTenantData($conn, $_SESSION['tenant_id']);
+$tenantData = null;
 
+if (isset($_SESSION['tenant_id'])) {
+    $tenantData = loadTenantData($conn, $_SESSION['tenant_id']);
+}
+?>
 
-
-
- ?>
 
  <!DOCTYPE html>
 <html lang="en" class="scroll-smooth">

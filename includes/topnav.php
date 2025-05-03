@@ -157,8 +157,11 @@
 <header class="navbar fixed w-full top-0 z-50 navbar-transparent transition-all duration-300">
   <nav class="container mx-auto px-4 py-4 flex items-center justify-between">
     <a href="index.php" class="flex items-center gap-2">
-      <span class="text-white text-2xl font-bold font-heading">MECMEC</span>
-      <span class="text-sm bg-accent text-white px-2 py-1 rounded">BH</span>
+    <span class="text-4xl font-bold bg-gradient-to-r from-blue-600 to-blue-400 bg-clip-text text-transparent 
+              group-hover:from-blue-500 group-hover:to-blue-300 transition-all duration-500">
+    MECMEC
+  </span>
+
     </a>
     
     <!-- Desktop Navigation -->
@@ -275,15 +278,30 @@
       <?php if (isset($_SESSION['loggedin']) && $_SESSION['loggedin'] === true): ?>
         <!-- User is logged in - show profile dropdown -->
         <li class="dropdown">
-          <div class="flex items-center gap-2 cursor-pointer">
-            <div class="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center text-primary">
-           
-            <img src="<?php echo htmlspecialchars($tenantData['photo'] ?? 'default.jpg'); ?>"class="w-20 h-8 rounded-full" alt="Profile Photo">
-
-            </div>
-            <span class="text-white"><?php echo htmlspecialchars($_SESSION['name']); ?></span>
-            <i class="fas fa-chevron-down text-xs mt-1 text-white"></i>
-          </div>
+        <div class="flex items-center gap-2 cursor-pointer">
+        <div class="w-8 h-8 rounded-full bg-gradient-to-r from-blue-600 to-blue-400 flex items-center justify-center">
+          <span class="text-white text-xs font-bold">
+            <?php 
+              // Function to get initials
+              function getInitials($name) {
+                $names = explode(' ', $name);
+                $initials = '';
+                foreach ($names as $n) {
+                  $initials .= strtoupper(substr($n, 0, 1));
+                  if (strlen($initials) >= 2) break; // Limit to 2 initials
+                }
+                return $initials;
+              }
+              
+              // Get initials from session name or tenant data
+              $nameToUse = $_SESSION['name'] ?? $tenantData['name'] ?? '';
+              echo htmlspecialchars(getInitials($nameToUse));
+            ?>
+          </span>
+        </div>
+        <span class="text-white"><?php echo htmlspecialchars($_SESSION['name'] ?? ''); ?></span>
+        <i class="fas fa-chevron-down text-xs mt-1 text-white"></i>
+      </div>
           <div class="dropdown-content bg-white dark:bg-slate-800 rounded-lg shadow-lg p-4 top-full right-0 w-48">
             <div class="space-y-2">
               <div class="px-2 py-1 text-sm text-slate-600 dark:text-slate-300">
