@@ -25,11 +25,7 @@ if (isset($_SESSION['tenant_id'])) {
             box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
             border-color: rgba(59, 130, 246, 0.5);
         }
-        .navbar {
-            background-color: rgba(30, 0, 113, 0.95);
-            backdrop-filter: blur(10px);
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-        }
+      
         /* Enhanced geometric pattern background */
         .geometric-pattern {
             background-color: #f8fafc;
@@ -244,6 +240,32 @@ if (isset($_SESSION['tenant_id'])) {
   <a href="#home" id="back-to-top" class="fixed bottom-8 right-8 bg-primary text-white w-12 h-12 rounded-full flex items-center justify-center shadow-lg transition-all duration-300 opacity-0 invisible">
     <i class="fas fa-arrow-up"></i>
   </a>
+<!-- MODALS  -->
+<div id="bookingModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
+    <div class="bg-white dark:bg-gray-800 rounded-lg p-6 w-full max-w-md">
+        <h3 class="text-xl font-bold mb-4">Book Room</h3>
+        <form id="bookingForm">
+            <input type="hidden" id="bookingRoomId" name="room_id">
+            <div class="mb-4">
+                <label class="block text-sm font-medium mb-1">Check-in Date</label>
+                <input type="date" id="checkInDate" name="check_in" class="w-full p-2 border rounded" required>
+            </div>
+            <div class="mb-4">
+                <label class="block text-sm font-medium mb-1">Check-out Date</label>
+                <input type="date" id="checkOutDate" name="check_out" class="w-full p-2 border rounded" required>
+            </div>
+            <div class="mb-4">
+                <label class="block text-sm font-medium mb-1">Special Requests</label>
+                <textarea name="special_requests" class="w-full p-2 border rounded"></textarea>
+            </div>
+            <div class="flex justify-end gap-2">
+                <button type="button" onclick="closeBookingModal()" class="px-4 py-2 bg-gray-300 rounded">Cancel</button>
+                <button type="submit" class="px-4 py-2 bg-primary text-white rounded">Confirm Booking</button>
+            </div>
+        </form>
+    </div>
+</div>
+
   <script>
 $(document).ready(function() {
     function debounce(func, wait) {
@@ -318,6 +340,56 @@ $(document).ready(function() {
 });
 </script>
 
+<!-- js for modal booking  --><script>
+// Ensure these functions are globally available
+window.openBookingModal = function(roomId) {
+    // Set minimum date to today
+    const today = new Date().toISOString().split('T')[0];
+    document.getElementById('checkInDate').min = today;
+    document.getElementById('checkOutDate').min = today;
+    
+    // Set the room ID in the form
+    document.getElementById('bookingRoomId').value = roomId;
+    
+    // Show modal
+    document.getElementById('bookingModal').classList.remove('hidden');
+}
+
+window.closeBookingModal = function() {
+    document.getElementById('bookingModal').classList.add('hidden');
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    const bookingForm = document.getElementById('bookingForm');
+    if (bookingForm) {
+        bookingForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            formData.append('tenant_id', <?php echo isset($_SESSION['tenant_id']) ? $_SESSION['tenant_id'] : 'null'; ?>);
+            
+            fetch('process_booking.php', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if(data.success) {
+                    alert('Booking successful!');
+                    closeBookingModal();
+                    // Optionally refresh the page or update UI
+                } else {
+                    alert('Error: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred during booking.');
+            });
+        });
+    }
+});
+</script>
 <?php include "includes/footer.php" ?>
 </body>
 </html>
