@@ -262,7 +262,7 @@
             </button>
             <button type="submit" name="save_tenant"
                 class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700">
-                Save Changes
+                Update Status
             </button>
             </div>
              </div>
@@ -285,19 +285,36 @@ document.addEventListener('DOMContentLoaded', function() {
       const status = this.getAttribute('data-status');
       const photo = this.getAttribute('data-photo');
       const loginTime = this.getAttribute('data-login_time');
-      const loginIP = this.getAttribute('data-login_ip');
-      const userAgent = this.getAttribute('data-user_agent');
+const loginIP = this.getAttribute('data-login_ip');
+const userAgent = this.getAttribute('data-user_agent');
 
-      let formattedDate = date_created;
-      if (date_created) {
-        const dateObj = new Date(date_created);
-        formattedDate = dateObj.toLocaleDateString('en-US', {
-          year: 'numeric',
-          month: 'long',
-          day: 'numeric'
-        });
-      }
-      document.getElementById('lastLoginTime').textContent = loginTime || 'N/A';
+let formattedDate = date_created;
+if (date_created) {
+    const dateObj = new Date(date_created);
+    formattedDate = dateObj.toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+    });
+}
+
+let formattedLoginTime = loginTime;
+if (loginTime) {
+    const loginDateObj = new Date(loginTime);
+    formattedLoginTime = loginDateObj.toLocaleString('en-US', {
+        weekday: 'long', // "Monday"
+        year: 'numeric', // "2025"
+        month: 'long', // "May"
+        day: 'numeric', // "4"
+        hour: '2-digit', // "11"
+        minute: '2-digit', // "45"
+        second: '2-digit', // "30"
+        hour12: true // AM/PM format
+    });
+}
+
+document.getElementById('lastLoginTime').textContent = formattedLoginTime || 'N/A';
+
       document.getElementById('lastLoginIP').textContent = loginIP || 'N/A';
       document.getElementById('lastLoginDevice').textContent = userAgent || 'N/A';
 

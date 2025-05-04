@@ -59,7 +59,7 @@
                                         foreach ($admins as $admin): ?>
                                             <tr>
                                                 <td class="px-6 py-4 whitespace-nowrap">
-                                                    <img src="uploads/<?php echo htmlspecialchars($admin['photo']); ?>" 
+                                                    <img src="assets/uploads/<?php echo htmlspecialchars($admin['photo']); ?>" 
                                                          alt="Admin Photo" 
                                                          class="h-10 w-10 rounded-full object-cover">
                                                 </td>

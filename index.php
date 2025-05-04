@@ -47,8 +47,8 @@ if (isset($_SESSION['tenant_id'])) {
           Experience premium boarding house living with MECMEC. Modern rooms, excellent amenities, and a welcoming community in the heart of the city.
         </p>
         <div class="flex flex-col sm:flex-row gap-4">
-          <a href="#rooms" class="bg-primary hover:bg-primary-dark text-white px-8 py-4 rounded-full text-lg font-medium shadow-lg transition inline-block text-center">
-            View Rooms
+          <a href="rooms" class="bg-orange-500 hover:bg-primary-dark text-white px-8 py-4 rounded-full text-lg font-medium shadow-lg transition inline-block text-center">
+            Book Now 
           </a>
           <a href="#contact" class="bg-white/10 hover:bg-white/20 backdrop-blur-md text-white border border-white/30 px-8 py-4 rounded-full text-lg font-medium shadow-lg transition inline-block text-center">
             Contact Us
@@ -593,7 +593,7 @@ if (isset($_SESSION['tenant_id'])) {
         <div>
           <a href="#" class="flex items-center gap-2 mb-6">
             <span class="text-white text-2xl font-bold font-heading">MECMEC</span>
-            <span class="text-sm bg-accent text-white px-2 py-1 rounded">BH</span>
+            <span class="text-orange-400 dark:text-orange-400 text-lg font-semibold mt-3">BH</span>
           </a>
           <p class="mb-6 text-slate-400">
             Providing quality accommodation for students and young professionals since 2015.

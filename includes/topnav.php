@@ -169,44 +169,9 @@
       <li class="dropdown">
         <a href="rooms" class="text-white hover:text-primary-light font-medium transition flex items-center gap-1">
           Rooms
-          <i class="fas fa-chevron-down text-xs mt-1"></i>
+          
         </a>
-        <div class="dropdown-content bg-white dark:bg-slate-800 rounded-lg shadow-lg p-4 top-full">
-          <div class="grid grid-cols-1 gap-3">
-            <a href="#" class="flex items-center gap-3 p-2 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition">
-              <div class="w-12 h-12 bg-primary/10 dark:bg-primary/20 rounded-lg flex items-center justify-center">
-                <i class="fas fa-bed text-primary dark:text-primary-light"></i>
-              </div>
-              <div>
-                <h4 class="font-medium text-slate-800 dark:text-white">Single Room</h4>
-                <p class="text-sm text-slate-500 dark:text-slate-400">Perfect for individual stay</p>
-              </div>
-            </a>
-            <a href="#" class="flex items-center gap-3 p-2 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition">
-              <div class="w-12 h-12 bg-primary/10 dark:bg-primary/20 rounded-lg flex items-center justify-center">
-                <i class="fas fa-users text-primary dark:text-primary-light"></i>
-              </div>
-              <div>
-                <h4 class="font-medium text-slate-800 dark:text-white">Double Room</h4>
-                <p class="text-sm text-slate-500 dark:text-slate-400">Share with a friend</p>
-              </div>
-            </a>
-            <a href="#" class="flex items-center gap-3 p-2 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition">
-              <div class="w-12 h-12 bg-primary/10 dark:bg-primary/20 rounded-lg flex items-center justify-center">
-                <i class="fas fa-crown text-primary dark:text-primary-light"></i>
-              </div>
-              <div>
-                <h4 class="font-medium text-slate-800 dark:text-white">Premium Room</h4>
-                <p class="text-sm text-slate-500 dark:text-slate-400">Ultimate comfort</p>
-              </div>
-            </a>
-            <div class="border-t border-slate-200 dark:border-slate-700 pt-2 mt-2">
-              <a href="#rooms" class="text-primary dark:text-primary-light hover:underline text-sm font-medium">
-                View All Room Options →
-              </a>
-            </div>
-          </div>
-        </div>
+       
       </li>
       <li class="dropdown">
     <a href="#amenities" class="text-white hover:text-primary-light font-medium transition flex items-center gap-1">
@@ -262,9 +227,6 @@
     </div>
 </li>
 
-
-      <li><a href="#gallery" class="text-white hover:text-primary-light font-medium transition">Gallery</a></li>
-      <li><a href="#testimonials" class="text-white hover:text-primary-light font-medium transition">Testimonials</a></li>
       <li><a href="#contact" class="text-white hover:text-primary-light font-medium transition">Contact</a></li>
       <li>
         <!-- Dark Mode Toggle -->

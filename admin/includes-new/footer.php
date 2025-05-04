@@ -2,7 +2,7 @@
  <div id="sidebar-overlay" class="fixed inset-0 bg-black bg-opacity-50 z-20 hidden md:hidden"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script src="includes/dashboard.js"></script>
+<script src="includes-new/dashboard.js"></script>
 <script>
     document.getElementById('logoutBtn').addEventListener('click', function(e) {
         e.preventDefault(); 

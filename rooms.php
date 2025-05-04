@@ -53,16 +53,12 @@ if (isset($_SESSION['tenant_id'])) {
 <?php include "includes/topnav.php"; ?>
 
 <!-- Room Listing Section -->
-<section class="geometric-pattern py-16 md:py-24 relative">
+<section class="geometric-pattern py-16 md:py-24 relative min-h-screen mb-30">
     <div class="absolute inset-0 bg-gradient-to-b from-white/80 to-white/20 dark:from-slate-900/90 dark:to-slate-900/50 backdrop-blur-[2px]"></div>
     <div class="container mx-auto px-4 relative mt-8">  
-        <div class="text-center mb-12" data-aos="fade-up">
+        <div class="text-center mb-12" >
             <div class="inline-flex items-center justify-center mb-4">
-                <div class="w-3 h-3 bg-accent rounded-full mr-2"></div>
-                <div class="w-12 h-0.5 bg-accent mr-2"></div>
-                <span class="text-accent text-sm font-medium tracking-wider">ACCOMMODATIONS</span>
-                <div class="w-12 h-0.5 bg-accent ml-2"></div>
-                <div class="w-3 h-3 bg-accent rounded-full ml-2"></div>
+               
             </div>
             <h2 class="text-3xl md:text-4xl font-bold mb-4 text-slate-800 dark:text-slate-100">
                 Find Your Perfect Room
@@ -89,29 +85,29 @@ if (isset($_SESSION['tenant_id'])) {
                         </div>
                 </div>
                 
-              <!-- Room Type Filter (Narrower) -->
-<div class="md:col-span-2">
-    <label for="room-type" class="block text-sm font-medium mb-2 text-slate-700 dark:text-slate-300">Room Type</label>
-    <div class="relative">
-        <select id="room-type" class="appearance-none w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent dark:bg-slate-700 pr-10 transition-all shadow-sm hover:shadow-md">
-            <option value="">All Types</option>
-            <?php
-            // Get distinct room types from the rooms table
-            $typeQuery = "SELECT DISTINCT room_type FROM rooms WHERE room_type IS NOT NULL AND room_type != ''";
-            $typeResult = $conn->query($typeQuery);
-            while ($type = $typeResult->fetch_assoc()) {
-                echo '<option value="'.htmlspecialchars($type['room_type']).'">'.htmlspecialchars($type['room_type']).'</option>';
-            }
-            ?>
-        </select>
-        <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-            <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-            </svg>
-        </div>
-    </div>
-</div>
-                
+                            <!-- Room Type Filter (Narrower) -->
+                <div class="md:col-span-2">
+                    <label for="room-type" class="block text-sm font-medium mb-2 text-slate-700 dark:text-slate-300">Room Type</label>
+                    <div class="relative">
+                        <select id="room-type" class="appearance-none w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent dark:bg-slate-700 pr-10 transition-all shadow-sm hover:shadow-md">
+                            <option value="">All Types</option>
+                            <?php
+                            // Get distinct room types from the rooms table
+                            $typeQuery = "SELECT DISTINCT room_type FROM rooms WHERE room_type IS NOT NULL AND room_type != ''";
+                            $typeResult = $conn->query($typeQuery);
+                            while ($type = $typeResult->fetch_assoc()) {
+                                echo '<option value="'.htmlspecialchars($type['room_type']).'">'.htmlspecialchars($type['room_type']).'</option>';
+                            }
+                            ?>
+                        </select>
+                        <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                            <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+                                
                 <!-- Sort By (Narrower) -->
                 <div class="md:col-span-2">
                     <label for="sort-by" class="block text-sm font-medium mb-2 text-slate-700 dark:text-slate-300">Sort By</label>
@@ -135,34 +131,7 @@ if (isset($_SESSION['tenant_id'])) {
         <!-- Room Grid - 3x3 Layout -->
         <div id="room-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             <!-- Rooms will be loaded here via AJAX -->
-            
-            <!-- Example room card for reference (will be replaced by AJAX) -->
-            <div class="bg-white dark:bg-slate-900 rounded-xl shadow-lg overflow-hidden room-card">
-                <div class="h-64 overflow-hidden relative">
-                    <img src="https://images.unsplash.com/photo-1505693416388-ac5ce068fe85" alt="Single Room" class="w-full h-full object-cover transition-transform duration-500 hover:scale-110">
-                    <div class="absolute top-4 right-4 bg-accent text-white text-sm font-bold px-3 py-1 rounded-full shadow-md">
-                        Available
-                    </div>
-                </div>
-                <div class="p-6">
-                    <div class="flex justify-between items-center mb-4">
-                        <h3 class="text-xl font-bold text-slate-800 dark:text-slate-100">Room 101</h3>
-                        <span class="text-accent font-bold">₱5,000/mo</span>
-                    </div>
-                    <p class="text-slate-600 dark:text-slate-300 mb-4">
-                        Perfect for students or professionals who value privacy and independence. Cozy yet functional space.
-                    </p>
-                    <div class="border-t border-slate-200 dark:border-slate-700 pt-4">
-                        <div class="flex flex-wrap gap-2 mb-4">
-                            <span class="bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-xs px-2 py-1 rounded-full">Single Bed</span>
-                            <span class="bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-xs px-2 py-1 rounded-full">12 m²</span>
-                            <span class="bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-xs px-2 py-1 rounded-full">Private Bathroom</span>
-                            <span class="bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-xs px-2 py-1 rounded-full">Study Desk</span>
-                        </div>
-                        <a href="#" class="block text-center bg-primary hover:bg-primary-dark text-white py-2 rounded-md transition duration-300 transform hover:-translate-y-1">Book Now</a>
-                    </div>
-                </div>
-            </div>
+           
         </div>
 
         <!-- Loading Indicator -->
@@ -180,37 +149,103 @@ if (isset($_SESSION['tenant_id'])) {
             <p class="mt-1 text-slate-500 dark:text-slate-400">Try adjusting your search or filter to find what you're looking for.</p>
         </div>
         
-        <!-- Pagination -->
-        <div class="flex justify-center mt-12">
-            <nav class="inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
-                <a href="#" class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-sm font-medium text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700">
-                    <span class="sr-only">Previous</span>
-                    <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                        <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" />
-                    </svg>
-                </a>
-                <a href="#" class="relative inline-flex items-center px-4 py-2 border border-slate-300 dark:border-slate-600 bg-primary text-sm font-medium text-white">1</a>
-                <a href="#" class="relative inline-flex items-center px-4 py-2 border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700">2</a>
-                <a href="#" class="relative inline-flex items-center px-4 py-2 border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700">3</a>
-                <span class="relative inline-flex items-center px-4 py-2 border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-sm font-medium text-slate-700 dark:text-slate-300">...</span>
-                <a href="#" class="relative inline-flex items-center px-4 py-2 border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700">8</a>
-                <a href="#" class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-sm font-medium text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700">
-                    <span class="sr-only">Next</span>
-                    <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                        <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
-                    </svg>
-                </a>
-            </nav>
-        </div>
+      
     </div>
 </section>
 
-<?php include "includes/footer.php"; ?>
 
-<!-- JavaScript for Live Filtering -->
-<script>
+
+  <!-- Footer -->
+  <footer class="bg-slate-900 text-slate-300 pt-100">
+    <div class="container mx-auto px-4 py-16">
+      <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-12">
+        <div>
+          <a href="#" class="flex items-center gap-2 mb-6">
+            <span class="text-white text-2xl font-bold font-heading">MECMEC</span>
+            <span class="text-orange-400 dark:text-orange-400 text-lg font-semibold mt-3">BH</span>
+          </a>
+          <p class="mb-6 text-slate-400">
+            Providing quality accommodation for students and young professionals since 2015.
+          </p>
+          <div class="flex space-x-4">
+            <a href="#" class="text-slate-400 hover:text-primary transition">
+              <i class="fab fa-facebook-f"></i>
+            </a>
+            <a href="#" class="text-slate-400 hover:text-primary transition">
+              <i class="fab fa-instagram"></i>
+            </a>
+            <a href="#" class="text-slate-400 hover:text-primary transition">
+              <i class="fab fa-twitter"></i>
+            </a>
+            <a href="#" class="text-slate-400 hover:text-primary transition">
+              <i class="fab fa-youtube"></i>
+            </a>
+          </div>
+        </div>
+        
+        <div>
+          <h3 class="text-white text-lg font-bold mb-6">Quick Links</h3>
+          <ul class="space-y-3">
+            <li><a href="#home" class="text-slate-400 hover:text-primary transition">Home</a></li>
+            <li><a href="#rooms" class="text-slate-400 hover:text-primary transition">Rooms</a></li>
+            <li><a href="#amenities" class="text-slate-400 hover:text-primary transition">Amenities</a></li>
+            <li><a href="#gallery" class="text-slate-400 hover:text-primary transition">Gallery</a></li>
+            <li><a href="#testimonials" class="text-slate-400 hover:text-primary transition">Testimonials</a></li>
+            <li><a href="#contact" class="text-slate-400 hover:text-primary transition">Contact</a></li>
+          </ul>
+        </div>
+        
+        <div>
+          <h3 class="text-white text-lg font-bold mb-6">Contact Info</h3>
+          <ul class="space-y-4">
+            <li class="flex items-start">
+              <i class="fas fa-map-marker-alt mt-1 mr-3 text-primary"></i>
+              <span>123 University Avenue<br>Metro City, 12345</span>
+            </li>
+            <li class="flex items-center">
+              <i class="fas fa-phone mr-3 text-primary"></i>
+              <span>+123 456 7890</span>
+            </li>
+            <li class="flex items-center">
+              <i class="fas fa-envelope mr-3 text-primary"></i>
+              <span>info@mecmecbh.com</span>
+            </li>
+          </ul>
+        </div>
+        
+        <div>
+          <h3 class="text-white text-lg font-bold mb-6">Newsletter</h3>
+          <p class="mb-4 text-slate-400">
+            Subscribe to our newsletter to get updates on our latest offers.
+          </p>
+          <form class="flex flex-col space-y-3">
+            <input type="email" placeholder="Your email" class="px-4 py-2 bg-slate-800 border border-slate-700 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent text-white">
+            <button type="submit" class="bg-primary hover:bg-primary-dark text-white font-medium py-2 rounded-lg transition">
+              Subscribe
+            </button>
+          </form>
+        </div>
+      </div>
+      
+      <div class="border-t border-slate-800 mt-12 pt-8 flex flex-col md:flex-row justify-between items-center">
+        <p class="text-slate-400 mb-4 md:mb-0">
+          &copy; 2025 MECMEC Boarding House. All rights reserved.
+        </p>
+        <div class="flex space-x-6">
+          <a href="#" class="text-slate-400 hover:text-primary transition">Terms of Service</a>
+          <a href="#" class="text-slate-400 hover:text-primary transition">Privacy Policy</a>
+          <a href="#" class="text-slate-400 hover:text-primary transition">Cookie Policy</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Back to Top Button -->
+  <a href="#home" id="back-to-top" class="fixed bottom-8 right-8 bg-primary text-white w-12 h-12 rounded-full flex items-center justify-center shadow-lg transition-all duration-300 opacity-0 invisible">
+    <i class="fas fa-arrow-up"></i>
+  </a>
+  <script>
 $(document).ready(function() {
-    // Debounce function to limit how often a function is called
     function debounce(func, wait) {
         let timeout;
         return function() {
@@ -222,17 +257,15 @@ $(document).ready(function() {
         };
     }
 
-    // Function to load rooms based on current filters
     const loadRooms = debounce(function() {
         const search = $('#search').val();
         const roomType = $('#room-type').val();
         const sortBy = $('#sort-by').val();
-        
-        // Show loading indicator
+
         $('#room-container').html('');
         $('#loading').removeClass('hidden');
         $('#no-results').addClass('hidden');
-        
+
         $.ajax({
             url: 'functions/get_rooms.php',
             method: 'GET',
@@ -240,19 +273,16 @@ $(document).ready(function() {
                 search: search,
                 room_type: roomType,
                 sort_by: sortBy,
-                page: 1 // Default to first page
+                page: 1
             },
             success: function(response) {
                 $('#loading').addClass('hidden');
-                
+
                 if (response.length > 0) {
                     $('#room-container').html(response);
                     $('#no-results').addClass('hidden');
-                    
-                    // Initialize any animations or hover effects for the new content
                     AOS.refresh();
-                    
-                    // Add hover effects for room images
+
                     $('.room-card').each(function() {
                         $(this).on('mouseenter', function() {
                             $(this).find('img').addClass('scale-110');
@@ -272,25 +302,22 @@ $(document).ready(function() {
         });
     }, 300);
 
-    // Initial load
     loadRooms();
 
-    // Event listeners for live filtering
     $('#search, #room-type, #sort-by').on('input change', function() {
         loadRooms();
     });
-    
-    // Handle pagination clicks
+
     $(document).on('click', '.pagination a', function(e) {
         e.preventDefault();
         const page = $(this).data('page');
         if (page) {
-            // Update loadRooms function to handle pagination
-            // You'll need to modify your PHP function to accept a page parameter
             loadRooms(page);
         }
     });
 });
 </script>
+
+<?php include "includes/footer.php" ?>
 </body>
 </html>
