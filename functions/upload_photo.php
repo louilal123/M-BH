@@ -1,24 +1,19 @@
 <?php
-// upload_photo.php - Located at C:\xampp\htdocs\M-BH\functions\upload_photo.php
 session_start();
 include "../admin/functions/connection.php";
 
-// Set content type to JSON first thing
 header('Content-Type: application/json');
 
-// Check if user is logged in
 if (!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true) {
     http_response_code(401);
     die(json_encode(['status' => 'error', 'message' => 'Unauthorized']));
 }
 
-// Check if this is a POST request with a file
 if ($_SERVER["REQUEST_METHOD"] != "POST" || !isset($_FILES['photo'])) {
     http_response_code(400);
     die(json_encode(['status' => 'error', 'message' => 'Invalid request']));
 }
 
-// Set upload directory relative to root
 $target_dir = __DIR__ . "/../uploads/tenants/";
 if (!file_exists($target_dir)) {
     if (!mkdir($target_dir, 0777, true)) {
@@ -26,10 +21,8 @@ if (!file_exists($target_dir)) {
     }
 }
 
-// Generate unique filename
 $filename = time() . '_' . basename($_FILES["photo"]["name"]);
 $target_file = $target_dir . $filename;
-$relative_path = "uploads/tenants/" . $filename; // This is what will be stored in DB
 
 // Validate image file
 $check = getimagesize($_FILES["photo"]["tmp_name"]);
@@ -48,22 +41,20 @@ if (!in_array($imageFileType, ['jpg', 'png', 'jpeg', 'gif'])) {
     die(json_encode(['status' => 'error', 'message' => 'Only JPG, JPEG, PNG & GIF files are allowed']));
 }
 
-// Try to upload file
 if (move_uploaded_file($_FILES["photo"]["tmp_name"], $target_file)) {
-    // Update database with just the filename (not full path)
+    $photo = $filename;
+
     $update_stmt = $conn->prepare("UPDATE tenants SET photo = ? WHERE tenant_id = ?");
-    $update_stmt->bind_param("si", $relative_path, $_SESSION['tenant_id']);
+    $update_stmt->bind_param("si", $photo, $_SESSION['tenant_id']);
     
     if ($update_stmt->execute()) {
-        // Update session
-        $_SESSION['photo'] = $relative_path;
+        $_SESSION['photo'] = $photo;
         echo json_encode([
             'status' => 'success', 
             'message' => 'Profile photo updated successfully',
-            'photo_url' => $relative_path
+            'photo_url' => $photo
         ]);
     } else {
-        // Delete the uploaded file if DB update failed
         @unlink($target_file);
         echo json_encode([
             'status' => 'error', 

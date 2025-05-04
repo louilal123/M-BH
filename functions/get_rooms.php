@@ -12,43 +12,40 @@ $perPage = 9; // 3x3 grid
 // Calculate offset for pagination
 $offset = ($page - 1) * $perPage;
 
-// Build query
-$query = "SELECT r.*, rt.type_name, rt.features 
-          FROM rooms r 
-          LEFT JOIN room_types rt ON r.room_type = rt.room_type_id 
-          WHERE 1=1";
+// Build query - updated to use room_type column directly
+$query = "SELECT * FROM rooms WHERE 1=1";
 
 // Add search condition
 if (!empty($search)) {
     $search = $conn->real_escape_string($search);
-    $query .= " AND (r.room_number LIKE '%$search%' OR r.description LIKE '%$search%')";
+    $query .= " AND (room_number LIKE '%$search%' OR description LIKE '%$search%')";
 }
 
-// Add room type filter
+// Add room type filter - now checking the room_type column directly
 if (!empty($roomType)) {
     $roomType = $conn->real_escape_string($roomType);
-    $query .= " AND r.room_type = '$roomType'";
+    $query .= " AND room_type = '$roomType'";
 }
 
 // Add sorting
 switch ($sortBy) {
     case 'price_asc':
-        $query .= " ORDER BY r.price ASC";
+        $query .= " ORDER BY price ASC";
         break;
     case 'price_desc':
-        $query .= " ORDER BY r.price DESC";
+        $query .= " ORDER BY price DESC";
         break;
     case 'room_number_desc':
-        $query .= " ORDER BY r.room_number DESC";
+        $query .= " ORDER BY room_number DESC";
         break;
     case 'room_number_asc':
     default:
-        $query .= " ORDER BY r.room_number ASC";
+        $query .= " ORDER BY room_number ASC";
         break;
 }
 
 // Get total count for pagination
-$countQuery = preg_replace('/SELECT r\.\*, rt\.type_name, rt\.features/', 'SELECT COUNT(*)', $query);
+$countQuery = preg_replace('/SELECT \*/', 'SELECT COUNT(*)', $query);
 $countQuery = preg_replace('/ORDER BY.*$/', '', $countQuery);
 $countResult = $conn->query($countQuery);
 $totalCount = $countResult->fetch_row()[0];
@@ -78,23 +75,14 @@ if ($result->num_rows > 0) {
             $imagePath = "assets/images/rooms/default-room.jpg";
         }
         
-        // Parse features if they exist (assuming JSON format)
-        $features = [];
-        if (!empty($room['features'])) {
-            $featuresData = json_decode($room['features'], true);
-            if (is_array($featuresData)) {
-                $features = $featuresData;
-            }
-        }
-        
         // Determine availability badge color
         $availabilityClass = $room['availability'] == 'available' ? 'bg-accent' : 'bg-gray-500';
         $availabilityText = ucfirst($room['availability']);
         
         // Display room card
-        echo '<div class="bg-white dark:bg-slate-900 rounded-xl shadow-lg overflow-hidden room-card" data-aos="fade-up" data-aos-delay="' . $delay . '">
+        echo '<div class="bg-white dark:bg-slate-900 rounded-xl shadow-lg overflow-hidden room-card" data-aos="fade-up">
                 <div class="h-64 overflow-hidden relative">
-                    <img src="' . htmlspecialchars($imagePath) . '" alt="Room ' . htmlspecialchars($room['room_number']) . '" class="w-full h-full object-cover transition-transform duration-500">
+                    <img src="uploads/rooms/' . htmlspecialchars($imagePath) . '" alt="Room ' . htmlspecialchars($room['room_number']) . '" class="w-full h-full object-cover transition-transform duration-500">
                     <div class="absolute top-4 right-4 ' . $availabilityClass . ' text-white text-sm font-bold px-3 py-1 rounded-full shadow-md">
                         ' . $availabilityText . '
                     </div>
@@ -109,17 +97,12 @@ if ($result->num_rows > 0) {
                     </p>
                     <div class="border-t border-slate-200 dark:border-slate-700 pt-4">
                         <div class="flex flex-wrap gap-2 mb-4">
-                            <span class="bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-xs px-2 py-1 rounded-full">' . htmlspecialchars($room['type_name']) . '</span>';
+                            <span class="bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-xs px-2 py-1 rounded-full">' . htmlspecialchars($room['room_type']) . '</span>';
                             
-        // Add two sample features or room attributes
-        if (!empty($features)) {
-            $featureCount = 0;
-            foreach ($features as $feature => $value) {
-                if ($featureCount < 3) { // Limit to 3 features
-                    echo '<span class="bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-xs px-2 py-1 rounded-full">' . htmlspecialchars($feature) . '</span>';
-                    $featureCount++;
-                }
-            }
+        // You can add more features here if needed
+        // For example, you might want to add room size or other attributes
+        if (!empty($room['size'])) {
+            echo '<span class="bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-xs px-2 py-1 rounded-full">' . htmlspecialchars($room['size']) . ' m²</span>';
         }
                             
         echo '      </div>

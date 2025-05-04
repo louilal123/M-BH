@@ -89,27 +89,28 @@ if (isset($_SESSION['tenant_id'])) {
                         </div>
                 </div>
                 
-                <!-- Room Type Filter (Narrower) -->
-                <div class="md:col-span-2">
-                    <label for="room-type" class="block text-sm font-medium mb-2 text-slate-700 dark:text-slate-300">Room Type</label>
-                    <div class="relative">
-                        <select id="room-type" class="appearance-none w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent dark:bg-slate-700 pr-10 transition-all shadow-sm hover:shadow-md">
-                            <option value="">All Types</option>
-                            <?php
-                            $typeQuery = "SELECT * FROM room_types";
-                            $typeResult = $conn->query($typeQuery);
-                            while ($type = $typeResult->fetch_assoc()) {
-                                echo '<option value="'.$type['room_type_id'].'">'.$type['type_name'].'</option>';
-                            }
-                            ?>
-                        </select>
-                        <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                            <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                            </svg>
-                        </div>
-                    </div>
-                </div>
+              <!-- Room Type Filter (Narrower) -->
+<div class="md:col-span-2">
+    <label for="room-type" class="block text-sm font-medium mb-2 text-slate-700 dark:text-slate-300">Room Type</label>
+    <div class="relative">
+        <select id="room-type" class="appearance-none w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent dark:bg-slate-700 pr-10 transition-all shadow-sm hover:shadow-md">
+            <option value="">All Types</option>
+            <?php
+            // Get distinct room types from the rooms table
+            $typeQuery = "SELECT DISTINCT room_type FROM rooms WHERE room_type IS NOT NULL AND room_type != ''";
+            $typeResult = $conn->query($typeQuery);
+            while ($type = $typeResult->fetch_assoc()) {
+                echo '<option value="'.htmlspecialchars($type['room_type']).'">'.htmlspecialchars($type['room_type']).'</option>';
+            }
+            ?>
+        </select>
+        <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+            <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+            </svg>
+        </div>
+    </div>
+</div>
                 
                 <!-- Sort By (Narrower) -->
                 <div class="md:col-span-2">
@@ -136,7 +137,7 @@ if (isset($_SESSION['tenant_id'])) {
             <!-- Rooms will be loaded here via AJAX -->
             
             <!-- Example room card for reference (will be replaced by AJAX) -->
-            <div class="bg-white dark:bg-slate-900 rounded-xl shadow-lg overflow-hidden room-card" data-aos="fade-up">
+            <div class="bg-white dark:bg-slate-900 rounded-xl shadow-lg overflow-hidden room-card">
                 <div class="h-64 overflow-hidden relative">
                     <img src="https://images.unsplash.com/photo-1505693416388-ac5ce068fe85" alt="Single Room" class="w-full h-full object-cover transition-transform duration-500 hover:scale-110">
                     <div class="absolute top-4 right-4 bg-accent text-white text-sm font-bold px-3 py-1 rounded-full shadow-md">

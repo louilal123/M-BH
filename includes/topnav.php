@@ -158,9 +158,9 @@
   <nav class="container mx-auto px-4 py-4 flex items-center justify-between">
     <a href="index.php" class="flex items-center gap-2">
     <span class="text-4xl font-bold bg-gradient-to-r from-blue-600 to-blue-400 bg-clip-text text-transparent 
-              group-hover:from-blue-500 group-hover:to-blue-300 transition-all duration-500">
+              group-hover:from-blue-500 group-hover:to-blue-300 dark:  transition-all duration-500">
     MECMEC
-  </span> <span class="text-orange-400 dark:text-white text-lg font-semibold mt-3">BH</span>
+  </span> <span class="text-orange-400 dark:text-orange-400 text-lg font-semibold mt-3">BH</span>
     </a>
     
     <!-- Desktop Navigation -->

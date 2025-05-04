@@ -10,7 +10,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $ip_address = $_SERVER['REMOTE_ADDR'];
     $user_agent = $_SERVER['HTTP_USER_AGENT'];
 
-    $stmt = $conn->prepare("SELECT * FROM tenants WHERE email = ?");
+    $stmt = $conn->prepare("SELECT * FROM tenants WHERE email = ? AND status = 'active'");
+
     $stmt->bind_param("s", $email);
     $stmt->execute();
     $result = $stmt->get_result();

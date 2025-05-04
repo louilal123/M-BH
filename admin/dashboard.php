@@ -102,7 +102,7 @@ $bookingstCount = $rowBookings['bookingCount'];
                         <div class="flex items-center justify-between">
                             <div>
                                 <p class="text-gray-500 text-sm">Monthly Revenue</p>
-                                <h3 class="text-2xl font-bold"><?php echo number_format($totalIncome, 2); ?> </h3>
+                                <h3 class="text-2xl font-bold"> </h3>
                                 <p class="text-blue-600 text-sm mt-1 flex items-center">
                                     <i class="fas fa-arrow-up mr-1"></i>
                                     <span>12% from last month</span>

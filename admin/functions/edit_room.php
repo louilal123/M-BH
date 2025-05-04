@@ -1,116 +1,177 @@
 <?php
-include 'connection.php';
-include '../includes/session.php';
+session_start();
+require_once 'connection.php';
 
-if (isset($_POST['edit_room'])) {
-    $room_id = $_POST['room_id'];
-    $room_number = $_POST['room_number'];
-    $description = $_POST['description'];
-    $price = $_POST['price'];
-    $room_type = $_POST['room_type'];
-    $availability = $_POST['availability'];
-    $current_photo = $_POST['current_photo'] ?? '';
-
-    // Validation
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['edit_room'])) {
+    $room_id = intval($_POST['room_id']);
+    
+    // Validate inputs
     $errors = [];
     
+    $room_number = trim($_POST['room_number']);
+    $description = trim($_POST['description']);
+    $price = trim($_POST['price']);
+    $room_type = trim($_POST['room_type']);
+    $availability = intval($_POST['availability']);
+    
+    // Basic validation
     if (empty($room_number)) {
-        $errors[] = 'Room number is required';
+        $errors[] = "❌ Room number is required";
+    }
+    
+    if (empty($description)) {
+        $errors[] = "❌ Description is required";
     }
     
     if (!is_numeric($price) || $price <= 0) {
-        $errors[] = 'Price must be a positive number';
+        $errors[] = "❌ Valid price is required";
     }
     
     if (empty($room_type)) {
-        $errors[] = 'Room type is required';
+        $errors[] = "❌ Room type is required";
     }
+
+    // Set upload directory
+    $upload_dir = '../../uploads/rooms/';
     
     if (!empty($errors)) {
-        $_SESSION['error'] = implode('<br>', $errors);
-        header('location: ../rooms.php');
+        $_SESSION['status_icon'] = 'error';
+        $_SESSION['status'] = implode("<br>", $errors);
+        header("Location: ../rooms.php");
         exit();
     }
 
-    // Handle file upload
-    $photo = $current_photo;
-    if (!empty($_FILES['photo']['name'])) {
-        $file_name = $_FILES['photo']['name'];
-        $file_temp = $_FILES['photo']['tmp_name'];
-        $file_size = $_FILES['photo']['size'];
-        $file_type = $_FILES['photo']['type'];
-        
-        // Validate image
-        $allowed = ['image/jpeg', 'image/png', 'image/gif'];
-        if (!in_array($file_type, $allowed)) {
-            $_SESSION['error'] = 'Only JPG, PNG, and GIF images are allowed';
-            header('location: ../rooms.php');
-            exit();
-        }
-        
-        if ($file_size > 5000000) { // 5MB
-            $_SESSION['error'] = 'Image size must be less than 5MB';
-            header('location: ../rooms.php');
-            exit();
-        }
-        
-        $photo = time() . '_' . $file_name;
-        move_uploaded_file($file_temp, '../uploads/rooms/' . $photo);
-        
-        // Delete old photo if it exists and isn't the default
-        if (!empty($current_photo) && $current_photo !== 'default-room.jpg') {
-            unlink('../uploads/rooms/' . $current_photo);
-        }
-    }
-
-    // Update database
+    $conn->begin_transaction();
+    
     try {
-        $conn->begin_transaction();
+        // Handle main photo update
+        $photo_path = $_POST['current_photo'];
+        if (isset($_FILES['photo']) && $_FILES['photo']['error'] === UPLOAD_ERR_OK) {
+            $photo = $_FILES['photo'];
+            
+            // Validate image
+            $allowed_types = ['image/jpeg', 'image/png', 'image/gif'];
+            $max_size = 5 * 1024 * 1024; // 5MB
+            
+            if (!in_array($photo['type'], $allowed_types)) {
+                throw new Exception("Main photo must be a JPG, PNG, or GIF");
+            } elseif ($photo['size'] > $max_size) {
+                throw new Exception("Main photo must be less than 5MB");
+            } else {
+                // Generate unique filename
+                $ext = pathinfo($photo['name'], PATHINFO_EXTENSION);
+                $photo_filename = 'room_' . time() . '_main.' . $ext;
+                $photo_destination = $upload_dir . $photo_filename;
+                
+                if (move_uploaded_file($photo['tmp_name'], $photo_destination)) {
+                    // Delete old photo if exists
+                    if (!empty($_POST['current_photo']) && file_exists($upload_dir . $_POST['current_photo'])) {
+                        @unlink($upload_dir . $_POST['current_photo']);
+                    }
+                    $photo_path = $photo_filename;
+                } else {
+                    throw new Exception("Failed to upload main photo");
+                }
+            }
+        }
         
-        // Update room data
-        $stmt = $conn->prepare("UPDATE rooms SET room_number = ?, description = ?, price = ?, 
-                               room_type = ?, availability = ?, photo = ? WHERE room_id = ?");
-        $stmt->bind_param("ssdsssi", $room_number, $description, $price, $room_type, $availability, $photo, $room_id);
+        // Update room details
+        $stmt = $conn->prepare("UPDATE rooms SET 
+            room_number = ?, 
+            photo = ?, 
+            description = ?, 
+            price = ?, 
+            availability = ?, 
+            room_type = ? 
+            WHERE room_id = ?");
+        $stmt->bind_param("sssdssi", $room_number, $photo_path, $description, $price, $availability, $room_type, $room_id);
         $stmt->execute();
+        $stmt->close();
         
-        // Handle additional images
+        // Handle image deletions
+        if (!empty($_POST['delete_images'])) {
+            foreach ($_POST['delete_images'] as $image_id) {
+                $image_id = intval($image_id);
+                // Get image path first
+                $stmt = $conn->prepare("SELECT image_path FROM room_images WHERE image_id = ?");
+                $stmt->bind_param("i", $image_id);
+                $stmt->execute();
+                $result = $stmt->get_result();
+                $image = $result->fetch_assoc();
+                $stmt->close();
+                
+                if ($image) {
+                    // Delete from database
+                    $stmt = $conn->prepare("DELETE FROM room_images WHERE image_id = ?");
+                    $stmt->bind_param("i", $image_id);
+                    $stmt->execute();
+                    $stmt->close();
+                    
+                    // Delete file
+                    if (file_exists($upload_dir . $image['image_path'])) {
+                        @unlink($upload_dir . $image['image_path']);
+                    }
+                }
+            }
+        }
+        
+        // Handle new image uploads
         if (!empty($_FILES['additional_images']['name'][0])) {
-            foreach ($_FILES['additional_images']['tmp_name'] as $key => $tmp_name) {
-                if ($_FILES['additional_images']['error'][$key] === UPLOAD_ERR_OK) {
-                    $file_name = $_FILES['additional_images']['name'][$key];
-                    $file_type = $_FILES['additional_images']['type'][$key];
-                    $file_size = $_FILES['additional_images']['size'][$key];
-                    
+            $additional_images = reArrayFiles($_FILES['additional_images']);
+            $allowed_types = ['image/jpeg', 'image/png', 'image/gif'];
+            $max_size = 5 * 1024 * 1024; // 5MB
+            
+            foreach ($additional_images as $image) {
+                if ($image['error'] === UPLOAD_ERR_OK) {
                     // Validate image
-                    if (!in_array($file_type, $allowed)) {
-                        throw new Exception('Invalid file type for additional image');
+                    if (in_array($image['type'], $allowed_types) && $image['size'] <= $max_size) {
+                        $ext = pathinfo($image['name'], PATHINFO_EXTENSION);
+                        $image_filename = 'room_' . $room_id . '_' . time() . '_' . uniqid() . '.' . $ext;
+                        $image_destination = $upload_dir . $image_filename;
+                        
+                        if (move_uploaded_file($image['tmp_name'], $image_destination)) {
+                            $img_stmt = $conn->prepare("INSERT INTO room_images (room_id, image_path) VALUES (?, ?)");
+                            $img_stmt->bind_param("is", $room_id, $image_filename);
+                            $img_stmt->execute();
+                            $img_stmt->close();
+                        } else {
+                            throw new Exception("Failed to upload additional image: " . $image['name']);
+                        }
+                    } else {
+                        throw new Exception("Invalid image type or size for: " . $image['name']);
                     }
-                    
-                    if ($file_size > 5000000) {
-                        throw new Exception('Additional image size must be less than 5MB');
-                    }
-                    
-                    $new_name = time() . '_' . $file_name;
-                    move_uploaded_file($tmp_name, '../uploads/rooms/' . $new_name);
-                    
-                    // Insert image record
-                    $img_stmt = $conn->prepare("INSERT INTO room_images (room_id, image_path) VALUES (?, ?)");
-                    $img_stmt->bind_param("is", $room_id, $new_name);
-                    $img_stmt->execute();
                 }
             }
         }
         
         $conn->commit();
-        $_SESSION['success'] = 'Room updated successfully';
-        header('location: ../rooms.php');
+        
+        $_SESSION['status_icon'] = 'success';
+        $_SESSION['status'] = "✅ Room updated successfully!";
+        header("Location: ../rooms.php");
+        exit();
+        
     } catch (Exception $e) {
         $conn->rollback();
-        $_SESSION['error'] = 'Error updating room: ' . $e->getMessage();
-        header('location: ../rooms.php');
+        $_SESSION['status_icon'] = 'error';
+        $_SESSION['status'] = "❌ Error updating room: " . $e->getMessage();
+        header("Location: ../rooms.php");
+        exit();
     }
-} else {
-    $_SESSION['error'] = 'Invalid request';
-    header('location: ../rooms.php');
+}
+
+// Helper function to reorganize multiple files array
+function reArrayFiles($file_post) {
+    $file_array = array();
+    $file_count = count($file_post['name']);
+    $file_keys = array_keys($file_post);
+    
+    for ($i = 0; $i < $file_count; $i++) {
+        foreach ($file_keys as $key) {
+            $file_array[$i][$key] = $file_post[$key][$i];
+        }
+    }
+    
+    return $file_array;
 }
 ?>

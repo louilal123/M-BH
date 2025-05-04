@@ -1,5 +1,14 @@
 <?php
 ?>    <!-- Top Navigation -->
+<style>
+      .dt-empty {
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+            margin-top: 1rem;
+            text-align: center;
+        }
+</style>
     <header class="bg-white shadow-sm z-10">
                 <div class="flex items-center justify-between p-3">
                     <!-- Mobile Menu Button -->

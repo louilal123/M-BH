@@ -6,31 +6,24 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Boarding House Management</title>
     <?php include "includes-new/header.php";?>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 </head>
 <body class="bg-gray-50 text-gray-800">
     <div class="flex h-screen overflow-hidden">
         <?php include "includes-new/sidebar.php" ?>
         
-        <!-- Main Content -->
         <div class="flex-1 flex flex-col overflow-hidden">
-
         <?php include "includes-new/topnav.php" ?>
 
-            <!-- Main Content Area -->
             <main class="flex-1 overflow-y-auto p-6 bg-gray-100">
-                <!-- Dashboard Header -->
                 <div class="flex flex-col md:flex-row md:items-center justify-between mb-6">
                     <div>
                         <h1 class="text-2xl font-bold text-gray-800">Tenant Management</h1>
                     </div>
                     <div class="mt-4 md:mt-0 flex space-x-3">
-   
- 
-</div>
-
+                    </div>
                 </div>
 
-                <!-- Tenant Table Card -->
                 <div class="bg-white rounded-lg shadow-sm overflow-hidden">
                     <div class="p-4">
                         <div class="overflow-x-hidden">
@@ -50,8 +43,19 @@
                                 <tbody class="bg-white divide-y divide-gray-200">
                                     <?php
                                     include('functions/connection.php');
-                                    $query = "SELECT tenant_id, name, email, phone, occupation, address, phone, photo, status, created_at FROM tenants";
-                                    $result = $conn->query($query);
+                                    $query = "
+                                    SELECT t.tenant_id, t.name, t.email, t.phone, t.occupation, t.address, t.photo, t.status, t.created_at,
+                                           lh.login_time, lh.ip_address, lh.user_agent
+                                    FROM tenants t
+                                    LEFT JOIN (
+                                      SELECT tenant_id, login_time, ip_address, user_agent
+                                      FROM login_history
+                                      WHERE login_status = 'success'
+                                      ORDER BY login_time DESC
+                                    ) lh ON t.tenant_id = lh.tenant_id
+                                    GROUP BY t.tenant_id
+                                  ";
+                                   $result = $conn->query($query);
 
                                     if ($result->num_rows > 0):
                                         $tenants = $result->fetch_all(MYSQLI_ASSOC);
@@ -63,7 +67,7 @@
                                                 <td class="px-6 py-4 whitespace-nowrap">
                                                     <?php if (!empty($tenant['photo'])): ?>
                                                         <img 
-                                                            src="../<?php echo htmlspecialchars($tenant['photo'], ENT_QUOTES, 'UTF-8'); ?>" 
+                                                            src="../uploads/tenants/<?php echo htmlspecialchars($tenant['photo'], ENT_QUOTES, 'UTF-8'); ?>" 
                                                             alt="Tenant Photo" 
                                                             class="h-10 w-10 rounded-full object-cover"
                                                         >
@@ -99,31 +103,25 @@
                                                 
                                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                                     <div class="flex space-x-2">
-                                                    <button class="viewTenantBtn px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm flex items-center"
-                                                        data-id="<?php echo $tenant['tenant_id']; ?>"
-                                                        data-name="<?php echo htmlspecialchars($tenant['name']); ?>"
-                                                        data-email="<?php echo htmlspecialchars($tenant['email']); ?>"
-                                                        data-phone="<?php echo htmlspecialchars($tenant['phone']); ?>"
-                                                        data-occupation="<?php echo htmlspecialchars($tenant['occupation']); ?>"
-                                                      
-                                                        data-address="<?php echo htmlspecialchars($tenant['address']); ?>"
-                                                        data-status="<?php echo htmlspecialchars($tenant['status']); ?>"
-                                                        data-photo="<?php echo htmlspecialchars($tenant['photo']); ?>"
-                                                        data-created="<?php echo htmlspecialchars($tenant['created_at']); ?>">
-                                                        <i class="fas fa-eye mr-1 text-xs"></i> View
-                                                    </button>   
-                                                    <button class="editTenantBtn px-3 py-1 bg-green-800 text-white rounded hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm flex items-center"
-                                                            data-id="<?php echo $tenant['tenant_id']; ?>"
-                                                            data-name="<?php echo htmlspecialchars($tenant['name']); ?>"
-                                                            data-email="<?php echo htmlspecialchars($tenant['email']); ?>"
-                                                            data-phone="<?php echo htmlspecialchars($tenant['phone']); ?>"
-                                                            data-occupation="<?php echo htmlspecialchars($tenant['occupation']); ?>"
-                                                        
-                                                            data-address="<?php echo htmlspecialchars($tenant['address']); ?>"
-                                                            data-status="<?php echo htmlspecialchars($tenant['status']); ?>"
-                                                            data-photo="<?php echo htmlspecialchars($tenant['photo']); ?>">
-                                                            <i class="fas fa-edit mr-1 text-xs"></i> Edit
-                                                        </button>
+                                                   
+                                                    <button 
+    class="editTenantBtn px-3 py-1 bg-yellow-500 text-white rounded hover:bg-yellow-600 focus:outline-none focus:ring-2 focus:ring-yellow-400 text-sm flex items-center"
+    data-id="<?php echo $tenant['tenant_id']; ?>"
+    data-name="<?php echo htmlspecialchars($tenant['name']); ?>"
+    data-email="<?php echo htmlspecialchars($tenant['email']); ?>"
+    data-phone="<?php echo htmlspecialchars($tenant['phone']); ?>"
+    data-occupation="<?php echo htmlspecialchars($tenant['occupation']); ?>"
+    data-address="<?php echo htmlspecialchars($tenant['address']); ?>"
+    data-date_created="<?php echo htmlspecialchars($tenant['created_at'] ?? ''); ?>"
+    data-status="<?php echo htmlspecialchars($tenant['status']); ?>"
+    data-photo="<?php echo htmlspecialchars($tenant['photo']); ?>"
+    data-login_time="<?php echo htmlspecialchars($tenant['login_time'] ?? ''); ?>"
+    data-login_ip="<?php echo htmlspecialchars($tenant['ip_address'] ?? ''); ?>"
+    data-user_agent="<?php echo htmlspecialchars($tenant['user_agent'] ?? ''); ?>"
+>
+    <i class="fas fa-edit mr-1 text-xs"></i> Edit
+</button>
+
                                                         <button 
                                                             type="button" 
                                                             class="px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 text-sm flex items-center deleteTenantBtn"
@@ -145,175 +143,186 @@
         </div>
     </div>
 
-<!-- Edit Tenant Modal -->
-<div id="editTenantModal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4">
-  <div class="fixed inset-0 bg-gray-500/75" onclick="closeModal('editTenantModal')"></div>
-  <div class="relative w-full max-w-2xl bg-white rounded-lg shadow-xl">
-    <div class="flex justify-between items-center px-6 py-4 border-b">
-      <h3 class="text-lg font-semibold text-gray-800">Edit Tenant</h3>
-      <button class="text-gray-400 hover:text-gray-500" onclick="closeModal('editTenantModal')">
-        <i class="fas fa-times"></i>
-      </button>
-    </div>
-    <form action="functions/edit_tenant.php" method="POST" enctype="multipart/form-data" class="bg-gray-50 p-6">
-      <input type="hidden" name="tenant_id" id="tenant_id">
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div><label class="block text-sm font-medium text-gray-700 mb-1">Full Name<input type="text" id="name" name="name" required oninput="validateAlphanumeric(this)" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"></label></div>
-        <div><label class="block text-sm font-medium text-gray-700 mb-1">Email<input type="email" id="email" name="email" required class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"></label></div>
-        <div><label class="block text-sm font-medium text-gray-700 mb-1">Phone<input type="text" id="phone" name="phone" required oninput="validatePhone(this)" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"></label></div>
-        <div><label class="block text-sm font-medium text-gray-700 mb-1">Occupation<input type="text" id="occupation" name="occupation" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"></label></div>
-      
-        <div><label class="block text-sm font-medium text-gray-700 mb-1">Status<select id="status" name="status" required class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"><option value="active">Active</option><option value="inactive">Inactive</option></select></label></div>
-        <div class="col-span-2"><label class="block text-sm font-medium text-gray-700 mb-1">Address<input type="text" id="address" name="address" required oninput="validateAlphanumeric(this)" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"></label></div>
-        <div><label class="block text-sm font-medium text-gray-700 mb-1">Current Photo<div class="mt-1">
-            <img id="currentPhotoPreview"  alt="Photo" class="h-24 w-24 rounded-md object-cover border border-gray-200"></div></label></div>
-        <div><label class="block text-sm font-medium text-gray-700 mb-1">Change Photo<input type="file" id="photo" name="photo" accept="image/*" class="w-full px-3 py-2 text-sm text-gray-700 border border-gray-300 rounded-md cursor-pointer focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"><p class="mt-1 text-xs text-gray-500">JPEG, PNG or GIF. Max 2MB.</p></label></div>
-      </div>
-      <div class="flex justify-end space-x-3 mt-6 px-2">
-        <button type="button" onclick="closeModal('editTenantModal')" class="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500">Cancel</button>
-        <button type="submit" name="save_tenant" class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500">Save Changes</button>
-      </div>
-    </form>
-  </div>
-</div>
+    <div id="editTenantModal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4">
+    <div class="fixed inset-0 bg-gray-500/75" onclick="closeModal('editTenantModal')"></div>
+    <div class="relative w-full max-w-4xl bg-white rounded-lg shadow-xl">
+        <div class="flex justify-between items-center px-4 py-3 border-b">
+        <h3 class="text-lg font-semibold text-gray-800">Tenant Details</h3>
+        <button class="text-gray-400 hover:text-gray-500" onclick="closeModal('editTenantModal')">
+            <i class="fas fa-times"></i>
+        </button>
+        </div>
+        
+        <form action="functions/edit_tenant.php" method="POST" enctype="multipart/form-data" class="bg-gray-50 p-8">
+            <input type="hidden" name="tenant_id" id="tenant_id">
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <div class="flex flex-col items-center">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        <div class="mt-1 flex justify-center">
+                            <img id="currentPhotoPreview" alt="Tenant Photo" class="h-52 w-52 rounded-md object-cover border border-gray-200 shadow">
+                        </div>
+                    </label>
+                    <div class="mt-2 text-sm text-gray-600">
+                        Joined: <span class="font-medium" id="date_created"></span>
+                    </div>
+                </div>
+                    
+                <!-- First Column of Details -->
+                <div class="grid grid-cols-1 gap-4 md:mt-0 mt-2">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">
+                    Full Name
+                    <input type="text" id="name" name="name" required readonly
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100 shadow-sm">
+                    </label>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">
+                    Email
+                    <input type="email" id="email" name="email" required readonly
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100 shadow-sm">
+                    </label>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">
+                    Phone
+                    <input type="text" id="phone" name="phone" required readonly
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100 shadow-sm">
+                    </label>
+                </div>
+                </div>
+                
+                <!-- Second row with Occupation and Address across full width -->
+                <div class="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">
+                    Occupation
+                    <input type="text" id="occupation" name="occupation" readonly
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100 shadow-sm">
+                    </label>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">
+                    Address
+                    <input type="text" id="address" name="address" required readonly
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100 shadow-sm">
+                    </label>
+                </div>
+                </div>
+            </div>
+            <!-- Login Info -->
+            <div class="mt-5 pt-4 border-t border-gray-200">
+            <h4 class="text-sm font-semibold text-gray-800 mb-3">Last Login Info</h4>
+            <table class="min-w-full text-sm text-gray-700">
+                <thead>
+                <tr>
+                    <th class="px-4 py-2 text-left font-medium">Field</th>
+                    <th class="px-4 py-2 text-left font-medium">Info</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td class="px-4 py-2 font-medium">Login Time:</td>
+                    <td id="lastLoginTime" class="px-4 py-2 text-gray-600">—</td>
+                </tr>
+                <tr>
+                    <td class="px-4 py-2 font-medium">IP Address:</td>
+                    <td id="lastLoginIP" class="px-4 py-2 text-gray-600">—</td>
+                </tr>
+                <tr>
+                    <td class="px-4 py-2 font-medium">Device Info:</td>
+                    <td id="lastLoginDevice" class="px-4 py-2 text-gray-600">—</td>
+                </tr>
+                </tbody>
+            </table>
+            </div>
+            <!-- Status Update -->
+            <div class="mt-5 pt-4 border-t border-gray-200">
+            <div class="w-48">
+                <label for="status" class="block text-sm font-medium text-gray-700">
+                Status
+                </label>
+                <select id="status" name="status" required
+                class="w-full mt-1 px-3 py-2 border border-indigo-500 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                <option value="active">Active</option>
+                <option value="inactive">Inactive</option>
+                </select>
+            </div>
+            </div>
 
-<!-- View Tenant Modal -->
-<div id="viewTenantModal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4">
-    <div class="fixed inset-0 bg-gray-500/75" onclick="closeModal('viewTenantModal')"></div>
-    <div class="relative w-full max-w-2xl bg-white rounded-lg shadow-xl">
-        <div class="flex justify-between items-center px-6 py-4 border-b">
-            <h3 class="text-lg font-semibold text-gray-800">Tenant Details</h3>
-            <button class="text-gray-400 hover:text-gray-500" onclick="closeModal('viewTenantModal')">
-                <i class="fas fa-times"></i>
+            <!-- Buttons at the bottom -->
+            <div class="mt-6 flex justify-end space-x-3">
+            <button type="button" onclick="closeModal('editTenantModal')"
+                class="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+                Cancel
             </button>
-        </div>
-        <div class="bg-gray-50 p-6">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div class="col-span-2 flex justify-center">
-                    <img id="viewPhotoPreview" alt="Tenant Photo" class="h-32 w-32 rounded-full object-cover border-4 border-white shadow">
-                </div>
-                <div class="col-span-2">
-                    <label class="block text-sm font-medium text-gray-500">Full Name</label>
-                    <p id="viewName" class="mt-1 text-sm text-gray-900 font-medium"></p>
-                </div>
-                <div class="col-span-2">
-                    <label class="block text-sm font-medium text-gray-500">Email</label>
-                    <p id="viewEmail" class="mt-1 text-sm text-gray-900"></p>
-                </div>
-                <div class="col-span-2">
-                    <label class="block text-sm font-medium text-gray-500">Phone</label>
-                    <p id="viewPhone" class="mt-1 text-sm text-gray-900"></p>
-                </div>
-              
-                <div>
-                    <label class="block text-sm font-medium text-gray-500">Occupation</label>
-                    <p id="viewOccupation" class="mt-1 text-sm text-gray-900"></p>
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-500">Status</label>
-                    <p id="viewStatus" class="mt-1 text-sm text-gray-900"></p>
-                </div>
-                <div class="col-span-2">
-                    <label class="block text-sm font-medium text-gray-500">Address</label>
-                    <p id="viewAddress" class="mt-1 text-sm text-gray-900"></p>
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-500">Date Registered</label>
-                    <p id="viewCreated" class="mt-1 text-sm text-gray-900"></p>
-                </div>
+            <button type="submit" name="save_tenant"
+                class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700">
+                Save Changes
+            </button>
             </div>
-            <div class="flex justify-end mt-6 px-2">
-                <button type="button" onclick="closeModal('viewTenantModal')" class="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500">Close</button>
-            </div>
-        </div>
-    </div>
+             </div>
+        </form>
+  </div>
 </div>
 
     <?php include "includes-new/footer.php" ?>
     <script>
-// Edit button click handlers
 document.addEventListener('DOMContentLoaded', function() {
   document.querySelectorAll('.editTenantBtn').forEach(button => {
     button.addEventListener('click', function() {
-      // Get data attributes
       const tenantId = this.getAttribute('data-id');
       const name = this.getAttribute('data-name');
       const email = this.getAttribute('data-email');
       const phone = this.getAttribute('data-phone');
       const occupation = this.getAttribute('data-occupation');
-    
       const address = this.getAttribute('data-address');
+      const date_created = this.getAttribute('data-date_created');
       const status = this.getAttribute('data-status');
       const photo = this.getAttribute('data-photo');
-      
-      // Populate form fields
+      const loginTime = this.getAttribute('data-login_time');
+      const loginIP = this.getAttribute('data-login_ip');
+      const userAgent = this.getAttribute('data-user_agent');
+
+      let formattedDate = date_created;
+      if (date_created) {
+        const dateObj = new Date(date_created);
+        formattedDate = dateObj.toLocaleDateString('en-US', {
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric'
+        });
+      }
+      document.getElementById('lastLoginTime').textContent = loginTime || 'N/A';
+      document.getElementById('lastLoginIP').textContent = loginIP || 'N/A';
+      document.getElementById('lastLoginDevice').textContent = userAgent || 'N/A';
+
       document.getElementById('tenant_id').value = tenantId;
       document.getElementById('name').value = name;
       document.getElementById('email').value = email;
       document.getElementById('phone').value = phone;
       document.getElementById('occupation').value = occupation || '';
-      
       document.getElementById('address').value = address;
+      document.getElementById('date_created').textContent = formattedDate || 'N/A';
       document.getElementById('status').value = status;
       
-      // Set photo preview
       const photoPreview = document.getElementById('currentPhotoPreview');
       if (photo) {
-        photoPreview.src = '' + photo;
+        photoPreview.src = '../uploads/tenants/' + photo;
       } else {
-        photoPreview.src = '../uploads/tenants/default.png';
+        photoPreview.src = 'uploads/tenants/default.png';
       }
       
       openModal('editTenantModal');
     });
   });
 
-  // View button click handler
-  document.querySelectorAll('.viewTenantBtn').forEach(button => {
-    button.addEventListener('click', function() {
-      // Get data attributes
-      const tenantId = this.getAttribute('data-id');
-      const name = this.getAttribute('data-name');
-      const email = this.getAttribute('data-email');
-      const phone = this.getAttribute('data-phone');
-      const occupation = this.getAttribute('data-occupation');
-     
-      const address = this.getAttribute('data-address');
-      const status = this.getAttribute('data-status');
-      const photo = this.getAttribute('data-photo');
-      const created = this.getAttribute('data-created');
-      
-      // Format the date
-      const formattedDate = new Date(created).toLocaleDateString('en-US', {
-          year: 'numeric',
-          month: 'long',
-          day: 'numeric'
-      });
-      
-      // Populate view modal
-      document.getElementById('viewName').textContent = name;
-      document.getElementById('viewEmail').textContent = email;
-      document.getElementById('viewPhone').textContent = phone;
-      document.getElementById('viewOccupation').textContent = occupation || 'N/A';
-     
-      document.getElementById('viewAddress').textContent = address;
-      document.getElementById('viewStatus').textContent = status.charAt(0).toUpperCase() + status.slice(1);
-      document.getElementById('viewCreated').textContent = formattedDate;
-      
-      // Set photo preview
-      const photoPreview = document.getElementById('viewPhotoPreview');
-      if (photo) {
-        photoPreview.src = 'uploads/tenants/' + photo;
-      } else {
-        photoPreview.src = 'uploads/tenants/default.png';
-      }
-      
-      openModal('viewTenantModal');
-    });
-  });
 });
 
-// Modal control functions
 function openModal(modalId) {
   document.getElementById(modalId).classList.remove('hidden');
   document.body.classList.add('overflow-hidden');
@@ -324,7 +333,6 @@ function closeModal(modalId) {
   document.body.classList.remove('overflow-hidden');
 }
 
-// Close modal when clicking outside
 window.addEventListener('click', function(event) {
   if (event.target.classList.contains('fixed') && event.target.classList.contains('inset-0')) {
     const modals = document.querySelectorAll('.fixed.inset-0.hidden');
@@ -337,7 +345,6 @@ window.addEventListener('click', function(event) {
   }
 });
 
-// Delete confirmation
 document.querySelectorAll('.deleteTenantBtn').forEach(button => {
     button.addEventListener('click', function(e) {
         e.preventDefault();
@@ -360,7 +367,6 @@ document.querySelectorAll('.deleteTenantBtn').forEach(button => {
     });
 });
 
-// Validation functions
 function validateName(input) {
     input.value = input.value.replace(/[^A-Za-z\s]/g, '');
 }
