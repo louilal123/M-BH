@@ -591,9 +591,10 @@ if (isset($_SESSION['tenant_id'])) {
     <div class="container mx-auto px-4 py-16">
       <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-12">
         <div>
-          <a href="#" class="flex items-center gap-2 mb-6">
-            <span class="text-white text-2xl font-bold font-heading">MECMEC</span>
-            <span class="text-orange-400 dark:text-orange-400 text-lg font-semibold mt-3">BH</span>
+        <a href="#" class="flex items-center gap-2 mb-6">
+            <span class="text-2xl font-bold bg-gradient-to-r from-blue-600 to-blue-400 bg-clip-text text-transparent 
+              group-hover:from-blue-500 group-hover:to-blue-300 dark:  transition-all duration-500"> MECMEC</span>
+            <span class="text-orange-400 dark:text-orange-400 text-lg font-semibold mt-1">BH</span>
           </a>
           <p class="mb-6 text-slate-400">
             Providing quality accommodation for students and young professionals since 2015.

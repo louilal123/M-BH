@@ -16,32 +16,103 @@ if (isset($_SESSION['tenant_id'])) {
     <?php include "includes/header.php"; ?>
     <title>Room Listing | MECMEC Boarding House</title>
     <style>
-        .room-card {
-            transition: all 0.3s ease;
-            border: 1px solid rgba(226, 232, 240, 0.5);
-        }
-        .room-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
-            border-color: rgba(59, 130, 246, 0.5);
-        }
-      
-        /* Enhanced geometric pattern background */
-        .geometric-pattern {
-            background-color: #f8fafc;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 80 80'%3E%3Cg fill='%23e2e8f0' fill-opacity='0.4'%3E%3Cpath d='M0 0h40v40H0V0zm40 40h40v40H40V40zm0-40h2l-2 2V0zm0 4l4-4h2l-6 6V4zm0 4l8-8h2L40 10V8zm0 4L52 0h2L40 14v-2zm0 4L56 0h2L40 18v-2zm0 4L60 0h2L40 22v-2zm0 4L64 0h2L40 26v-2zm0 4L68 0h2L40 30v-2zm0 4L72 0h2L40 34v-2zm0 4L76 0h2L40 38v-2zm0 4L80 0v2L42 40h-2zm4 0L80 4v2L46 40h-2zm4 0L80 8v2L50 40h-2zm4 0l28-28v2L54 40h-2zm4 0l24-24v2L58 40h-2zm4 0l20-20v2L62 40h-2zm4 0l16-16v2L66 40h-2zm4 0l12-12v2L70 40h-2zm4 0l8-8v2l-6 6h-2zm4 0l4-4v2l-2 2h-2z'/%3E%3C/g%3E%3C/svg%3E");
-        }
-        .dark .geometric-pattern {
-            background-color: #0f172a;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 80 80'%3E%3Cg fill='%231e293b' fill-opacity='0.4'%3E%3Cpath d='M0 0h40v40H0V0zm40 40h40v40H40V40zm0-40h2l-2 2V0zm0 4l4-4h2l-6 6V4zm0 4l8-8h2L40 10V8zm0 4L52 0h2L40 14v-2zm0 4L56 0h2L40 18v-2zm0 4L60 0h2L40 22v-2zm0 4L64 0h2L40 26v-2zm0 4L68 0h2L40 30v-2zm0 4L72 0h2L40 34v-2zm0 4L76 0h2L40 38v-2zm0 4L80 0v2L42 40h-2zm4 0L80 4v2L46 40h-2zm4 0L80 8v2L50 40h-2zm4 0l28-28v2L54 40h-2zm4 0l24-24v2L58 40h-2zm4 0l20-20v2L62 40h-2zm4 0l16-16v2L66 40h-2zm4 0l12-12v2L70 40h-2zm4 0l8-8v2l-6 6h-2zm4 0l4-4v2l-2 2h-2z'/%3E%3C/g%3E%3C/svg%3E");
-        }
-        /* Parallax effect for section background */
-        .parallax {
-            background-attachment: fixed;
-            background-position: center;
-            background-repeat: no-repeat;
-            background-size: cover;
-        }
+    .navbar {
+    background-color:#0f172a;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    }
+
+    .room-card {
+        transition: all 0.3s ease;
+        border: 1px solid rgba(226, 232, 240, 0.5);
+    }
+    .room-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+        border-color: rgba(59, 130, 246, 0.5);
+    }
+  
+    /* Enhanced geometric pattern background */
+    .geometric-pattern {
+        background-color: #f8fafc;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 80 80'%3E%3Cg fill='%23e2e8f0' fill-opacity='0.4'%3E%3Cpath d='M0 0h40v40H0V0zm40 40h40v40H40V40zm0-40h2l-2 2V0zm0 4l4-4h2l-6 6V4zm0 4l8-8h2L40 10V8zm0 4L52 0h2L40 14v-2zm0 4L56 0h2L40 18v-2zm0 4L60 0h2L40 22v-2zm0 4L64 0h2L40 26v-2zm0 4L68 0h2L40 30v-2zm0 4L72 0h2L40 34v-2zm0 4L76 0h2L40 38v-2zm0 4L80 0v2L42 40h-2zm4 0L80 4v2L46 40h-2zm4 0L80 8v2L50 40h-2zm4 0l28-28v2L54 40h-2zm4 0l24-24v2L58 40h-2zm4 0l20-20v2L62 40h-2zm4 0l16-16v2L66 40h-2zm4 0l12-12v2L70 40h-2zm4 0l8-8v2l-6 6h-2zm4 0l4-4v2l-2 2h-2z'/%3E%3C/g%3E%3C/svg%3E");
+    }
+    .dark .geometric-pattern {
+        background-color: #0f172a;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 80 80'%3E%3Cg fill='%231e293b' fill-opacity='0.4'%3E%3Cpath d='M0 0h40v40H0V0zm40 40h40v40H40V40zm0-40h2l-2 2V0zm0 4l4-4h2l-6 6V4zm0 4l8-8h2L40 10V8zm0 4L52 0h2L40 14v-2zm0 4L56 0h2L40 18v-2zm0 4L60 0h2L40 22v-2zm0 4L64 0h2L40 26v-2zm0 4L68 0h2L40 30v-2zm0 4L72 0h2L40 34v-2zm0 4L76 0h2L40 38v-2zm0 4L80 0v2L42 40h-2zm4 0L80 4v2L46 40h-2zm4 0L80 8v2L50 40h-2zm4 0l28-28v2L54 40h-2zm4 0l24-24v2L58 40h-2zm4 0l20-20v2L62 40h-2zm4 0l16-16v2L66 40h-2zm4 0l12-12v2L70 40h-2zm4 0l8-8v2l-6 6h-2zm4 0l4-4v2l-2 2h-2z'/%3E%3C/g%3E%3C/svg%3E");
+    }
+    
+    /* Modern semi-circle design with double circle effect */
+    .section-decoration {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        top: 0;
+        left: 0;
+        pointer-events: none;
+        overflow: hidden;
+        z-index: 0;
+    }
+    
+    .semi-circle {
+        position: absolute;
+        width: 1200px;
+        height: 600px;
+        border-radius: 50%;
+        background: transparent;
+        clip-path: circle(50% at 50% 0);
+        opacity: 0.15;
+        filter: blur(40px);
+        left: 50%;
+        transform: translateX(-50%);
+        top: -200px;
+    }
+    
+    .semi-circle::before {
+        content: '';
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        border-radius: 50%;
+        border: 120px solid;
+        border-color: rgba(59, 130, 246, 0.1);
+        top: 0;
+        left: 0;
+        box-sizing: border-box;
+    }
+    
+    .semi-circle::after {
+        content: '';
+        position: absolute;
+        width: calc(100% - 240px);
+        height: calc(100% - 240px);
+        border-radius: 50%;
+        border: 80px solid;
+        border-color: rgba(236, 72, 153, 0.1);
+        top: 120px;
+        left: 120px;
+        box-sizing: border-box;
+    }
+    
+    .dark .semi-circle {
+        opacity: 0.25;
+    }
+    
+    .dark .semi-circle::before {
+        border-color: rgba(99, 102, 241, 0.15);
+    }
+    
+    .dark .semi-circle::after {
+        border-color: rgba(236, 72, 153, 0.15);
+    }
+
+    /* Parallax effect for section background */
+    .parallax {
+        background-attachment: fixed;
+        background-position: center;
+        background-repeat: no-repeat;
+        background-size: cover;
+    }
     </style>
 </head>
 <body class="bg-slate-50 text-slate-700 dark:bg-slate-900 dark:text-slate-200 transition-all duration-300">
@@ -49,7 +120,12 @@ if (isset($_SESSION['tenant_id'])) {
 <?php include "includes/topnav.php"; ?>
 
 <!-- Room Listing Section -->
-<section class="geometric-pattern py-16 md:py-24 relative min-h-screen mb-30">
+<section class="geometric-pattern py-16 md:py-24 relative min-h-screen mb-30 overflow-hidden">
+    <!-- Modern semi-circle decoration -->
+    <div class="section-decoration">
+        <div class="semi-circle"></div>
+    </div>
+    
     <div class="absolute inset-0 bg-gradient-to-b from-white/80 to-white/20 dark:from-slate-900/90 dark:to-slate-900/50 backdrop-blur-[2px]"></div>
     <div class="container mx-auto px-4 relative mt-8">  
         <div class="text-center mb-12" >
@@ -63,7 +139,7 @@ if (isset($_SESSION['tenant_id'])) {
         </div>
 
         <!-- Search and Filter Bar - -->
-        <div class="max-w-5xl mx-auto bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-6 mb-12" data-aos="fade-up">
+        <div class="max-w-5xl mx-auto bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-6 mb-12" >
             <div class="grid grid-cols-1 md:grid-cols-12 gap-4 items-end">
                 <!-- Search Input (Wider) -->
                 <div class="md:col-span-8">
@@ -125,14 +201,14 @@ if (isset($_SESSION['tenant_id'])) {
         </div>
 
         <!-- Room Grid - 3x3 Layout -->
-        <div id="room-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div id="room-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 relative z-10">
             <!-- Rooms will be loaded here via AJAX -->
            
         </div>
 
-        <!-- Loading Indicator -->
+      <!-- Loading Indicator -->
         <div id="loading" class="text-center py-12">
-            <div class="inline-block animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary"></div>
+            <div class="inline-block animate-spin rounded-full h-8 w-8 border-4 border-blue-500 border-t-transparent"></div>
             <p class="mt-2 text-slate-500 dark:text-slate-400">Loading rooms...</p>
         </div>
 
@@ -149,16 +225,15 @@ if (isset($_SESSION['tenant_id'])) {
     </div>
 </section>
 
-
-
   <!-- Footer -->
   <footer class="bg-slate-900 text-slate-300 pt-100">
     <div class="container mx-auto px-4 py-16">
       <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-12">
         <div>
-          <a href="#" class="flex items-center gap-2 mb-6">
-            <span class="text-white text-2xl font-bold font-heading">MECMEC</span>
-            <span class="text-orange-400 dark:text-orange-400 text-lg font-semibold mt-3">BH</span>
+        <a href="#" class="flex items-center gap-2 mb-6">
+            <span class="text-2xl font-bold bg-gradient-to-r from-blue-600 to-blue-400 bg-clip-text text-transparent 
+              group-hover:from-blue-500 group-hover:to-blue-300 dark:  transition-all duration-500"> MECMEC</span>
+            <span class="text-orange-400 dark:text-orange-400 text-lg font-semibold mt-1">BH</span>
           </a>
           <p class="mb-6 text-slate-400">
             Providing quality accommodation for students and young professionals since 2015.
@@ -340,56 +415,6 @@ $(document).ready(function() {
 });
 </script>
 
-<!-- js for modal booking  --><script>
-// Ensure these functions are globally available
-window.openBookingModal = function(roomId) {
-    // Set minimum date to today
-    const today = new Date().toISOString().split('T')[0];
-    document.getElementById('checkInDate').min = today;
-    document.getElementById('checkOutDate').min = today;
-    
-    // Set the room ID in the form
-    document.getElementById('bookingRoomId').value = roomId;
-    
-    // Show modal
-    document.getElementById('bookingModal').classList.remove('hidden');
-}
-
-window.closeBookingModal = function() {
-    document.getElementById('bookingModal').classList.add('hidden');
-}
-
-document.addEventListener('DOMContentLoaded', function() {
-    const bookingForm = document.getElementById('bookingForm');
-    if (bookingForm) {
-        bookingForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            const formData = new FormData(this);
-            formData.append('tenant_id', <?php echo isset($_SESSION['tenant_id']) ? $_SESSION['tenant_id'] : 'null'; ?>);
-            
-            fetch('process_booking.php', {
-                method: 'POST',
-                body: formData
-            })
-            .then(response => response.json())
-            .then(data => {
-                if(data.success) {
-                    alert('Booking successful!');
-                    closeBookingModal();
-                    // Optionally refresh the page or update UI
-                } else {
-                    alert('Error: ' + data.message);
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('An error occurred during booking.');
-            });
-        });
-    }
-});
-</script>
 <?php include "includes/footer.php" ?>
 </body>
 </html>

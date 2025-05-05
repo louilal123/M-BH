@@ -109,12 +109,12 @@ if ($result->num_rows > 0) {
         }
 
         echo '</div>
-                <button onclick="openBookingModal(' . $roomId . ')" 
-                    class="block w-full text-center bg-primary hover:bg-primary-dark text-white py-2 rounded-md transition duration-300">
-                    Book Now
-                </button>
-            </div>
-        </div>';
+      <a href="booking.php?room_id=' . $roomId . '" 
+         class="block w-full text-center bg-primary hover:bg-primary-dark text-white py-2 rounded-md transition duration-300">
+         Book Now
+      </a>
+   </div>
+</div>';
 
         $delay += 100;
     }

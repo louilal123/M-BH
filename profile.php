@@ -4,18 +4,12 @@ session_start();
 include "admin/functions/connection.php";
 include 'functions/load_tenant_data.php';
 
-// Check login status
 if (!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true) {
     header("location: login.php");
     exit;
 }
 
-
-
-// Load full tenant data (replaces the old $tenantData variable)
 $tenantData = loadTenantData($conn, $_SESSION['tenant_id']);
-
-
 
 ?>
 
@@ -28,8 +22,8 @@ $tenantData = loadTenantData($conn, $_SESSION['tenant_id']);
   <title>My Profile - MECMEC Boarding House</title>
   <?php include "includes/header.php"; ?>
   <style>
-    .navbar {
-    background-color: rgba(30, 0, 113, 0.95);
+     .navbar {
+    background-color:#0f172a;
       backdrop-filter: blur(10px);
       box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
     }

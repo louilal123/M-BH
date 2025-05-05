@@ -16,7 +16,7 @@ $admin_photo = $_SESSION['photo'];
 
 
 
-include "functions/functions.php";
-updateRoomAvailability();
+// include "functions/functions.php";
+// updateRoomAvailability();
 
 ?>

@@ -121,30 +121,31 @@
                                                     <?php echo htmlspecialchars($room['room_type'], ENT_QUOTES, 'UTF-8'); ?>
                                                 </td>
                                                 <td class="px-6 py-4 whitespace-nowrap">
-                                                    <?php 
-                                                        $status = $room['availability'];
-                                                        switch ($status) {
-                                                            case 0:
-                                                                $badgeClass = 'bg-green-100 text-green-800';
-                                                                $statusText = 'Available';
-                                                                break;
-                                                            case 1:
-                                                                $badgeClass = 'bg-yellow-100 text-yellow-800';
-                                                                $statusText = 'Occupied';
-                                                                break;
-                                                            case 2:
-                                                                $badgeClass = 'bg-red-100 text-red-800';
-                                                                $statusText = 'Under Maintenance';
-                                                                break;
-                                                            default:
-                                                                $badgeClass = 'bg-gray-100 text-gray-800';
-                                                                $statusText = 'Unknown';
-                                                                break;
-                                                        }
+    <?php 
+        $status = $room['availability'];
+       
+        switch ($status) {
+            case '0': // Note: changed from 0 to '0' (string)
+                $badgeClass = 'bg-green-100 text-green-800';
+                $statusText = 'Available';
+                break;
+            case '1': // Note: changed from 1 to '1' (string)
+                $badgeClass = 'bg-yellow-100 text-yellow-800';
+                $statusText = 'Occupied';
+                break;
+            case '2': // Note: changed from 2 to '2' (string)
+                $badgeClass = 'bg-red-100 text-red-800';
+                $statusText = 'Under Maintenance';
+                break;
+            default:
+                $badgeClass = 'bg-gray-100 text-gray-800';
+                $statusText = 'Unknown';
+                break;
+        }
 
-                                                        echo '<span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full '.$badgeClass.'">'.$statusText.'</span>';
-                                                    ?>
-                                                </td>
+        echo '<span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full '.$badgeClass.'">'.$statusText.'</span>';
+    ?>
+</td>
 
                                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                                     <div class="flex space-x-2">
@@ -221,8 +222,14 @@
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Room Type</label>
-                        <input type="text" name="room_type" required 
-                               class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                        <select name="room_type" required 
+                                class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                            <option value="One-Bedroom Unit">One-Bedroom Unit</option>
+                            <option value="Two Bedroom">Two Bedroom</option>
+                            <option value="Couple Room">Couple Room</option>
+                            <option value="Bedspace">Bedspace</option>
+                            
+                        </select>
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Status</label>
@@ -294,10 +301,9 @@
 
    <!-- Edit Room Modal -->
 <div id="editRoomModal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4">
-    <!-- Background overlay -->
+   
     <div class="fixed inset-0 bg-gray-500/75" id="modalBackdrop" onclick="closeModal('editRoomModal')"></div>
 
-    <!-- Modal content -->
     <div class="relative w-full max-w-4xl bg-white rounded-lg shadow-xl">
         <!-- Modal Header -->
         <div class="flex justify-between items-center px-6 py-4 border-b">
@@ -332,8 +338,16 @@
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Room Type</label>
-                        <input type="text" name="room_type" id="edit_room_type" required
+                    <select name="room_type" id="edit_room_type" required 
                             class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                        
+                        <option value="" disabled selected>Select Room Type</option>
+                        <option value="One-Bedroom Unit">One-Bedroom Unit</option>
+                        <option value="Two Bedroom">Two Bedroom</option>
+                        <option value="Couple Room">Couple Room</option>
+                        <option value="Bedspace">Bedspace</option>
+                    </select>
+
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Status</label>
