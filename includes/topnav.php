@@ -42,7 +42,7 @@
           <i class="fas fa-times text-xl"></i>
         </button>
       </div>
-      <form action="functions/login_process.php" method="post" class="space-y-4">
+      <form id="login-form" class="space-y-4">
 
         <div>
           <label for="login-email" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Email</label>
@@ -77,7 +77,7 @@
       </button>
     </div>
 
-    <form action="functions/signup_process.php" method="post" enctype="multipart/form-data" class="space-y-4">
+    <form id="signup-form" class="space-y-4">
       <div class="grid grid-cols-2 gap-4">
         <div>
           <label for="first-name" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">First Name</label>

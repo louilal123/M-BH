@@ -160,85 +160,85 @@ $tenantData = loadTenantData($conn, $_SESSION['tenant_id']);
             </div>
           </div>
         </div>
-<!-- Add this new tab content with the others -->
-<div id="transaction-tab" class="tab-content p-6">
-  <div class="overflow-x-auto">
-    <table class="min-w-full divide-y divide-slate-200 dark:divide-slate-700">
-      <thead class="bg-slate-50 dark:bg-slate-700">
-        <tr>
-          <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-300 uppercase tracking-wider">Date</th>
-          <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-300 uppercase tracking-wider">Transaction ID</th>
-          <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-300 uppercase tracking-wider">Type</th>
-          <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-300 uppercase tracking-wider">Amount</th>
-          <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-300 uppercase tracking-wider">Status</th>
-          <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-300 uppercase tracking-wider">Actions</th>
-        </tr>
-      </thead>
-      <tbody class="bg-white dark:bg-slate-800 divide-y divide-slate-200 dark:divide-slate-700">
-        <!-- Sample transaction 1 -->
-        <tr>
-          <td class="px-6 py-4 whitespace-nowrap">2023-06-15</td>
-          <td class="px-6 py-4 whitespace-nowrap">TRX-789456</td>
-          <td class="px-6 py-4 whitespace-nowrap">Booking Payment</td>
-          <td class="px-6 py-4 whitespace-nowrap">₱8,000.00</td>
-          <td class="px-6 py-4 whitespace-nowrap">
-            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
-              Completed
-            </span>
-          </td>
-          <td class="px-6 py-4 whitespace-nowrap">
-            <button class="text-primary hover:text-primary-dark mr-3">
-              <i class="fas fa-eye"></i> View
-            </button>
-            <button class="text-red-500 hover:text-red-700">
-              <i class="fas fa-trash"></i> Delete
-            </button>
-          </td>
-        </tr>
-        <!-- Sample transaction 2 -->
-        <tr>
-          <td class="px-6 py-4 whitespace-nowrap">2023-05-28</td>
-          <td class="px-6 py-4 whitespace-nowrap">TRX-123456</td>
-          <td class="px-6 py-4 whitespace-nowrap">Monthly Rent</td>
-          <td class="px-6 py-4 whitespace-nowrap">₱8,000.00</td>
-          <td class="px-6 py-4 whitespace-nowrap">
-            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
-              Completed
-            </span>
-          </td>
-          <td class="px-6 py-4 whitespace-nowrap">
-            <button class="text-primary hover:text-primary-dark mr-3">
-              <i class="fas fa-eye"></i> View
-            </button>
-            <button class="text-red-500 hover:text-red-700">
-              <i class="fas fa-trash"></i> Delete
-            </button>
-          </td>
-        </tr>
-        <!-- Sample transaction 3 -->
-        <tr>
-          <td class="px-6 py-4 whitespace-nowrap">2023-05-01</td>
-          <td class="px-6 py-4 whitespace-nowrap">TRX-654321</td>
-          <td class="px-6 py-4 whitespace-nowrap">Security Deposit</td>
-          <td class="px-6 py-4 whitespace-nowrap">₱5,000.00</td>
-          <td class="px-6 py-4 whitespace-nowrap">
-            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200">
-              Pending
-            </span>
-          </td>
-          <td class="px-6 py-4 whitespace-nowrap">
-            <button class="text-primary hover:text-primary-dark mr-3">
-              <i class="fas fa-eye"></i> View
-            </button>
-            <button class="text-red-500 hover:text-red-700">
-              <i class="fas fa-trash"></i> Delete
-            </button>
-          </td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-</div>
+        <!-- Add this new tab content with the others -->
+        <div id="transaction-tab" class="tab-content p-6">
+          <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-slate-200 dark:divide-slate-700">
+              <thead class="bg-slate-50 dark:bg-slate-700">
+                <tr>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-300 uppercase tracking-wider">Date</th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-300 uppercase tracking-wider">Transaction ID</th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-300 uppercase tracking-wider">Type</th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-300 uppercase tracking-wider">Amount</th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-300 uppercase tracking-wider">Status</th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-300 uppercase tracking-wider">Actions</th>
+                </tr>
+              </thead>
+              <tbody class="bg-white dark:bg-slate-800 divide-y divide-slate-200 dark:divide-slate-700">
+                <!-- Sample transaction 1 -->
+                <tr>
+                  <td class="px-6 py-4 whitespace-nowrap">2023-06-15</td>
+                  <td class="px-6 py-4 whitespace-nowrap">TRX-789456</td>
+                  <td class="px-6 py-4 whitespace-nowrap">Booking Payment</td>
+                  <td class="px-6 py-4 whitespace-nowrap">₱8,000.00</td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
+                      Completed
+                    </span>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <button class="text-primary hover:text-primary-dark mr-3">
+                      <i class="fas fa-eye"></i> View
+                    </button>
+                    <button class="text-red-500 hover:text-red-700">
+                      <i class="fas fa-trash"></i> Delete
+                    </button>
+                  </td>
+                </tr>
+                <!-- Sample transaction 2 -->
+                <tr>
+                  <td class="px-6 py-4 whitespace-nowrap">2023-05-28</td>
+                  <td class="px-6 py-4 whitespace-nowrap">TRX-123456</td>
+                  <td class="px-6 py-4 whitespace-nowrap">Monthly Rent</td>
+                  <td class="px-6 py-4 whitespace-nowrap">₱8,000.00</td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
+                      Completed
+                    </span>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <button class="text-primary hover:text-primary-dark mr-3">
+                      <i class="fas fa-eye"></i> View
+                    </button>
+                    <button class="text-red-500 hover:text-red-700">
+                      <i class="fas fa-trash"></i> Delete
+                    </button>
+                  </td>
+                </tr>
+                <!-- Sample transaction 3 -->
+                <tr>
+                  <td class="px-6 py-4 whitespace-nowrap">2023-05-01</td>
+                  <td class="px-6 py-4 whitespace-nowrap">TRX-654321</td>
+                  <td class="px-6 py-4 whitespace-nowrap">Security Deposit</td>
+                  <td class="px-6 py-4 whitespace-nowrap">₱5,000.00</td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200">
+                      Pending
+                    </span>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <button class="text-primary hover:text-primary-dark mr-3">
+                      <i class="fas fa-eye"></i> View
+                    </button>
+                    <button class="text-red-500 hover:text-red-700">
+                      <i class="fas fa-trash"></i> Delete
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
         <div id="profile-tab" class="tab-content p-6">
           <form action="functions/update_profile.php" method="post">
             <div class="grid md:grid-cols-2 gap-6">

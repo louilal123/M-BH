@@ -92,7 +92,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
         .payment-method.selected {
             box-shadow: 0 0 0 2px #3b82f6;
-        }
+        } .navbar {
+    background-color:#0f172a;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    }
     </style>
 </head>
 <body class="bg-gray-50 text-gray-800 dark:bg-gray-900 dark:text-gray-200">

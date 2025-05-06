@@ -47,53 +47,285 @@ $roomImages = $imagesResult->fetch_all(MYSQLI_ASSOC);
     <!-- Font Awesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        /* Minimal custom CSS - most styling handled by Tailwind */
+        /* Custom CSS for modern design */
         .payment-method {
             transition: all 0.2s ease;
         }
         .payment-method.selected {
             box-shadow: 0 0 0 2px #3b82f6;
         }
+        
+        .progress-bar {
+            height: 4px;
+            width: 0%;
+            background-color: #3b82f6;
+            transition: width 0.5s ease;
+        }
+        
+        .progress-step {
+            transition: all 0.3s ease;
+        }
+        
+        .progress-step.active .step-number {
+            background-color: #3b82f6;
+            color: white;
+        }
+        
+        .step-number {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .room-gallery {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+        
+        .main-image {
+            grid-column: span 3;
+            height: 180px;
+            width: 100%;
+            object-fit: cover;
+            border-radius: 12px 12px 0 0;
+        }
+        
+        .thumbnail {
+            height: 80px;
+            width: 100%;
+            object-fit: cover;
+            cursor: pointer;
+        }
+        
+        .card {
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+            background-color: white;
+            overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .dark .card {
+            background-color: #1e293b;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+        
+        .sticky-summary {
+            position: sticky;
+            top: 100px;
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+        
+        .dark .form-control {
+            background-color: #334155;
+            border-color: #475569;
+            color: #f8fafc;
+        }
+        
+        .form-control:focus {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+            outline: none;
+        }
+        
+        .divider {
+            height: 1px;
+            width: 100%;
+            background-color: #e2e8f0;
+            margin: 16px 0;
+        }
+        
+        .dark .divider {
+            background-color: #475569;
+        }
+        
+        .btn-primary {
+            background-color: #3b82f6;
+            color: white;
+            font-weight: 600;
+            padding: 12px 24px;
+            border-radius: 12px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .btn-primary:hover {
+            background-color: #2563eb;
+            transform: translateY(-2px);
+        }
+        
+        .btn-primary:active {
+            transform: translateY(0);
+        }
+        
+        .btn-primary:disabled {
+            background-color: #93c5fd;
+            cursor: not-allowed;
+            transform: none;
+            opacity: 0.7;
+        }
+        
+        .price-highlight {
+            color: #3b82f6;
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+        
+        .dark .price-highlight {
+            color: #60a5fa;
+        }
+        
+        .feature-icon {
+            width: 40px;
+            height: 40px;
+            background-color: rgba(59, 130, 246, 0.1);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #3b82f6;
+        }
+        
+        .dark .feature-icon {
+            background-color: rgba(59, 130, 246, 0.2);
+        }
+        
+        .text-primary {
+            color: #3b82f6;
+        }
+        
+        .dark .text-primary {
+            color: #60a5fa;
+        }
+        
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .animate-fade-in {
+            animation: fadeIn 0.5s ease forwards;
+        }
+        
+        /* Responsive improvements */
+        @media (max-width: 768px) {
+            .sticky-summary {
+                position: static;
+            }
+            
+            .room-gallery {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .main-image {
+                grid-column: span 2;
+            }
+            
+            .card {
+                padding: 1.5rem;
+            }
+        }
+        
+        /* Form validation styles */
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+        
+        .invalid-feedback {
+            color: #ef4444;
+            font-size: 0.875rem;
+            margin-top: 0.25rem;
+            display: none;
+        }
+        
+        .is-invalid {
+            border-color: #ef4444 !important;
+        }
+        
+        .is-invalid ~ .invalid-feedback {
+            display: block;
+        }
+        
+        /* Loading spinner */
+        .fa-spinner {
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
     </style>
 </head>
 <body class="bg-slate-50 text-slate-700 dark:bg-slate-900 dark:text-slate-200 transition-colors duration-300">
     <?php include "includes/topnav.php"; ?>
 
-    <br> <br><br><br>
-    <section class="py-12 px-4 pt-200">
-        <div class="max-w-6xl mx-auto">
-           <!-- Progress Steps -->
-           <div class="relative mb-12">
-                <div class="flex justify-between">
-                    <div class="text-center">
-                    <div class="w-10 h-10 bg-blue-600 dark:bg-blue-700 text-gray-600 dark:text-gray-300 rounded-full flex items-center justify-center mx-auto mb-2">
-                            1
-                        </div>
+    <div class="pt-24 pb-16">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <!-- Page Title -->
+            <div class="text-center mb-10 animate-fade-in">
+                <h1 class="text-3xl md:text-4xl font-bold mb-2">Book Your Stay</h1>
+                <p class="text-slate-500 dark:text-slate-400">Room <?php echo htmlspecialchars($room['room_number']); ?> | MECMEC Boarding House</p>
+            </div>
+            
+            <!-- Progress Steps -->
+            <div class="relative mb-12">
+                <div class="flex justify-between items-center">
+                    <div class="progress-step active text-center z-10 w-1/3">
+                        <div class="step-number bg-blue-600 text-white mx-auto mb-2">1</div>
                         <span class="text-sm font-medium">Booking Details</span>
                     </div>
-                    <div class="text-center">
-                        <div class="w-10 h-10 bg-gray-600 text-white rounded-full flex items-center justify-center mx-auto mb-2">
-                            2
-                        </div>
+                    <div class="progress-step text-center z-10 w-1/3">
+                        <div class="step-number bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-300 mx-auto mb-2">2</div>
                         <span class="text-sm font-medium">Payment</span>
                     </div>
-                    <div class="text-center">
-                        <div class="w-10 h-10 bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-300 rounded-full flex items-center justify-center mx-auto mb-2">
-                            3
-                        </div>
+                    <div class="progress-step text-center z-10 w-1/3">
+                        <div class="step-number bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-300 mx-auto mb-2">3</div>
                         <span class="text-sm font-medium">Confirmation</span>
                     </div>
                 </div>
                 <div class="absolute top-5 left-0 right-0 h-1 bg-gray-200 dark:bg-gray-700 -z-10">
-                    <div class="h-full bg-blue-600 transition-all duration-500" style="width: 0%"></div>
+                    <div class="progress-bar" style="width: 33%"></div>
                 </div>
             </div>
 
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 <!-- Booking Form -->
-                <div class="lg:col-span-2">
-                    <div class="card p-8 mb-8">
-                        <div class="flex items-center mb-6">
+                <div class="lg:col-span-2 animate-fade-in" style="animation-delay: 0.2s;">
+                    <div class="card p-6 md:p-8 mb-8">
+                        <div class="flex items-center mb-8">
                             <div class="feature-icon">
                                 <i class="fas fa-calendar-check text-xl"></i>
                             </div>
@@ -101,41 +333,47 @@ $roomImages = $imagesResult->fetch_all(MYSQLI_ASSOC);
                         </div>
                         
                         <?php if ($tenantData): ?>
-                            <div class="mb-6 p-4 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-800/50 flex items-start">
-                                <i class="fas fa-check-circle text-green-500 mt-1 mr-3"></i>
+                            <div class="mb-8 p-6 bg-green-50 dark:bg-green-900/20 rounded-xl border border-green-200 dark:border-green-800/50 flex items-start">
+                                <i class="fas fa-check-circle text-green-500 text-xl mt-1 mr-4"></i>
                                 <div>
-                                    <h4 class="font-medium mb-1">Booking as registered tenant</h4>
-                                    <p class="font-semibold"><?php echo htmlspecialchars($tenantData['name']); ?></p>
-                                    <p class="text-sm text-slate-500 dark:text-slate-400"><?php echo htmlspecialchars($tenantData['email']); ?></p>
+                                    <h4 class="font-semibold text-lg mb-2">Booking as registered tenant</h4>
+                                    <p class="font-bold text-xl mb-1"><?php echo htmlspecialchars($tenantData['name']); ?></p>
+                                    <p class="text-slate-500 dark:text-slate-400"><?php echo htmlspecialchars($tenantData['email']); ?></p>
                                 </div>
                             </div>
-                        <?php else: ?>
-                            <div class="mb-6 p-4 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg border border-yellow-200 dark:border-yellow-800/50 flex items-start">
-                                <i class="fas fa-exclamation-triangle text-yellow-500 mt-1 mr-3"></i>
-                                <div>
-                                    <h4 class="font-medium mb-2">You're not logged in</h4>
-                                    <p class="text-sm">Please <a href="login.php?redirect=booking.php?room_id=<?php echo $roomId; ?>" class="text-primary hover:underline font-medium">login</a> or <a href="register.php" class="text-primary hover:underline font-medium">register</a> to book a room.</p>
+                            <?php else: ?>
+                                <div class="mb-8 p-6 bg-yellow-50 dark:bg-yellow-900/20 rounded-xl border border-yellow-200 dark:border-yellow-800/50 flex items-start">
+                                    <i class="fas fa-exclamation-triangle text-yellow-500 text-xl mt-1 mr-4"></i>
+                                    <div>
+                                        <h4 class="font-semibold text-lg mb-2">You're not logged in</h4>
+                                        <p>Please 
+                                            <a href="#" onclick="openModal('login-modal')" class="text-primary hover:underline font-medium">login</a> 
+                                            or 
+                                            <a href="#" onclick="openModal('signup-modal')" class="text-primary hover:underline font-medium">register</a> 
+                                            to book a room.
+                                        </p>
+                                    </div>
                                 </div>
-                            </div>
-                        <?php endif; ?>
+                            <?php endif; ?>
 
-                        <form id="bookingForm" method="POST">
+                        <form id="bookingForm" method="POST" class="space-y-6">
                             <input type="hidden" name="room_id" value="<?php echo $roomId; ?>">
                             
                             <!-- Check-in Date -->
-                            <div class="mb-6">
-                                <label for="check_in_date" class="block text-sm font-medium mb-2 flex items-center">
+                            <div class="form-group">
+                                <label for="check_in_date" class="form-label flex items-center">
                                     <i class="fas fa-calendar-day mr-2 text-primary"></i>
                                     Check-in Date
                                 </label>
                                 <input type="date" id="check_in_date" name="check_in_date" 
                                     min="<?php echo date('Y-m-d'); ?>" 
                                     class="form-control" required>
+                                <div class="invalid-feedback">Please select a valid check-in date</div>
                             </div>
                             
                             <!-- Stay Duration -->
-                            <div class="mb-6">
-                                <label for="stay_duration" class="block text-sm font-medium mb-2 flex items-center">
+                            <div class="form-group">
+                                <label for="stay_duration" class="form-label flex items-center">
                                     <i class="fas fa-clock mr-2 text-primary"></i>
                                     Stay Duration
                                 </label>
@@ -145,25 +383,23 @@ $roomImages = $imagesResult->fetch_all(MYSQLI_ASSOC);
                                     <option value="3">3 Months</option>
                                     <option value="6" selected>6 Months</option>
                                     <option value="12">12 Months</option>
-                                   
                                 </select>
                             </div>
                            
-                            
                             <!-- Calculated Check-out Date (display only) -->
-                            <div class="mb-6 p-4 bg-slate-100 dark:bg-slate-700 rounded-lg border border-slate-200 dark:border-slate-600">
-                                <div class="flex items-center mb-2">
-                                    <i class="fas fa-calendar-week mr-2 text-primary"></i>
-                                    <p class="font-medium">Your stay period</p>
+                            <div class="p-6 bg-slate-100 dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 mb-6">
+                                <div class="flex items-center mb-4">
+                                    <i class="fas fa-calendar-week text-lg text-primary mr-3"></i>
+                                    <p class="font-semibold text-lg">Your stay period</p>
                                 </div>
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <div>
-                                        <p class="text-xs text-slate-500 dark:text-slate-400">Check-in</p>
-                                        <p id="check_in_display" class="font-bold text-primary">-</p>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div class="p-4 bg-white dark:bg-slate-700 rounded-lg shadow-sm">
+                                        <p class="text-xs text-slate-500 dark:text-slate-400 mb-1">Check-in</p>
+                                        <p id="check_in_display" class="font-bold text-primary text-xl">-</p>
                                     </div>
-                                    <div>
-                                        <p class="text-xs text-slate-500 dark:text-slate-400">Check-out</p>
-                                        <p id="check_out_display" class="font-bold text-primary">-</p>
+                                    <div class="p-4 bg-white dark:bg-slate-700 rounded-lg shadow-sm">
+                                        <p class="text-xs text-slate-500 dark:text-slate-400 mb-1">Check-out</p>
+                                        <p id="check_out_display" class="font-bold text-primary text-xl">-</p>
                                     </div>
                                 </div>
                             </div>
@@ -172,8 +408,8 @@ $roomImages = $imagesResult->fetch_all(MYSQLI_ASSOC);
                             <input type="hidden" id="check_out_date" name="check_out_date">
                             
                             <!-- Special Requests -->
-                            <div class="mb-8">
-                                <label for="special_requests" class="block text-sm font-medium mb-2 flex items-center">
+                            <div class="form-group">
+                                <label for="special_requests" class="form-label flex items-center">
                                     <i class="fas fa-comment-dots mr-2 text-primary"></i>
                                     Special Requests
                                 </label>
@@ -182,11 +418,11 @@ $roomImages = $imagesResult->fetch_all(MYSQLI_ASSOC);
                                         placeholder="Any special requirements or notes (e.g., preferred floor, accessibility needs)..."></textarea>
                             </div>
                             
-                            <div class="flex justify-between items-center pt-4 border-t border-slate-200 dark:border-slate-700">
-                                <a href="room_details.php?room_id=<?php echo $roomId; ?>" class="text-primary hover:underline font-medium flex items-center">
+                            <div class="flex flex-col md:flex-row justify-between items-center gap-4 pt-6 border-t border-slate-200 dark:border-slate-700">
+                                <a href="room_details.php?room_id=<?php echo $roomId; ?>" class="text-primary hover:underline font-medium flex items-center transition-all hover:translate-x-1">
                                     <i class="fas fa-arrow-left mr-2"></i> Back to room details
                                 </a>
-                                <button type="submit" class="btn-primary" <?php echo !$tenantData ? 'disabled' : ''; ?>>
+                                <button type="submit" class="btn-primary w-full md:w-auto px-8" <?php echo !$tenantData ? 'disabled' : ''; ?>>
                                     <i class="fas fa-credit-card mr-2"></i> Continue to Payment
                                 </button>
                             </div>
@@ -195,7 +431,7 @@ $roomImages = $imagesResult->fetch_all(MYSQLI_ASSOC);
                 </div>
                 
                 <!-- Room Summary -->
-                <div class="lg:col-span-1">
+                <div class="lg:col-span-1 animate-fade-in" style="animation-delay: 0.4s;">
                     <div class="card p-6 sticky-summary">
                         <h2 class="text-xl font-bold mb-6 flex items-center">
                             <i class="fas fa-home mr-3 text-primary"></i>
@@ -203,24 +439,26 @@ $roomImages = $imagesResult->fetch_all(MYSQLI_ASSOC);
                         </h2>
                         
                         <!-- Room Gallery -->
-                        <div class="room-gallery mb-6">
+                        <div class="room-gallery mb-6 overflow-hidden rounded-xl">
                             <img src="uploads/rooms/<?php echo htmlspecialchars($room['photo']); ?>" 
                                  alt="Room <?php echo htmlspecialchars($room['room_number']); ?>" 
-                                 class="main-image">
-                            <?php foreach ($roomImages as $index => $image): ?>
-                                <?php if ($index < 3): ?>
-                                    <img src="uploads/rooms/<?php echo htmlspecialchars($image['image_path']); ?>" 
-                                         alt="Room <?php echo htmlspecialchars($room['room_number']); ?>" 
-                                         class="thumbnail">
-                                <?php endif; ?>
-                            <?php endforeach; ?>
+                                 class="main-image hover:opacity-90 transition-opacity">
+                            <div class="thumbnails grid grid-cols-3 gap-2">
+                                <?php foreach ($roomImages as $index => $image): ?>
+                                    <?php if ($index < 3): ?>
+                                        <img src="uploads/rooms/<?php echo htmlspecialchars($image['image_path']); ?>" 
+                                             alt="Room <?php echo htmlspecialchars($room['room_number']); ?>" 
+                                             class="thumbnail hover:opacity-80 transition-opacity">
+                                    <?php endif; ?>
+                                <?php endforeach; ?>
+                            </div>
                         </div>
                         
                         <h3 class="text-xl font-bold mb-2">Room <?php echo htmlspecialchars($room['room_number']); ?></h3>
                         <p class="text-slate-600 dark:text-slate-300 mb-4"><?php echo htmlspecialchars($room['description']); ?></p>
                         
                         <div class="mb-6">
-                            <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-200">
+                            <span class="inline-flex items-center px-4 py-2 rounded-full text-sm font-medium bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-200">
                                 <i class="fas fa-tag mr-2"></i>
                                 <?php echo htmlspecialchars($room['room_type']); ?>
                             </span>
@@ -228,49 +466,84 @@ $roomImages = $imagesResult->fetch_all(MYSQLI_ASSOC);
                         
                         <div class="divider"></div>
                         
-                        <!-- In your booking form (booking.php) -->
-            <div class="space-y-4">
-                <div class="flex justify-between items-center">
-                    <span class="text-slate-500 dark:text-slate-400 flex items-center">
-                        <i class="fas fa-calendar mr-2"></i> Monthly Rate
-                    </span>
-                    <span class="font-medium">₱<?php echo number_format($room['price'], 2); ?></span>
-                </div>
-                
-                <div class="flex justify-between items-center">
-                    <span class="text-slate-500 dark:text-slate-400 flex items-center">
-                        <i class="fas fa-clock mr-2"></i> Duration
-                    </span>
-                    <span id="duration-display" class="font-medium">6 Months</span>
-                </div>
-                
-                <div class="divider"></div>
-                
-                <div class="flex justify-between items-center font-bold text-lg pt-2">
-                    <span class="flex items-center">
-                        <i class="fas fa-file-invoice-dollar mr-2"></i> Total Due Now
-                    </span>
-                    <span id="total-amount" class="price-highlight">₱<?php echo number_format($room['price'] * 6, 2); ?></span>
-                </div>
-            </div>
-                       
+                        <!-- Pricing Summary -->
+                        <div class="space-y-4 p-4 bg-slate-50 dark:bg-slate-800 rounded-lg">
+                            <div class="flex justify-between items-center">
+                                <span class="text-slate-500 dark:text-slate-400 flex items-center">
+                                    <i class="fas fa-calendar mr-2"></i> Monthly Rate
+                                </span>
+                                <span class="font-medium">₱<?php echo number_format($room['price'], 2); ?></span>
+                            </div>
+                            
+                            <div class="flex justify-between items-center">
+                                <span class="text-slate-500 dark:text-slate-400 flex items-center">
+                                    <i class="fas fa-clock mr-2"></i> Duration
+                                </span>
+                                <span id="duration-display" class="font-medium">6 Months</span>
+                            </div>
+                            
+                            <div class="divider"></div>
+                            
+                            <div class="flex justify-between items-center pt-2">
+                                <span class="flex items-center font-semibold">
+                                    <i class="fas fa-file-invoice-dollar mr-2"></i> Total Due Now
+                                </span>
+                                <span id="total-amount" class="price-highlight">₱<?php echo number_format($room['price'] * 6, 2); ?></span>
+                            </div>
+                        </div>
+                        
+                        <!-- Help Section -->
+                        <div class="mt-6 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-100 dark:border-blue-800/30">
+                            <div class="flex items-center">
+                                <i class="fas fa-headset text-blue-500 text-lg mr-3"></i>
+                                <div>
+                                    <h4 class="font-medium mb-1">Need assistance?</h4>
+                                    <p class="text-sm text-slate-600 dark:text-slate-400">
+                                        Contact our support team at 
+                                        <a href="tel:+1234567890" class="text-primary hover:underline">(123) 456-7890</a> or 
+                                        <a href="mailto:info@mecmec.com" class="text-primary hover:underline">info@mecmec.com</a>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
             
-            <div>
-            <div class="mt-6 p-4 bg-slate-100 dark:bg-slate-700 rounded-lg border border-slate-200 dark:border-slate-600">
-                            <div class="flex mx-auto items-center justify-center mb-2 mt-8">
-                                <i class="fas fa-info-circle text-primary mt-1 mr-3"></i>
-                                <div>
-                                    <h4 class="font-medium mb-1">Need help?</h4>
-                                    <p class="text-sm text-slate-500 dark:text-slate-400">Contact us at <a href="tel:+1234567890" class="text-primary hover:underline">(123) 456-7890</a> or <a href="mailto:info@mecmec.com" class="text-primary hover:underline">info@mecmec.com</a></p>
-                                </div>
+            <!-- Additional Information -->
+            <div class="mt-10 animate-fade-in" style="animation-delay: 0.6s;">
+                <div class="p-6 bg-white dark:bg-slate-800 rounded-xl shadow-md border border-slate-100 dark:border-slate-700">
+                    <div class="flex items-center mb-4">
+                        <i class="fas fa-info-circle text-primary text-xl mr-3"></i>
+                        <h3 class="text-xl font-bold">Booking Information</h3>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <div class="flex">
+                            <i class="fas fa-check-circle text-green-500 mt-1 mr-3"></i>
+                            <div>
+                                <h4 class="font-medium mb-1">Free cancellation</h4>
+                                <p class="text-sm text-slate-500 dark:text-slate-400">Cancel up to 24 hours before check-in</p>
                             </div>
                         </div>
+                        <div class="flex">
+                            <i class="fas fa-shield-alt text-blue-500 mt-1 mr-3"></i>
+                            <div>
+                                <h4 class="font-medium mb-1">Secure payment</h4>
+                                <p class="text-sm text-slate-500 dark:text-slate-400">Your data is protected with SSL encryption</p>
+                            </div>
+                        </div>
+                        <div class="flex">
+                            <i class="fas fa-phone-alt text-purple-500 mt-1 mr-3"></i>
+                            <div>
+                                <h4 class="font-medium mb-1">24/7 Support</h4>
+                                <p class="text-sm text-slate-500 dark:text-slate-400">Our staff is always available to help</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
-    </section>
+    </div>
 
     <?php include "includes/footer.php"; ?>
     <script>
@@ -327,9 +600,29 @@ document.addEventListener('DOMContentLoaded', function() {
         el.addEventListener('change', calculateBookingDetails);
     });
     
+    // Form validation
+    function validateForm() {
+        let isValid = true;
+        
+        // Validate check-in date
+        if (!checkInDate.value) {
+            checkInDate.classList.add('is-invalid');
+            isValid = false;
+        } else {
+            checkInDate.classList.remove('is-invalid');
+        }
+        
+        return isValid;
+    }
+    
     // Form submission handler
     bookingForm.addEventListener('submit', function(e) {
         e.preventDefault();
+        
+        // Validate form
+        if (!validateForm()) {
+            return;
+        }
         
         // Validate check-out date exists
         if (!checkOutDate.value) {
@@ -367,6 +660,37 @@ document.addEventListener('DOMContentLoaded', function() {
         .finally(() => {
             submitBtn.disabled = false;
             submitBtn.innerHTML = originalBtnText;
+        });
+    });
+    
+    // Enhancement: Add hover effects for room thumbnails
+    const thumbnails = document.querySelectorAll('.thumbnail');
+    const mainImage = document.querySelector('.main-image');
+    
+    thumbnails.forEach(thumb => {
+        thumb.addEventListener('click', function() {
+            // Store current main image
+            const mainSrc = mainImage.src;
+            // Set thumbnail as main image
+            mainImage.src = this.src;
+            // Set main image as this thumbnail
+            this.src = mainSrc;
+            
+            // Add a little animation
+            mainImage.classList.add('opacity-80');
+            setTimeout(() => {
+                mainImage.classList.remove('opacity-80');
+            }, 300);
+        });
+        
+        // Add hover effect
+        thumb.addEventListener('mouseenter', function() {
+            this.style.transform = 'scale(1.02)';
+            this.style.transition = 'transform 0.2s ease';
+        });
+        
+        thumb.addEventListener('mouseleave', function() {
+            this.style.transform = 'scale(1)';
         });
     });
 });

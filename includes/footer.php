@@ -229,5 +229,91 @@ unset($_SESSION['status_icon1']);
 ?>
 <?php endif; ?>
 
+<!-- // -->
+
+<script>
+// Handle login form submission
+document.getElementById('login-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const form = e.target;
+    const submitBtn = form.querySelector('button[type="submit"]');
+    const originalBtnText = submitBtn.innerHTML;
+    
+    // Show loading state
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Signing in...';
+    
+    // Get form data
+    const formData = new FormData(form);
+    
+    // Submit via AJAX
+    fetch('functions/login_process.php', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Close modal and refresh the page to show logged-in state
+            closeModal('login-modal');
+            window.location.reload();
+        } else {
+            // Show error message
+            alert(data.message || 'Login failed');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred during login');
+    })
+    .finally(() => {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = originalBtnText;
+    });
+});
+
+// Handle signup form submission
+document.getElementById('signup-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const form = e.target;
+    const submitBtn = form.querySelector('button[type="submit"]');
+    const originalBtnText = submitBtn.innerHTML;
+    
+    // Show loading state
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Creating account...';
+    
+    // Get form data
+    const formData = new FormData(form);
+    
+    // Submit via AJAX
+    fetch('functions/signup_process.php', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Close modal and refresh the page to show logged-in state
+            closeModal('signup-modal');
+            window.location.reload();
+        } else {
+            // Show error message
+            alert(data.message || 'Signup failed');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred during signup');
+    })
+    .finally(() => {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = originalBtnText;
+    });
+});
+</script>
+
 
    
