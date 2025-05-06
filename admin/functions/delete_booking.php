@@ -1,35 +1,45 @@
 <?php
 session_start();
-include('connection.php'); // Include database connection
+include('connection.php');
 
 if (isset($_GET['id'])) {
-    $bookingId = mysqli_real_escape_string($conn, $_GET['id']);
+    $booking_id = intval($_GET['id']); // sanitize input
 
-    // Start a transaction
-    $conn->begin_transaction();
+    // Get room_id before deleting
+    $room_query = $conn->query("SELECT room_id FROM bookings WHERE booking_id = $booking_id");
+    $room_data = $room_query->fetch_assoc();
+    $room_id = $room_data['room_id'];
 
-    try {
-        // Step 1: Delete payments associated with this booking
-        $deletePaymentsQuery = "DELETE FROM payments WHERE booking_id = '$bookingId'";
-        $conn->query($deletePaymentsQuery);
+    $sql = "DELETE FROM bookings WHERE booking_id = ?";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("i", $booking_id);
 
-        // Step 2: Delete the booking itself
-        $deleteBookingQuery = "DELETE FROM bookings WHERE booking_id = '$bookingId'";
-        $conn->query($deleteBookingQuery);
-
-        // Commit the transaction
-        $conn->commit();
-
-        $_SESSION['status'] = "Booking and associated payments deleted successfully!";
+    if ($stmt->execute()) {
+        // Check if room has no other active bookings
+        $check_room = $conn->query("SELECT COUNT(*) as count FROM bookings 
+            WHERE room_id = $room_id 
+            AND status NOT IN ('cancelled', 'completed')");
+        $room_count = $check_room->fetch_assoc()['count'];
+        
+        if ($room_count == 0) {
+            $conn->query("UPDATE rooms SET availability = 'available' WHERE room_id = $room_id");
+        }
+        
+        $_SESSION['status'] = "Booking deleted successfully!";
         $_SESSION['status_icon'] = "success";
-    } catch (Exception $e) {
-        // Rollback the transaction in case of error
-        $conn->rollback();
-        $_SESSION['status'] = "Failed to delete booking: " . $e->getMessage();
+    } else {
+        $_SESSION['status'] = "Booking deletion failed!";
         $_SESSION['status_icon'] = "error";
     }
 
-    header("Location: ../room_assignment.php");
+    $stmt->close();
+    $conn->close();
+    header("Location: ../bookings.php");
+    exit();
+} else {
+    $_SESSION['status'] = "No booking ID provided!";
+    $_SESSION['status_icon'] = "warning";
+    header("Location: ../bookings.php");
     exit();
 }
 ?>
