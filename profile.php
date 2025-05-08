@@ -601,5 +601,6 @@ $tenantData = loadTenantData($conn, $_SESSION['tenant_id']);
     });
 });
 </script>
+<?php include "includes/chatbot.php" ?>
 </body>
 </html>

@@ -3,13 +3,12 @@ session_start();
 require_once 'admin/functions/connection.php';
 require_once 'functions/load_tenant_data.php';
 
-if (!isset($_GET['room_id'])) {
+if ($_SERVER['REQUEST_METHOD'] !== 'POST' || !isset($_POST['room_id'])) {
     header("Location: rooms.php");
     exit;
 }
 
-$roomId = $_GET['room_id'];
-
+$roomId = $_POST['room_id'];
 // Get room details
 $roomQuery = $conn->prepare("SELECT * FROM rooms WHERE room_id = ?");
 $roomQuery->bind_param("i", $roomId);
@@ -21,7 +20,6 @@ if (!$room) {
     exit;
 }
 
-// Get tenant data if logged in
 $tenantData = null;
 if (isset($_SESSION['tenant_id'])) {
     $tenantQuery = $conn->prepare("SELECT tenant_id, name, email, phone FROM tenants WHERE tenant_id = ?");
@@ -31,7 +29,6 @@ if (isset($_SESSION['tenant_id'])) {
     $tenantData = $tenantResult->fetch_assoc();
 }
 
-// Get room images for gallery
 $imagesQuery = $conn->prepare("SELECT image_path FROM room_images WHERE room_id = ?");
 $imagesQuery->bind_param("i", $roomId);
 $imagesQuery->execute();
@@ -46,248 +43,14 @@ $roomImages = $imagesResult->fetch_all(MYSQLI_ASSOC);
     <title>Book Room <?php echo htmlspecialchars($room['room_number']); ?> | MECMEC Boarding House</title>
     <!-- Font Awesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        /* Custom CSS for modern design */
-        .payment-method {
-            transition: all 0.2s ease;
-        }
-        .payment-method.selected {
-            box-shadow: 0 0 0 2px #3b82f6;
-        }
-        
-        .progress-bar {
-            height: 4px;
-            width: 0%;
-            background-color: #3b82f6;
-            transition: width 0.5s ease;
-        }
-        
-        .progress-step {
-            transition: all 0.3s ease;
-        }
-        
-        .progress-step.active .step-number {
-            background-color: #3b82f6;
-            color: white;
-        }
-        
-        .step-number {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 600;
-            transition: all 0.3s ease;
-        }
-        
-        .room-gallery {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 8px;
-            border-radius: 12px;
-            overflow: hidden;
-        }
-        
-        .main-image {
-            grid-column: span 3;
-            height: 180px;
-            width: 100%;
-            object-fit: cover;
-            border-radius: 12px 12px 0 0;
-        }
-        
-        .thumbnail {
-            height: 80px;
-            width: 100%;
-            object-fit: cover;
-            cursor: pointer;
-        }
-        
-        .card {
-            border-radius: 16px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
-            background-color: white;
-            overflow: hidden;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
-        
-        .dark .card {
-            background-color: #1e293b;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
-        }
-        
-        .card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-        }
-        
-        .sticky-summary {
-            position: sticky;
-            top: 100px;
-        }
-        
-        .form-control {
-            width: 100%;
-            padding: 12px 16px;
-            border: 1px solid #e2e8f0;
-            border-radius: 12px;
-            font-size: 16px;
-            transition: all 0.3s ease;
-        }
-        
-        .dark .form-control {
-            background-color: #334155;
-            border-color: #475569;
-            color: #f8fafc;
-        }
-        
-        .form-control:focus {
-            border-color: #3b82f6;
-            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
-            outline: none;
-        }
-        
-        .divider {
-            height: 1px;
-            width: 100%;
-            background-color: #e2e8f0;
-            margin: 16px 0;
-        }
-        
-        .dark .divider {
-            background-color: #475569;
-        }
-        
-        .btn-primary {
-            background-color: #3b82f6;
-            color: white;
-            font-weight: 600;
-            padding: 12px 24px;
-            border-radius: 12px;
-            border: none;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        .btn-primary:hover {
-            background-color: #2563eb;
-            transform: translateY(-2px);
-        }
-        
-        .btn-primary:active {
-            transform: translateY(0);
-        }
-        
-        .btn-primary:disabled {
-            background-color: #93c5fd;
-            cursor: not-allowed;
-            transform: none;
-            opacity: 0.7;
-        }
-        
-        .price-highlight {
-            color: #3b82f6;
-            font-size: 1.5rem;
-            font-weight: 700;
-        }
-        
-        .dark .price-highlight {
-            color: #60a5fa;
-        }
-        
-        .feature-icon {
-            width: 40px;
-            height: 40px;
-            background-color: rgba(59, 130, 246, 0.1);
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #3b82f6;
-        }
-        
-        .dark .feature-icon {
-            background-color: rgba(59, 130, 246, 0.2);
-        }
-        
-        .text-primary {
-            color: #3b82f6;
-        }
-        
-        .dark .text-primary {
-            color: #60a5fa;
-        }
-        
-        /* Animations */
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        
-        .animate-fade-in {
-            animation: fadeIn 0.5s ease forwards;
-        }
-        
-        /* Responsive improvements */
-        @media (max-width: 768px) {
-            .sticky-summary {
-                position: static;
-            }
-            
-            .room-gallery {
-                grid-template-columns: repeat(2, 1fr);
-            }
-            
-            .main-image {
-                grid-column: span 2;
-            }
-            
-            .card {
-                padding: 1.5rem;
-            }
-        }
-        
-        /* Form validation styles */
-        .form-group {
-            margin-bottom: 1.5rem;
-        }
-        
-        .form-label {
-            display: block;
-            margin-bottom: 0.5rem;
-            font-weight: 500;
-        }
-        
-        .invalid-feedback {
-            color: #ef4444;
-            font-size: 0.875rem;
-            margin-top: 0.25rem;
-            display: none;
-        }
-        
-        .is-invalid {
-            border-color: #ef4444 !important;
-        }
-        
-        .is-invalid ~ .invalid-feedback {
-            display: block;
-        }
-        
-        /* Loading spinner */
-        .fa-spinner {
-            animation: spin 1s linear infinite;
-        }
-        
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-    </style>
+<link rel="stylesheet" href="booking.css">
+<style>
+    .navbar {
+    background-color:#0f172a;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    }
+</style>
 </head>
 <body class="bg-slate-50 text-slate-700 dark:bg-slate-900 dark:text-slate-200 transition-colors duration-300">
     <?php include "includes/topnav.php"; ?>
@@ -296,7 +59,7 @@ $roomImages = $imagesResult->fetch_all(MYSQLI_ASSOC);
         <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
             <!-- Page Title -->
             <div class="text-center mb-10 animate-fade-in">
-                <h1 class="text-3xl md:text-4xl font-bold mb-2">Book Your Stay</h1>
+                <h1 class="text-3xl md:text-4xl font-bold mb-2 mt-8">Book Your Stay</h1>
                 <p class="text-slate-500 dark:text-slate-400">Room <?php echo htmlspecialchars($room['room_number']); ?> | MECMEC Boarding House</p>
             </div>
             
@@ -313,7 +76,7 @@ $roomImages = $imagesResult->fetch_all(MYSQLI_ASSOC);
                     </div>
                     <div class="progress-step text-center z-10 w-1/3">
                         <div class="step-number bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-300 mx-auto mb-2">3</div>
-                        <span class="text-sm font-medium">Confirmation</span>
+                        <span class="text-sm font-medium">Success</span>
                     </div>
                 </div>
                 <div class="absolute top-5 left-0 right-0 h-1 bg-gray-200 dark:bg-gray-700 -z-10">
@@ -356,9 +119,10 @@ $roomImages = $imagesResult->fetch_all(MYSQLI_ASSOC);
                                 </div>
                             <?php endif; ?>
 
-                        <form id="bookingForm" method="POST" class="space-y-6">
-                            <input type="hidden" name="room_id" value="<?php echo $roomId; ?>">
-                            
+                           
+                        <form id="bookingForm" method="POST" action="booking_payment.php" class="space-y-6">
+                        <input type="hidden" name="room_id" value="<?php echo $roomId; ?>">
+                        
                             <!-- Check-in Date -->
                             <div class="form-group">
                                 <label for="check_in_date" class="form-label flex items-center">
@@ -370,7 +134,7 @@ $roomImages = $imagesResult->fetch_all(MYSQLI_ASSOC);
                                     class="form-control" required>
                                 <div class="invalid-feedback">Please select a valid check-in date</div>
                             </div>
-                            
+                           
                             <!-- Stay Duration -->
                             <div class="form-group">
                                 <label for="stay_duration" class="form-label flex items-center">
@@ -486,7 +250,7 @@ $roomImages = $imagesResult->fetch_all(MYSQLI_ASSOC);
                             
                             <div class="flex justify-between items-center pt-2">
                                 <span class="flex items-center font-semibold">
-                                    <i class="fas fa-file-invoice-dollar mr-2"></i> Total Due Now
+                                    <i class="fas fa-file-invoice-dollar mr-2"></i> Total Due:
                                 </span>
                                 <span id="total-amount" class="price-highlight">₱<?php echo number_format($room['price'] * 6, 2); ?></span>
                             </div>
@@ -614,55 +378,29 @@ document.addEventListener('DOMContentLoaded', function() {
         
         return isValid;
     }
-    
-    // Form submission handler
-    bookingForm.addEventListener('submit', function(e) {
+
+    // Form submission handler - SIMPLIFIED PHP VERSION
+bookingForm.addEventListener('submit', function(e) {
+    // Validate form
+    if (!validateForm()) {
         e.preventDefault();
-        
-        // Validate form
-        if (!validateForm()) {
-            return;
-        }
-        
-        // Validate check-out date exists
-        if (!checkOutDate.value) {
-            alert('Please select valid dates before submitting');
-            return;
-        }
-        
-        const submitBtn = this.querySelector('button[type="submit"]');
-        const originalBtnText = submitBtn.innerHTML;
-        
-        // Show loading state
-        submitBtn.disabled = true;
-        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Processing...';
-        
-        // Submit form data
-        fetch('functions/process_booking.php', {
-            method: 'POST',
-            body: new FormData(this)
-        })
-        .then(response => {
-            if (!response.ok) throw new Error('Network response was not ok');
-            return response.json();
-        })
-        .then(data => {
-            if (data.success) {
-                window.location.href = `booking_payment.php?booking_id=${data.booking_id}`;
-            } else {
-                throw new Error(data.message || 'Unknown error occurred');
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert(error.message);
-        })
-        .finally(() => {
-            submitBtn.disabled = false;
-            submitBtn.innerHTML = originalBtnText;
-        });
-    });
+        return;
+    }
     
+    // Validate check-out date exists
+    if (!checkOutDate.value) {
+        alert('Please select valid dates before submitting');
+        e.preventDefault();
+        return;
+    }
+    
+    // Calculate and set the total amount
+    const totalAmountInput = document.createElement('input');
+    totalAmountInput.type = 'hidden';
+    totalAmountInput.name = 'total_amount';
+    totalAmountInput.value = roomPrice * parseInt(stayDuration.value);
+    bookingForm.appendChild(totalAmountInput);
+});
     // Enhancement: Add hover effects for room thumbnails
     const thumbnails = document.querySelectorAll('.thumbnail');
     const mainImage = document.querySelector('.main-image');
@@ -695,5 +433,6 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 </script>
+<?php include "includes/chatbot.php" ?>
 </body>
 </html>

@@ -311,10 +311,7 @@ if (isset($_SESSION['tenant_id'])) {
     </div>
   </footer>
 
-  <!-- Back to Top Button -->
-  <a href="#home" id="back-to-top" class="fixed bottom-8 right-8 bg-primary text-white w-12 h-12 rounded-full flex items-center justify-center shadow-lg transition-all duration-300 opacity-0 invisible">
-    <i class="fas fa-arrow-up"></i>
-  </a>
+
 <!-- MODALS  -->
 <div id="bookingModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
     <div class="bg-white dark:bg-gray-800 rounded-lg p-6 w-full max-w-md">
@@ -416,5 +413,6 @@ $(document).ready(function() {
 </script>
 
 <?php include "includes/footer.php" ?>
+<?php include "includes/chatbot.php" ?>
 </body>
 </html>

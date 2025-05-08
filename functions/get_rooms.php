@@ -31,7 +31,6 @@ switch ($sortBy) {
     case 'room_number_desc':
         $query .= " ORDER BY room_number DESC";
         break;
-    case 'room_number_asc':
     default:
         $query .= " ORDER BY room_number ASC";
         break;
@@ -59,27 +58,24 @@ if ($result->num_rows > 0) {
         $galleryResult = $conn->query($galleryQuery);
         $imageCount = $galleryResult->fetch_row()[0];
 
-      echo '<div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden room-card transition-all duration-300 hover:shadow-xl">   <div class="h-64 overflow-hidden relative group">
-        <img src="uploads/rooms/' . htmlspecialchars($imagePath) . '" alt="Room ' . htmlspecialchars($room['room_number']) . '" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105">
-        
-        <!-- Status Badge - Now with z-index and ensured visibility -->
-        <div class="absolute top-4 right-4 bg-green-500 text-white text-xs font-semibold px-3 py-1 rounded-full shadow-lg z-50">
-            Available
-        </div>
-        
-        <!-- Gallery Button Group - Enhanced visibility -->
-        <div class="absolute bottom-4 right-4 flex items-center gap-2 z-50">
-            <span class="bg-white/90 dark:bg-gray-900/90 backdrop-blur-sm rounded-full px-3 py-1 shadow-sm text-sm text-gray-900 dark:text-white font-medium">
-                ' . ($imageCount > 0 ? $imageCount . ' Photos' : 'No Gallery') . '
-            </span>
-            <button onclick="showRoomGallery(' . $roomId . ')" class="flex items-center bg-white/90 dark:bg-gray-900/90 backdrop-blur-sm rounded-full px-3 py-1 shadow-sm text-sm text-gray-900 dark:text-white z-50">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
-                </svg>
-            </button>
-        </div>
-    </div>
+        echo '<div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden room-card transition-all duration-300 hover:shadow-xl">
+            <div class="h-64 overflow-hidden relative group">
+                <img src="uploads/rooms/' . htmlspecialchars($imagePath) . '" alt="Room ' . htmlspecialchars($room['room_number']) . '" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105">
+                <div class="absolute top-4 right-4 bg-green-500 text-white text-xs font-semibold px-3 py-1 rounded-full shadow-lg z-50">
+                    Available
+                </div>
+                <div class="absolute bottom-4 right-4 flex items-center gap-2 z-50">
+                    <span class="bg-white/90 dark:bg-gray-900/90 backdrop-blur-sm rounded-full px-3 py-1 shadow-sm text-sm text-gray-900 dark:text-white font-medium">
+                        ' . ($imageCount > 0 ? $imageCount . ' Photos' : 'No Gallery') . '
+                    </span>
+                    <button onclick="showRoomGallery(' . $roomId . ')" class="flex items-center bg-white/90 dark:bg-gray-900/90 backdrop-blur-sm rounded-full px-3 py-1 shadow-sm text-sm text-gray-900 dark:text-white z-50">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
 
             <div class="p-6">
                 <div class="flex justify-between items-center mb-4">
@@ -112,11 +108,13 @@ if ($result->num_rows > 0) {
         }
 
         echo '</div>
-      <a href="booking.php?room_id=' . $roomId . '" 
-         class="block w-full text-center bg-primary hover:bg-primary-dark text-white py-2 rounded-md transition duration-300">
-         Book Now
-      </a>
-   </div>
+        <form action="booking.php" method="POST" class="w-full">
+            <input type="hidden" name="room_id" value="' . $roomId . '">
+            <button type="submit" class="block w-full text-center bg-primary hover:bg-primary-dark text-white py-2 rounded-md transition duration-300">
+                Book Now
+            </button>
+        </form>
+    </div>
 </div>';
 
         $delay += 100;
@@ -131,7 +129,5 @@ if ($result->num_rows > 0) {
                 });
         }
     </script>';
-} else {
-    echo '';
 }
 ?>

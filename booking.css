@@ -1,0 +1,241 @@
+
+/* Custom CSS for modern design */
+.payment-method {
+    transition: all 0.2s ease;
+}
+.payment-method.selected {
+    box-shadow: 0 0 0 2px #3b82f6;
+}
+
+.progress-bar {
+    height: 4px;
+    width: 0%;
+    background-color: #3b82f6;
+    transition: width 0.5s ease;
+}
+
+.progress-step {
+    transition: all 0.3s ease;
+}
+
+.progress-step.active .step-number {
+    background-color: #3b82f6;
+    color: white;
+}
+
+.step-number {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.room-gallery {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.main-image {
+    grid-column: span 3;
+    height: 180px;
+    width: 100%;
+    object-fit: cover;
+    border-radius: 12px 12px 0 0;
+}
+
+.thumbnail {
+    height: 80px;
+    width: 100%;
+    object-fit: cover;
+    cursor: pointer;
+}
+
+.card {
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+    background-color: white;
+    overflow: hidden;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.dark .card {
+    background-color: #1e293b;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+}
+
+.sticky-summary {
+    position: sticky;
+    top: 100px;
+}
+
+.form-control {
+    width: 100%;
+    padding: 12px 16px;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    font-size: 16px;
+    transition: all 0.3s ease;
+}
+
+.dark .form-control {
+    background-color: #334155;
+    border-color: #475569;
+    color: #f8fafc;
+}
+
+.form-control:focus {
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+    outline: none;
+}
+
+.divider {
+    height: 1px;
+    width: 100%;
+    background-color: #e2e8f0;
+    margin: 16px 0;
+}
+
+.dark .divider {
+    background-color: #475569;
+}
+
+.btn-primary {
+    background-color: #3b82f6;
+    color: white;
+    font-weight: 600;
+    padding: 12px 24px;
+    border-radius: 12px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-primary:hover {
+    background-color: #2563eb;
+    transform: translateY(-2px);
+}
+
+.btn-primary:active {
+    transform: translateY(0);
+}
+
+.btn-primary:disabled {
+    background-color: #93c5fd;
+    cursor: not-allowed;
+    transform: none;
+    opacity: 0.7;
+}
+
+.price-highlight {
+    color: #3b82f6;
+    font-size: 1.5rem;
+    font-weight: 700;
+}
+
+.dark .price-highlight {
+    color: #60a5fa;
+}
+
+.feature-icon {
+    width: 40px;
+    height: 40px;
+    background-color: rgba(59, 130, 246, 0.1);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #3b82f6;
+}
+
+.dark .feature-icon {
+    background-color: rgba(59, 130, 246, 0.2);
+}
+
+.text-primary {
+    color: #3b82f6;
+}
+
+.dark .text-primary {
+    color: #60a5fa;
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-in {
+    animation: fadeIn 0.5s ease forwards;
+}
+
+/* Responsive improvements */
+@media (max-width: 768px) {
+    .sticky-summary {
+        position: static;
+    }
+    
+    .room-gallery {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .main-image {
+        grid-column: span 2;
+    }
+    
+    .card {
+        padding: 1.5rem;
+    }
+}
+
+/* Form validatio */
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+}
+
+.invalid-feedback {
+    color: #ef4444;
+    font-size: 0.875rem;
+    margin-top: 0.25rem;
+    display: none;
+}
+
+.is-invalid {
+    border-color: #ef4444 !important;
+}
+
+.is-invalid ~ .invalid-feedback {
+    display: block;
+}
+
+/* Loading spinner */
+.fa-spinner {
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}

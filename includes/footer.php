@@ -1,5 +1,4 @@
 
-
   <!-- Scripts -->
   <!-- AOS Animation Library -->
   <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
@@ -83,9 +82,7 @@
       }
     }
     
-    window.addEventListener('scroll', handleScroll);
-    handleScroll(); // Initialize on page load
-    
+ 
     // Initialize Hero Swiper
     const heroSwiper = new Swiper('.heroSwiper', {
       loop: true,

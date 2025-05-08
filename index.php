@@ -9,8 +9,6 @@ if (isset($_SESSION['tenant_id'])) {
     $tenantData = loadTenantData($conn, $_SESSION['tenant_id']);
 }
 ?>
-
-
  <!DOCTYPE html>
 <html lang="en" class="scroll-smooth">
 <head>
@@ -298,142 +296,6 @@ if (isset($_SESSION['tenant_id'])) {
     </div>
   </section>
 
-  <!-- Testimonials Section with Swiper -->
-  <section id="testimonials" class="py-16 md:py-24 bg-gradient-to-r from-slate-100 to-slate-200 dark:from-slate-800 dark:to-slate-900">
-    <div class="container mx-auto px-4">
-      <div class="text-center mb-16" data-aos="fade-up">
-        <h2 class="text-3xl md:text-4xl font-bold mb-4 text-slate-800 dark:text-slate-100">
-          What Our Residents Say
-        </h2>
-        <p class="text-lg text-slate-600 dark:text-slate-300 max-w-3xl mx-auto">
-          Hear from those who call MECMEC Boarding House their home away from home.
-        </p>
-      </div>
-      
-      <!-- Testimonial Slider -->
-      <div class="swiper testimonialSwiper" data-aos="fade-up">
-        <div class="swiper-wrapper pb-12">
-          <!-- Testimonial 1 -->
-          <div class="swiper-slide">
-            <div class="bg-white dark:bg-slate-800 rounded-xl shadow-lg p-8">
-              <div class="flex items-center mb-4">
-                <div class="text-amber-400 flex">
-                  <i class="fas fa-star"></i>
-                  <i class="fas fa-star"></i>
-                  <i class="fas fa-star"></i>
-                  <i class="fas fa-star"></i>
-                  <i class="fas fa-star"></i>
-                </div>
-                <span class="ml-2 text-slate-500 dark:text-slate-400">5.0</span>
-              </div>
-              <p class="text-slate-600 dark:text-slate-300 mb-6 italic">
-                "Living at MECMEC has been an amazing experience. The facilities are well-maintained, the staff is friendly and responsive, and I've made lifelong friends here. Couldn't ask for a better place to stay during my college years!"
-              </p>
-              <div class="flex items-center">
-                <img src="https://randomuser.me/api/portraits/women/12.jpg" alt="Sarah L." class="w-12 h-12 rounded-full mr-4">
-                <div>
-                  <h4 class="font-bold text-slate-800 dark:text-white">Sarah L.</h4>
-                  <p class="text-sm text-slate-500 dark:text-slate-400">College Student • 2 years resident</p>
-                </div>
-              </div>
-            </div>
-          </div>
-          
-          <!-- Testimonial 2 -->
-          <div class="swiper-slide">
-            <div class="bg-white dark:bg-slate-800 rounded-xl shadow-lg p-8">
-              <div class="flex items-center mb-4">
-                <div class="text-amber-400 flex">
-                  <i class="fas fa-star"></i>
-                  <i class="fas fa-star"></i>
-                  <i class="fas fa-star"></i>
-                  <i class="fas fa-star"></i>
-                  <i class="fas fa-star-half-alt"></i>
-                </div>
-                <span class="ml-2 text-slate-500 dark:text-slate-400">4.5</span>
-              </div>
-              <p class="text-slate-600 dark:text-slate-300 mb-6 italic">
-                "As a young professional, I needed a place that's convenient, clean, and conducive to work. MECMEC ticks all those boxes and more. The high-speed internet and study room are perfect for remote working days!"
-              </p>
-              <div class="flex items-center">
-                <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="Mark T." class="w-12 h-12 rounded-full mr-4">
-                <div>
-                  <h4 class="font-bold text-slate-800 dark:text-white">Mark T.</h4>
-                  <p class="text-sm text-slate-500 dark:text-slate-400">Software Engineer • 1 year resident</p>
-                </div>
-              </div>
-            </div>
-          </div>
-          
-          <!-- Testimonial 3 -->
-          <div class="swiper-slide">
-            <div class="bg-white dark:bg-slate-800 rounded-xl shadow-lg p-8">
-              <div class="flex items-center mb-4">
-                <div class="text-amber-400 flex">
-                  <i class="fas fa-star"></i>
-                  <i class="fas fa-star"></i>
-                  <i class="fas fa-star"></i>
-                  <i class="fas fa-star"></i>
-                  <i class="fas fa-star"></i>
-                </div>
-                <span class="ml-2 text-slate-500 dark:text-slate-400">5.0</span>
-              </div>
-              <p class="text-slate-600 dark:text-slate-300 mb-6 italic">
-                "I chose MECMEC because of its proximity to my university. What I didn't expect was the sense of community I'd find here. The staff treats everyone like family, and the facilities are top-notch. Best decision I made!"
-              </p>
-              <div class="flex items-center">
-                <img src="https://randomuser.me/api/portraits/women/65.jpg" alt="Jessica K." class="w-12 h-12 rounded-full mr-4">
-                <div>
-                  <h4 class="font-bold text-slate-800 dark:text-white">Jessica K.</h4>
-                  <p class="text-sm text-slate-500 dark:text-slate-400">Medical Student • 3 years resident</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-        
-        <div class="swiper-pagination"></div>
-      </div>
-    </div>
-  </section>
-  
-  <!-- Gallery Section with Masonry Layout -->
-  <section id="gallery" class="py-16 md:py-24 bg-white dark:bg-slate-900">
-    <div class="container mx-auto px-4">
-      <div class="text-center mb-16" data-aos="fade-up">
-        <h2 class="text-3xl md:text-4xl font-bold mb-4 text-slate-800 dark:text-slate-100">
-          Gallery
-        </h2>
-        <p class="text-lg text-slate-600 dark:text-slate-300 max-w-3xl mx-auto">
-          Take a visual tour of our boarding house and facilities.
-        </p>
-      </div>
-      
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        <div data-aos="fade-up" data-aos-delay="100" class="gallery-item overflow-hidden rounded-xl">
-          <img src="https://images.unsplash.com/photo-1560448205-4d9b3e6bb6db?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=870&q=80" alt="Lobby" class="w-full h-full object-cover transition-transform hover:scale-105">
-        </div>
-        <div data-aos="fade-up" data-aos-delay="200" class="gallery-item overflow-hidden rounded-xl md:row-span-2">
-          <img src="https://images.unsplash.com/photo-1505692952047-1a78307da8f2?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=870&q=80" alt="Common Area" class="w-full h-full object-cover transition-transform hover:scale-105">
-        </div>
-        <div data-aos="fade-up" data-aos-delay="300" class="gallery-item overflow-hidden rounded-xl">
-          <img src="https://images.unsplash.com/photo-1555854877-bab0e564b8d5?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=869&q=80" alt="Kitchen" class="w-full h-full object-cover transition-transform hover:scale-105">
-        </div>
-        <div data-aos="fade-up" data-aos-delay="400" class="gallery-item overflow-hidden rounded-xl lg:col-span-2">
-          <img src="https://images.unsplash.com/photo-1560448204-e02f11c3d0c2?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=870&q=80" alt="Building Exterior" class="w-full h-full object-cover transition-transform hover:scale-105">
-        </div>
-        <div data-aos="fade-up" data-aos-delay="500" class="gallery-item overflow-hidden rounded-xl">
-          <img src="https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=874&q=80" alt="Study Room" class="w-full h-full object-cover transition-transform hover:scale-105">
-        </div>
-      </div>
-      
-      <div class="text-center mt-12">
-        <a href="#" class="inline-block bg-primary hover:bg-primary-dark text-white px-8 py-3 rounded-full font-medium transition">
-          View Full Gallery
-        </a>
-      </div>
-    </div>
-  </section>
   
   <!-- Contact Section -->
   <section id="contact" class="py-16 md:py-24 bg-gradient-to-r from-slate-100 to-slate-200 dark:from-slate-800 dark:to-slate-900">
@@ -672,10 +534,9 @@ if (isset($_SESSION['tenant_id'])) {
     </div>
   </footer>
 
-  <!-- Back to Top Button -->
-  <a href="#home" id="back-to-top" class="fixed bottom-8 right-8 bg-primary text-white w-12 h-12 rounded-full flex items-center justify-center shadow-lg transition-all duration-300 opacity-0 invisible">
-    <i class="fas fa-arrow-up"></i>
-  </a>
+
+<!-- End of Tawk.to Script -->
     <?php include "includes/footer.php" ?>
+    <?php include "includes/chatbot.php" ?>
 </body>
 </html>
