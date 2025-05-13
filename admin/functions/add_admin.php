@@ -10,7 +10,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $password = password_hash($_POST['password'], PASSWORD_BCRYPT);
 
     $photo = $_FILES['photo']['name'];
-    $targetDir = "../uploads/";
+    $targetDir = "../assets/uploads/";
     $targetFile = $targetDir . basename($photo);
     move_uploaded_file($_FILES['photo']['tmp_name'], $targetFile);
 

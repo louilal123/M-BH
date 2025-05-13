@@ -18,4 +18,8 @@
     <link rel="stylesheet" href="includes/styles.css">
     
   <script  src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<!-- <link href="src/output.css" rel="stylesheet"> -->
+<script src="https://cdn.tailwindcss.com"></script>
+
+
 

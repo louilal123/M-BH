@@ -105,7 +105,7 @@
                                                     <div class="flex space-x-2">
                                                    
                                                     <button 
-    class="editTenantBtn px-3 py-1 bg-yellow-500 text-white rounded hover:bg-yellow-600 focus:outline-none focus:ring-2 focus:ring-yellow-400 text-sm flex items-center"
+    class="editTenantBtn px-3 py-1 bg-indigo-700 text-white  rounded hover:bg-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-400 text-sm flex items-center"
     data-id="<?php echo $tenant['tenant_id']; ?>"
     data-name="<?php echo htmlspecialchars($tenant['name']); ?>"
     data-email="<?php echo htmlspecialchars($tenant['email']); ?>"

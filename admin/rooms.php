@@ -149,7 +149,7 @@
 
                                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                                     <div class="flex space-x-2">
-                                                    <button class="editRoomBtn px-3 py-1 bg-green-600 text-white rounded hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm flex items-center"
+                                                    <button class="editRoomBtn px-3 py-1 bg-indigo-600 text-white rounded hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm flex items-center"
                                                         data-id="<?php echo $room['room_id']; ?>"
                                                         data-number="<?php echo htmlspecialchars($room['room_number']); ?>"
                                                         data-description="<?php echo htmlspecialchars($room['description']); ?>"

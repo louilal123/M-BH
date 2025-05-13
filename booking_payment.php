@@ -51,7 +51,8 @@ $duration = $checkIn->diff($checkOut)->days;
     <?php include "includes/header.php"; ?>
     <title>Payment | MECMEC Boarding House</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.js"></script><style>
         .payment-method {
             transition: all 0.2s ease;
             cursor: pointer;
@@ -126,7 +127,7 @@ $duration = $checkIn->diff($checkOut)->days;
                             <input type="hidden" name="special_requests" value="<?= htmlspecialchars($bookingData['special_requests']) ?>">
                             <input type="hidden" name="total_amount" value="<?= $bookingData['total_amount'] ?>">
                             
-                            <div class="payment-method border border-gray-200 dark:border-gray-700 rounded-lg p-4"
+                          <div class="payment-method border border-gray-200 dark:border-gray-700 rounded-lg p-4"
                                 onclick="selectPaymentMethod('gcash')">
                                 <input type="radio" id="gcash" name="payment_method" value="gcash" class="hidden">
                                 <div class="flex items-center">
@@ -138,32 +139,14 @@ $duration = $checkIn->diff($checkOut)->days;
                                         <p class="text-sm text-gray-500 dark:text-gray-400">Pay using your GCash account</p>
                                     </div>
                                 </div>
-                                <div id="gcash-reference" class="reference-input mt-3">
-                                    <label class="block text-sm font-medium mb-2">GCash Reference Number</label>
-                                    <input type="text" name="gcash_reference" 
-                                        class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700"
-                                        placeholder="Enter reference number">
-                                </div>
 
-                            </div>
-                            
-                            <div class="payment-method border border-gray-200 dark:border-gray-700 rounded-lg p-4"
-                                onclick="selectPaymentMethod('bank_transfer')">
-                                <input type="radio" id="bank_transfer" name="payment_method" value="bank_transfer" class="hidden">
-                                <div class="flex items-center">
-                                    <div class="w-10 h-10 bg-green-100 dark:bg-green-900/20 rounded-full flex items-center justify-center mr-4">
-                                        <i class="fas fa-university text-green-500"></i>
-                                    </div>
-                                    <div>
-                                        <h3 class="font-bold">Bank Transfer</h3>
-                                        <p class="text-sm text-gray-500 dark:text-gray-400">Direct bank transfer</p>
-                                    </div>
-                                </div>
-                                <div id="bank-reference" class="reference-input mt-3">
-                                    <label class="block text-sm font-medium mb-2">Bank Reference Number</label>
-                                    <input type="text" name="bank_reference" 
+                                <div id="gcash-reference" class="reference-input mt-3">
+                                    <label for="gcash_reference" class="block text-sm font-medium mb-2">GCash Reference Number</label>
+                                    <input type="text" id="gcash_reference" name="gcash_reference"
                                         class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700"
-                                        placeholder="Enter reference number">
+                                        placeholder="Enter GCash number"
+                                        required>
+                                    <span id="gcash_error" class="text-red-500 text-sm mt-1 hidden">Invalid GCash number. Please use a Globe number like 09551234567.</span>
                                 </div>
                             </div>
                             
@@ -185,9 +168,11 @@ $duration = $checkIn->diff($checkOut)->days;
                                 <a href="booking.php" class="text-blue-600 dark:text-blue-400 hover:underline font-medium flex items-center">
                                     <i class="fas fa-arrow-left mr-2"></i> Cancel
                                 </a>
-                                <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-6 rounded-lg transition duration-200 flex items-center">
-                                    <i class="fas fa-receipt mr-2"></i> Complete Payment
-                                </button>
+                             <button type="submit" id="submitBtn" disabled
+                                    class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-6 rounded-lg transition duration-200 flex items-center opacity-50 cursor-not-allowed">
+                                <i class="fas fa-receipt mr-2"></i> Complete Payment
+                            </button>
+
                             </div>
                         </form>
                     </div>
@@ -246,103 +231,161 @@ $duration = $checkIn->diff($checkOut)->days;
             </div>
         </div>
     </section>
+<script>
+  const gcashInput = document.getElementById('gcash_reference');
+  const gcashError = document.getElementById('gcash_error');
+  const submitBtn = document.getElementById('submitBtn');
+
+  const gcashRegex = /^09(4[5]|5\d|6\d|7\d|15|16|17|27|35|37|38)\d{7}$/;
+
+  gcashInput.addEventListener('input', () => {
+    const isValid = gcashRegex.test(gcashInput.value);
+
+    if (isValid) {
+      gcashError.classList.add('hidden');
+      gcashInput.classList.remove('border-red-500');
+      gcashInput.classList.add('border-gray-300', 'dark:border-gray-600');
+      submitBtn.disabled = false;
+      submitBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+    } else {
+      gcashError.classList.remove('hidden');
+      gcashInput.classList.remove('border-gray-300', 'dark:border-gray-600');
+      gcashInput.classList.add('border-red-500');
+      submitBtn.disabled = true;
+      submitBtn.classList.add('opacity-50', 'cursor-not-allowed');
+    }
+  });
+</script>
 
     <script>
-    function selectPaymentMethod(method) {
-        document.querySelectorAll('.payment-method').forEach(el => {
-            el.classList.remove('selected');
-        });
-        
-        document.querySelectorAll('.reference-input').forEach(el => {
-            el.classList.remove('show');
-        });
-        
-        const radio = document.getElementById(method);
-        if (radio) {
-            radio.checked = true;
-            radio.closest('.payment-method').classList.add('selected');
-            
-            if (method === 'gcash') {
-                document.getElementById('gcash-reference').classList.add('show');
-            } else if (method === 'bank_transfer') {
-                document.getElementById('bank-reference').classList.add('show');
+            function selectPaymentMethod(method) {
+                document.querySelectorAll('.payment-method').forEach(el => {
+                    el.classList.remove('selected');
+                });
+                
+                document.querySelectorAll('.reference-input').forEach(el => {
+                    el.classList.remove('show');
+                });
+                
+                const radio = document.getElementById(method);
+                if (radio) {
+                    radio.checked = true;
+                    radio.closest('.payment-method').classList.add('selected');
+                    
+                    if (method === 'gcash') {
+                        document.getElementById('gcash-reference').classList.add('show');
+                    } else if (method === 'bank_transfer') {
+                        document.getElementById('bank-reference').classList.add('show');
+                    }
+                }
             }
-        }
-    }
 
-    document.addEventListener('DOMContentLoaded', function() {
-        selectPaymentMethod('gcash');
-        
-        document.getElementById('paymentForm').addEventListener('submit', function(e) {
-    e.preventDefault();
-    
-    const paymentMethod = document.querySelector('input[name="payment_method"]:checked');
-    if (!paymentMethod) {
-        alert('Please select a payment method');
-        return;
-    }
-    
-    let referenceNumber = '';
-    
-    // Check reference number for methods that require it
-    if (paymentMethod.value === 'gcash') {
-        const referenceInput = document.querySelector('input[name="gcash_reference"]');
-        if (!referenceInput || !referenceInput.value.trim()) {
-            alert('Please enter a GCash reference number');
-            return;
-        }
-        referenceNumber = referenceInput.value.trim();
-    } 
-    else if (paymentMethod.value === 'bank_transfer') {
-        const referenceInput = document.querySelector('input[name="bank_reference"]');
-        if (!referenceInput || !referenceInput.value.trim()) {
-            alert('Please enter a bank reference number');
-            return;
-        }
-        referenceNumber = referenceInput.value.trim();
-    }
-    
-    const submitBtn = this.querySelector('button[type="submit"]');
-    const originalBtnText = submitBtn.innerHTML;
-    submitBtn.disabled = true;
-    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Processing...';
-    
-    // Create FormData object from the form
-    const formData = new FormData(this);
-    
-    // Add the reference number to the form data
-    if (referenceNumber) {
-        formData.append('reference_number', referenceNumber);
-    }
-    
-    // Add tenant_id
-    formData.append('tenant_id', <?= $_SESSION['tenant_id'] ?? 0 ?>);
-    
-    fetch(this.action, {
-        method: 'POST',
-        body: formData
-    })
-    .then(response => {
-        if (!response.ok) {
-            return response.text().then(text => { throw new Error(text) });
-        }
-        return response.json();
-    })
-    .then(data => {
-        if (data.success && data.booking_id) {
-            window.location.href = `booking_success.php?booking_id=${data.booking_id}`;
-        } else {
-            throw new Error(data.message || 'Payment processing failed');
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        alert(error.message);
-        submitBtn.disabled = false;
-        submitBtn.innerHTML = originalBtnText;
-    });
-});
-    });
+            document.addEventListener('DOMContentLoaded', function() {
+                selectPaymentMethod('gcash');
+                
+                document.getElementById('paymentForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const paymentMethod = document.querySelector('input[name="payment_method"]:checked');
+            if (!paymentMethod) {
+                alert('Please select a payment method');
+                return;
+            }
+            
+            let referenceNumber = '';
+            
+            // Check reference number for methods that require it
+            if (paymentMethod.value === 'gcash') {
+                const referenceInput = document.querySelector('input[name="gcash_reference"]');
+                if (!referenceInput || !referenceInput.value.trim()) {
+                    alert('Please enter a GCash reference number');
+                    return;
+                }
+                referenceNumber = referenceInput.value.trim();
+            } 
+            else if (paymentMethod.value === 'bank_transfer') {
+                const referenceInput = document.querySelector('input[name="bank_reference"]');
+                if (!referenceInput || !referenceInput.value.trim()) {
+                    alert('Please enter a bank reference number');
+                    return;
+                }
+                referenceNumber = referenceInput.value.trim();
+            }
+            
+            const submitBtn = this.querySelector('button[type="submit"]');
+            const originalBtnText = submitBtn.innerHTML;
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Processing...';
+            
+            const formData = new FormData(this);
+            
+            if (referenceNumber) {
+                formData.append('reference_number', referenceNumber);
+            }
+            formData.append('tenant_id', <?= $_SESSION['tenant_id'] ?? 0 ?>);
+
+                    fetch(this.action, {
+                        method: 'POST',
+                        body: formData
+                    })
+                    .then(response => {
+                        if (!response.ok) {
+                            return response.text().then(text => { throw new Error(text) });
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        if (data.success && data.booking_id) {
+                            Swal.fire({
+                                title: 'Success!',
+                                text: data.message,
+                                icon: 'success',
+                                toast: true,
+                                position: 'top-end',
+                                showConfirmButton: false,
+                                timer: 3000,
+                                timerProgressBar: true,
+                                background: '#d4edda',
+                                iconColor: '#155724',
+                                color: '#155724'
+                            }).then(() => {
+                                window.location.href = `booking_success.php?booking_id=${data.booking_id}`;
+                            });
+                        } else {
+                            throw new Error(data.message || 'Payment processing failed');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        
+                        // Parse the error if it's JSON
+                        let errorMessage = error.message;
+                        try {
+                            const errorData = JSON.parse(error.message);
+                            errorMessage = errorData.message || error.message;
+                        } catch (e) {
+                            // Not JSON, use original message
+                        }
+                        
+                        Swal.fire({
+                            title: 'Error!',
+                            text: errorMessage,
+                            icon: 'error',
+                            toast: true,
+                            position: 'top-end',
+                            showConfirmButton: false,
+                            timer: 5000,
+                            timerProgressBar: true,
+                            background: '#f8d7da',
+                            iconColor: '#721c24',
+                            color: '#721c24'
+                        });
+                        
+                        submitBtn.disabled = false;
+                        submitBtn.innerHTML = originalBtnText;
+                    });
+                });
+            });
     </script>
 
     <?php include "includes/footer.php"; ?>

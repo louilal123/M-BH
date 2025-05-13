@@ -239,49 +239,100 @@
       <?php if (isset($_SESSION['loggedin']) && $_SESSION['loggedin'] === true): ?>
         <!-- User is logged in - show profile dropdown -->
         <li class="dropdown">
-        <div class="flex items-center gap-2 cursor-pointer">
-        <div class="w-8 h-8 rounded-full bg-gradient-to-r from-blue-600 to-blue-400 flex items-center justify-center">
-          <span class="text-white text-xs font-bold">
-            <?php 
-              // Function to get initials
-              function getInitials($name) {
-                $names = explode(' ', $name);
-                $initials = '';
-                foreach ($names as $n) {
-                  $initials .= strtoupper(substr($n, 0, 1));
-                  if (strlen($initials) >= 2) break; // Limit to 2 initials
-                }
-                return $initials;
-              }
-              
-              // Get initials from session name or tenant data
-              $nameToUse = $_SESSION['name'] ?? $tenantData['name'] ?? '';
-              echo htmlspecialchars(getInitials($nameToUse));
-            ?>
-          </span>
-        </div>
-        <span class="text-white"><?php echo htmlspecialchars($_SESSION['name'] ?? ''); ?></span>
-        <i class="fas fa-chevron-down text-xs mt-1 text-white"></i>
-      </div>
-          <div class="dropdown-content bg-white dark:bg-slate-800 rounded-lg shadow-lg p-4 top-full right-0 w-48">
-            <div class="space-y-2">
-              <div class="px-2 py-1 text-sm text-slate-600 dark:text-slate-300">
-                <p class="font-medium"><?php echo htmlspecialchars($_SESSION['email']); ?></p>
-                <p><?php echo htmlspecialchars($_SESSION['occupation']); ?></p>
-              </div>
-              <div class="border-t border-slate-200 dark:border-slate-700"></div>
-              <a href="profile.php" class="block px-2 py-1 hover:bg-slate-100 dark:hover:bg-slate-700 rounded transition text-slate-700 dark:text-slate-300">
-                <i class="fas fa-user-circle mr-2"></i> Profile
-              </a>
-              <a href="#" onclick="openNotificationsModal(event)" class="block px-2 py-1 hover:bg-slate-100 dark:hover:bg-slate-700 rounded transition text-slate-700 dark:text-slate-300">
-                <i class="fas fa-bell mr-2"></i> Notifications
-              </a>
-              <a href="functions/logout.php" class="block px-2 py-1 hover:bg-slate-100 dark:hover:bg-slate-700 rounded transition text-slate-700 dark:text-slate-300">
-                <i class="fas fa-sign-out-alt mr-2"></i> Logout
-              </a>
+            <div class="flex items-center gap-2 cursor-pointer">
+            <div class="w-8 h-8 rounded-full bg-gradient-to-r from-blue-600 to-blue-400 flex items-center justify-center">
+              <span class="text-white text-xs font-bold">
+                <?php 
+                  // Function to get initials
+                  function getInitials($name) {
+                    $names = explode(' ', $name);
+                    $initials = '';
+                    foreach ($names as $n) {
+                      $initials .= strtoupper(substr($n, 0, 1));
+                      if (strlen($initials) >= 2) break; // Limit to 2 initials
+                    }
+                    return $initials;
+                  }
+                  
+                  // Get initials from session name or tenant data
+                  $nameToUse = $_SESSION['name'] ?? $tenantData['name'] ?? '';
+                  echo htmlspecialchars(getInitials($nameToUse));
+                ?>
+              </span>
             </div>
+            <span class="text-white"><?php echo htmlspecialchars($_SESSION['name'] ?? ''); ?></span>
+            <i class="fas fa-chevron-down text-xs mt-1 text-white"></i>
           </div>
+              <div class="dropdown-content bg-white dark:bg-slate-800 rounded-lg shadow-lg p-4 top-full right-0 w-48">
+                <div class="space-y-2">
+                  <div class="px-2 py-1 text-sm text-slate-600 dark:text-slate-300">
+                    <p class="font-medium"><?php echo htmlspecialchars($_SESSION['email']); ?></p>
+                    <p><?php echo htmlspecialchars($_SESSION['occupation']); ?></p>
+                  </div>
+                  <div class="border-t border-slate-200 dark:border-slate-700"></div>
+                  <a href="profile.php" class="block px-2 py-1 hover:bg-slate-100 dark:hover:bg-slate-700 rounded transition text-slate-700 dark:text-slate-300">
+                    <i class="fas fa-user-circle mr-2"></i> Profile
+                  </a>
+                
+                  <a href="functions/logout.php" class="block px-2 py-1 hover:bg-slate-100 dark:hover:bg-slate-700 rounded transition text-slate-700 dark:text-slate-300">
+                    <i class="fas fa-sign-out-alt mr-2"></i> Logout
+                  </a>
+                </div>
+              </div>
         </li>
+    <li class="relative">
+  <button id="notification-button" class="relative p-2 text-white dark:text-white hover:bg-black/10 dark:hover:bg-white/10 rounded-full transition">
+    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+    </svg>
+    <span id="notification-badge" class="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">3</span>
+  </button>
+
+  <div id="notification-dropdown" class="hidden absolute right-0 mt-2 w-[36rem] bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-white/20 z-50 overflow-hidden">
+    <div class="p-3 border-b border-gray-200 dark:border-white/10 flex justify-between items-center">
+      <h3 class="font-semibold text-black dark:text-white">Notifications</h3>
+      <button class="text-xs text-blue-500 hover:text-blue-400">Mark all as read</button>
+    </div>
+
+    <div class="max-h-96 overflow-y-auto divide-y divide-gray-100 dark:divide-white/10">
+      <div class="notification-item unread bg-blue-100 dark:bg-blue-900/10 cursor-pointer p-3 flex items-start hover:bg-blue-200 dark:hover:bg-white/5">
+        <img src="https://randomuser.me/api/portraits/women/1.jpg" class="h-10 w-10 rounded-full mr-3" alt="Profile">
+        <div class="flex-1">
+          <p class="text-black dark:text-white font-medium">Jane liked your post</p>
+          <p class="text-gray-600 dark:text-white/70 text-sm">"Great work on the project!"</p>
+          <p class="text-xs text-blue-500 dark:text-blue-400 mt-1">1 min ago</p>
+        </div>
+        <span class="h-2 w-2 bg-blue-500 rounded-full mt-2 unread-indicator"></span>
+      </div>
+
+      <div class="notification-item unread bg-blue-100 dark:bg-blue-900/10 cursor-pointer p-3 flex items-start hover:bg-blue-200 dark:hover:bg-white/5">
+        <img src="https://randomuser.me/api/portraits/men/2.jpg" class="h-10 w-10 rounded-full mr-3" alt="Profile">
+        <div class="flex-1">
+          <p class="text-black dark:text-white font-medium">Mike mentioned you</p>
+          <p class="text-gray-600 dark:text-white/70 text-sm">"Check out this new feature"</p>
+          <p class="text-xs text-blue-500 dark:text-blue-400 mt-1">1 hour ago</p>
+        </div>
+        <span class="h-2 w-2 bg-blue-500 rounded-full mt-2 unread-indicator"></span>
+      </div>
+
+      <div class="notification-item bg-white dark:bg-transparent cursor-pointer p-3 flex items-start hover:bg-gray-100 dark:hover:bg-white/5">
+        <img src="https://randomuser.me/api/portraits/women/3.jpg" class="h-10 w-10 rounded-full mr-3" alt="Profile">
+        <div class="flex-1">
+          <p class="text-gray-800 dark:text-white/80 font-medium">Sarah commented</p>
+          <p class="text-gray-500 dark:text-white/50 text-sm">"I agree with your point"</p>
+          <p class="text-xs text-gray-400 dark:text-white/40 mt-1">1 day ago</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="p-3 border-t border-gray-200 dark:border-white/10 text-center">
+      <button class="text-sm text-blue-500 hover:text-blue-400">View all notifications</button>
+    </div>
+  </div>
+</li>
+
+
+
       <?php else: ?>
         <!-- User is not logged in - show login/signup buttons -->
         <li>
@@ -381,92 +432,39 @@
     </ul>
   </div>
 </header>
-<!-- Notifications Modal -->
-<div id="notificationsModal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4">
-  <!-- Backdrop -->
-  <div class="absolute inset-0 bg-black bg-opacity-50"></div>
-  
-  <!-- Modal Container (centered) -->
-  <div class="relative bg-white dark:bg-slate-800 rounded-lg shadow-xl w-full max-w-md max-h-[80vh] flex flex-col">
-    <!-- Modal Header -->
-    <div class="flex justify-between items-center p-4 border-b border-slate-200 dark:border-slate-700">
-      <h3 class="text-lg font-semibold">Notifications</h3>
-      <button onclick="closeNotificationsModal()" class="text-slate-400 hover:text-slate-500 dark:hover:text-slate-300 text-xl">
-        &times;
-      </button>
-    </div>
-    
-    <!-- Modal Content -->
-    <div class="overflow-y-auto flex-1 p-4">
-      <!-- Notification Items -->
-      <div class="space-y-3">
-        <!-- Sample Notification 1 -->
-        <div class="flex items-start gap-3 p-3 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
-          <div class="mt-1 flex-shrink-0">
-            <div class="bg-blue-100 dark:bg-blue-900 p-2 rounded-full">
-              <i class="fas fa-receipt text-blue-500 dark:text-blue-300 text-sm"></i>
-            </div>
-          </div>
-          <div>
-            <p class="font-medium">Payment Received</p>
-            <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">Your payment of ₱8,000 was processed</p>
-            <p class="text-xs text-slate-400 mt-2">2 hours ago</p>
-          </div>
-        </div>
-        
-        <!-- Sample Notification 2 -->
-        <div class="flex items-start gap-3 p-3 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
-          <div class="mt-1 flex-shrink-0">
-            <div class="bg-green-100 dark:bg-green-900 p-2 rounded-full">
-              <i class="fas fa-check-circle text-green-500 dark:text-green-300 text-sm"></i>
-            </div>
-          </div>
-          <div>
-            <p class="font-medium">Booking Confirmed</p>
-            <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">Room #203 has been reserved for you</p>
-            <p class="text-xs text-slate-400 mt-2">1 day ago</p>
-          </div>
-        </div>
-        
-        <!-- Sample Notification 3 -->
-        <div class="flex items-start gap-3 p-3 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
-          <div class="mt-1 flex-shrink-0">
-            <div class="bg-yellow-100 dark:bg-yellow-900 p-2 rounded-full">
-              <i class="fas fa-exclamation-circle text-yellow-500 dark:text-yellow-300 text-sm"></i>
-            </div>
-          </div>
-          <div>
-            <p class="font-medium">Payment Due</p>
-            <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">Upcoming payment due in 3 days</p>
-            <p class="text-xs text-slate-400 mt-2">3 days ago</p>
-          </div>
-        </div>
-      </div>
-    </div>
-    
-    <!-- Modal Footer -->
-    <div class="p-4 border-t border-slate-200 dark:border-slate-700 text-center">
-      <button onclick="closeNotificationsModal()" class="text-primary hover:text-primary-dark font-medium px-4 py-2">
-        Close Notifications
-      </button>
-    </div>
-  </div>
-</div>
+
 <script>
-  function openNotificationsModal(event) {
-    event.preventDefault();
-    document.getElementById('notificationsModal').classList.remove('hidden');
-  }
+document.addEventListener('DOMContentLoaded', function () {
+  const button = document.getElementById('notification-button');
+  const dropdown = document.getElementById('notification-dropdown');
+  const badge = document.getElementById('notification-badge');
 
-  function closeNotificationsModal() {
-    document.getElementById('notificationsModal').classList.add('hidden');
-  }
+  button.addEventListener('click', function (event) {
+    event.stopPropagation();
+    dropdown.classList.toggle('hidden');
 
-  // Close modal when clicking outside
-  document.getElementById('notificationsModal').addEventListener('click', function(e) {
-    if (e.target === this) {
-      closeNotificationsModal();
+    if (!dropdown.classList.contains('hidden')) {
+      badge.textContent = '0';
+      badge.classList.remove('bg-red-500');
+      badge.classList.add('bg-gray-500');
     }
   });
+
+  document.addEventListener('click', function (event) {
+    if (!dropdown.contains(event.target) && !button.contains(event.target)) {
+      dropdown.classList.add('hidden');
+    }
+  });
+
+  // Mark individual notification as read
+  document.querySelectorAll('.notification-item.unread').forEach(item => {
+    item.addEventListener('click', () => {
+      item.classList.remove('unread', 'bg-blue-100', 'dark:bg-blue-900/10');
+      const indicator = item.querySelector('.unread-indicator');
+      if (indicator) indicator.remove();
+    });
+  });
+});
 </script>
+
 

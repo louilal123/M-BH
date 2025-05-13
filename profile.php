@@ -1,5 +1,4 @@
- <?php
-// profile.php
+<?php
 session_start();
 include "admin/functions/connection.php";
 include 'functions/load_tenant_data.php';
@@ -11,9 +10,58 @@ if (!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true) {
 
 $tenantData = loadTenantData($conn, $_SESSION['tenant_id']);
 
-?>
+$bookings = [];
+$stmt = $conn->prepare("SELECT b.*, r.room_number, r.price, r.room_type FROM bookings b JOIN rooms r ON b.room_id = r.room_id WHERE b.tenant_id = ? ORDER BY b.booking_date DESC");
+$stmt->bind_param("i", $_SESSION['tenant_id']);
+$stmt->execute();
+$result = $stmt->get_result();
+if ($result) $bookings = $result->fetch_all(MYSQLI_ASSOC);
 
-<!-- Your HTML/PHP for the profile page -->
+$payments = [];
+$stmt = $conn->prepare("SELECT p.* FROM payments p JOIN bookings b ON p.booking_id = b.booking_id WHERE b.tenant_id = ? ORDER BY p.payment_date DESC");
+$stmt->bind_param("i", $_SESSION['tenant_id']);
+$stmt->execute();
+$result = $stmt->get_result();
+if ($result) $payments = $result->fetch_all(MYSQLI_ASSOC);
+
+$currentBooking = null;
+foreach ($bookings as $booking) {
+    if ($booking['status'] == 'active' || $booking['status'] == 'confirmed') {
+        $currentBooking = $booking;
+        break;
+    }
+}
+
+$balanceText = "₱0.00 (No Active Booking)";
+
+if ($currentBooking) {
+    $totalPaid = 0;
+    
+    foreach ($payments as $payment) {
+        if ($payment['booking_id'] == $currentBooking['booking_id']) {
+            $totalPaid += (float)$payment['amount_paid'];
+        }
+    }
+
+    $remainingBalance = (float)$currentBooking['total_amount'] - $totalPaid;
+
+    if ($totalPaid == 0) {
+        $balanceText = "₱" . number_format($currentBooking['total_amount'], 2) . " (Unpaid)";
+    } 
+    elseif ($remainingBalance > 0) {
+        $balanceText = "₱" . number_format($remainingBalance, 2) . " (Due)";
+    } 
+    else {
+        $balanceText = "₱0.00 (Paid)";
+    }
+    
+    // Debug output
+    error_log("Booking ID: " . $currentBooking['booking_id']);
+    error_log("Total Amount: " . $currentBooking['total_amount']);
+    error_log("Total Paid: " . $totalPaid);
+    error_log("Remaining Balance: " . $remainingBalance);
+}
+?>
 <!DOCTYPE html>
 <html lang="en" class="scroll-smooth">
 <head>
@@ -49,15 +97,44 @@ $tenantData = loadTenantData($conn, $_SESSION['tenant_id']);
 }
     #previewModal {
       transition: all 0.3s ease;
-     
       justify-content: center;
       align-items: center;
-    
     }
     .modal-backdrop {
       background-color: rgba(0, 0, 0, 0.5);
     }
-   
+    .status-active {
+      background-color: #dcfce7;
+      color: #166534;
+    }
+    .status-pending {
+      background-color: #fef9c3;
+      color: #854d0e;
+    }
+    .status-completed {
+      background-color: #dbeafe;
+      color: #1e40af;
+    }
+    .status-cancelled {
+      background-color: #fee2e2;
+      color: #991b1b;
+    }
+    .dark .status-active {
+      background-color: #166534;
+      color: #dcfce7;
+    }
+    .dark .status-pending {
+      background-color: #854d0e;
+      color: #fef9c3;
+    }
+    .dark .status-completed {
+      background-color: #1e40af;
+      color: #dbeafe;
+    }
+    .dark .status-cancelled {
+      background-color: #991b1b;
+      color: #fee2e2;
+    }
   </style>
 </head>
 <body class="bg-slate-50 text-slate-700 dark:bg-slate-900 dark:text-slate-200 transition-all duration-300">
@@ -80,8 +157,7 @@ $tenantData = loadTenantData($conn, $_SESSION['tenant_id']);
               </div>
             </div>
             <div class="text-center md:text-left">
-              <h1 class="text-2xl font-bold"><?php echo htmlspecialchars($tenantData['name'] ?? 'default.jpg'); ?>
-            
+              <h1 class="text-2xl font-bold"><?php echo htmlspecialchars($tenantData['name'] ?? 'default.jpg'); ?></h1>
               <p class="text-primary-light"><?php echo htmlspecialchars($tenantData['occupation']); ?></p>
               <p class="text-sm opacity-80 mt-2">Member since <?php echo date('F Y', strtotime($tenantData['created_at'])); ?></p>
             </div>
@@ -93,8 +169,11 @@ $tenantData = loadTenantData($conn, $_SESSION['tenant_id']);
           <button class="tab-button active px-4 sm:px-6 py-3 text-sm font-medium whitespace-nowrap" onclick="openTab('overview-tab', event)">
             <i class="fas fa-chart-pie mr-2"></i>Overview
           </button>
+          <button class="tab-button px-4 sm:px-6 py-3 text-sm font-medium whitespace-nowrap" onclick="openTab('bookings-tab', event)">
+            <i class="fas fa-calendar-alt mr-2"></i>My Bookings
+          </button>
           <button class="tab-button px-4 sm:px-6 py-3 text-sm font-medium whitespace-nowrap" onclick="openTab('transaction-tab', event)">
-            <i class="fas fa-receipt mr-2"></i>Transaction History
+            <i class="fas fa-receipt mr-2"></i>Payments
           </button>
           <button class="tab-button px-4 sm:px-6 py-3 text-sm font-medium whitespace-nowrap" onclick="openTab('profile-tab', event)">
             <i class="fas fa-user mr-2"></i>Profile
@@ -109,20 +188,36 @@ $tenantData = loadTenantData($conn, $_SESSION['tenant_id']);
       </div>
 
         <div id="overview-tab" class="tab-content active p-6">
-          <div class="grid md:grid-cols-3 gap-6 mb-8">
-            <div class="bg-white dark:bg-slate-700 p-6 rounded-lg shadow border border-slate-100 dark:border-slate-600">
-              <h3 class="text-slate-500 dark:text-slate-300 text-sm font-medium">Current Balance</h3>
-              <p class="text-2xl font-bold mt-2">₱<?php echo number_format($balance, 2); ?></p>
-            </div>
-            <div class="bg-white dark:bg-slate-700 p-6 rounded-lg shadow border border-slate-100 dark:border-slate-600">
-              <h3 class="text-slate-500 dark:text-slate-300 text-sm font-medium">Current Room</h3>
-              <p class="text-2xl font-bold mt-2"><?php echo $room_data ? htmlspecialchars($room_data['room_name']) : 'None'; ?></p>
-            </div>
-            <div class="bg-white dark:bg-slate-700 p-6 rounded-lg shadow border border-slate-100 dark:border-slate-600">
-              <h3 class="text-slate-500 dark:text-slate-300 text-sm font-medium">Rent Price</h3>
-              <p class="text-2xl font-bold mt-2"><?php echo $room_data ? '₱' . number_format($room_data['price'], 2) : 'N/A'; ?></p>
-            </div>
-          </div>
+            <div class="grid md:grid-cols-3 gap-6 mb-8">
+  <!-- Card 1: Current Balance -->
+  <div class="bg-white dark:bg-slate-700 p-6 rounded-lg shadow border border-slate-100 dark:border-slate-600">
+    <h3 class="text-slate-500 dark:text-slate-300 text-sm font-medium flex items-center gap-2">
+      <i class="fas fa-wallet"></i> Current Balance
+    </h3>
+    <p class="text-2xl font-bold mt-2"><?php echo $balanceText; ?></p>
+  </div>
+
+  <!-- Card 2: Current Room -->
+  <div class="bg-white dark:bg-slate-700 p-6 rounded-lg shadow border border-slate-100 dark:border-slate-600">
+    <h3 class="text-slate-500 dark:text-slate-300 text-sm font-medium flex items-center gap-2">
+      <i class="fas fa-door-open"></i> Current Room
+    </h3>
+    <p class="text-2xl font-bold mt-2">
+      <?php echo $currentBooking ? 'Room ' . htmlspecialchars($currentBooking['room_number']) : 'None'; ?>
+    </p>
+  </div>
+
+  <!-- Card 3: Rent Price -->
+  <div class="bg-white dark:bg-slate-700 p-6 rounded-lg shadow border border-slate-100 dark:border-slate-600">
+    <h3 class="text-slate-500 dark:text-slate-300 text-sm font-medium flex items-center gap-2">
+      <i class="fas fa-coins"></i> Rent Price
+    </h3>
+    <p class="text-2xl font-bold mt-2">
+      <?php echo $currentBooking ? '₱' . number_format($currentBooking['price'], 2) : 'N/A'; ?>
+    </p>
+  </div>
+</div>
+
 
           <div class="grid md:grid-cols-2 gap-6">
             <div class="bg-white dark:bg-slate-700 p-6 rounded-lg shadow border border-slate-100 dark:border-slate-600">
@@ -130,115 +225,204 @@ $tenantData = loadTenantData($conn, $_SESSION['tenant_id']);
               <div class="space-y-4">
                 <div class="flex justify-between">
                   <span class="text-slate-600 dark:text-slate-300">Room:</span>
-                  <span><?php echo $room_data ? htmlspecialchars($room_data['room_name']) : 'None'; ?></span>
+                  <span><?php echo $currentBooking ? 'Room ' . htmlspecialchars($currentBooking['room_number']) : 'None'; ?></span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-slate-600 dark:text-slate-300">Type:</span>
+                  <span><?php echo $currentBooking ? htmlspecialchars($currentBooking['room_type']) : 'N/A'; ?></span>
                 </div>
                 <div class="flex justify-between">
                   <span class="text-slate-600 dark:text-slate-300">Rent:</span>
-                  <span><?php echo $room_data ? '₱' . number_format($room_data['price'], 2) : 'N/A'; ?></span>
+                  <span><?php echo $currentBooking ? '₱' . number_format($currentBooking['price'], 2) : 'N/A'; ?></span>
                 </div>
                 <div class="flex justify-between">
-                  <span class="text-slate-600 dark:text-slate-300">Start Date:</span>
-                  <span><?php echo $room_data ? date('M d, Y', strtotime($room_data['start_date'])) : 'N/A'; ?></span>
+                  <span class="text-slate-600 dark:text-slate-300">Check-in Date:</span>
+                  <span><?php echo $currentBooking ? date('M d, Y', strtotime($currentBooking['check_in_date'])) : 'N/A'; ?></span>
                 </div>
                 <div class="flex justify-between">
-                  <span class="text-slate-600 dark:text-slate-300">End Date:</span>
-                  <span><?php echo $room_data ? date('M d, Y', strtotime($room_data['end_date'])) : 'N/A'; ?></span>
+                  <span class="text-slate-600 dark:text-slate-300">Check-out Date:</span>
+                  <span><?php echo $currentBooking ? date('M d, Y', strtotime($currentBooking['check_out_date'])) : 'N/A'; ?></span>
                 </div>
                 <div class="flex justify-between font-medium">
                   <span class="text-slate-600 dark:text-slate-300">Status:</span>
-                  <span class="<?php echo $room_data ? 'text-green-600' : 'text-yellow-600'; ?>">
-                    <?php echo $room_data ? 'Active' : 'No Active Booking'; ?>
+                  <span class="<?php echo $currentBooking ? 'text-green-600' : 'text-yellow-600'; ?>">
+                    <?php echo $currentBooking ? 'Active' : 'No Active Booking'; ?>
                   </span>
                 </div>
               </div>
             </div>
             <div class="bg-white dark:bg-slate-700 p-6 rounded-lg shadow border border-slate-100 dark:border-slate-600">
               <h3 class="text-lg font-semibold mb-4">Recent Payments</h3>
-              <div class="h-64 flex items-center justify-center text-slate-400">
-                <p>Payment history chart will be displayed here</p>
-              </div>
+              <?php if (!empty(array_slice($payments, 0, 3))): ?>
+                <div class="space-y-4">
+                  <?php foreach (array_slice($payments, 0, 3) as $payment): ?>
+                    <div class="flex justify-between items-center p-3 bg-slate-50 dark:bg-slate-600 rounded-lg">
+                      <div>
+                        <p class="font-medium">Payment #<?php echo htmlspecialchars($payment['payment_id']); ?></p>
+                        <p class="text-sm text-slate-500 dark:text-slate-300"><?php echo date('M d, Y', strtotime($payment['payment_date'])); ?></p>
+                      </div>
+                      <div class="text-right">
+                        <p class="font-bold">₱<?php echo number_format($payment['amount_paid'], 2); ?></p>
+                        <span class="px-2 py-1 text-xs rounded-full <?php 
+                          echo $payment['remarks'] == 'completed' ? 'status-completed' : 
+                               ($payment['remarks'] == 'pending' ? 'status-pending' : 'status-cancelled');
+                        ?>">
+                          <?php echo ucfirst(htmlspecialchars($payment['remarks'])); ?>
+                        </span>
+                      </div>
+                    </div>
+                  <?php endforeach; ?>
+                </div>
+                <div class="mt-4 text-right">
+                  <a href="#"  onclick="openTab('transaction-tab', event)" class="text-primary hover:underline">View all payments</a>
+                </div>
+              <?php else: ?>
+                <div class="h-64 flex items-center justify-center text-slate-400">
+                  <p>No recent payments found</p>
+                </div>
+              <?php endif; ?>
             </div>
           </div>
         </div>
-        <!-- Add this new tab content with the others -->
+
+        <!-- Bookings Tab -->
+<!-- Bookings Tab -->
+<div id="bookings-tab" class="tab-content p-6">
+  <div class="mb-6 flex justify-between items-center">
+    <h2 class="text-xl font-bold">My Bookings</h2>
+    <a href="rooms.php" class="bg-primary hover:bg-primary-dark text-white px-4 py-2 rounded-lg">
+      <i class="fas fa-plus mr-2"></i>New Booking
+    </a>
+  </div>
+  
+  <?php if (!empty($bookings)): ?>
+    <div class="overflow-x-auto">
+      <table class="min-w-full divide-y divide-slate-200 dark:divide-slate-700" id="bookings-table">
+        <thead class="bg-slate-50 dark:bg-slate-700">
+          <tr>
+            <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-300 uppercase tracking-wider">Booking ID</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-300 uppercase tracking-wider">Room</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-300 uppercase tracking-wider">Dates</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-300 uppercase tracking-wider">Total Amount</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-300 uppercase tracking-wider">Status</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-300 uppercase tracking-wider">Actions</th>
+          </tr>
+        </thead>
+        <tbody class="bg-white dark:bg-slate-800 divide-y divide-slate-200 dark:divide-slate-700">
+          <?php foreach ($bookings as $booking): ?>
+            <tr data-booking-id="<?php echo $booking['booking_id']; ?>">
+              <td class="px-6 py-4 whitespace-nowrap">#<?php echo htmlspecialchars($booking['booking_id']); ?></td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                Room <?php echo htmlspecialchars($booking['room_number']); ?>
+                <span class="block text-sm text-slate-500 dark:text-slate-400"><?php echo htmlspecialchars($booking['room_type']); ?></span>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <?php echo date('M d, Y', strtotime($booking['check_in_date'])); ?> - 
+                <?php echo date('M d, Y', strtotime($booking['check_out_date'])); ?>
+                <span class="block text-sm text-slate-500 dark:text-slate-400">
+                  Booked on <?php echo date('M d, Y', strtotime($booking['booking_date'])); ?>
+                </span>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap">₱<?php echo number_format($booking['total_amount'], 2); ?></td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <span class="px-2 py-1 text-xs rounded-full <?php 
+                  echo $booking['status'] == 'active' ? 'status-active' : 
+                       ($booking['status'] == 'pending' ? 'status-pending' : 'status-cancelled');
+                ?>">
+                  <?php echo ucfirst(htmlspecialchars($booking['status'])); ?>
+                </span>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <button onclick="viewBookingDetails(<?php echo $booking['booking_id']; ?>)" 
+                        class="text-primary hover:text-primary-dark mr-3">
+                  <i class="fas fa-eye"></i> View
+                </button>
+                <?php if ($booking['status'] == 'pending'): ?>
+                  <button onclick="cancelBooking(<?php echo $booking['booking_id']; ?>)" 
+                          class="text-red-500 hover:text-red-700">
+                    <i class="fas fa-times"></i> Cancel
+                  </button>
+                <?php endif; ?>
+              </td>
+            </tr>
+          <?php endforeach; ?>
+        </tbody>
+      </table>
+    </div>
+  <?php else: ?>
+    <div class="text-center py-12">
+      <i class="fas fa-calendar-times text-4xl text-slate-400 mb-4"></i>
+      <h3 class="text-lg font-medium text-slate-600 dark:text-slate-300">No bookings found</h3>
+      <p class="text-slate-500 dark:text-slate-400 mt-2">You haven't made any bookings yet.</p>
+      <a href="rooms.php" class="mt-4 inline-block bg-primary hover:bg-primary-dark text-white px-4 py-2 rounded-lg">
+        <i class="fas fa-plus mr-2"></i>Book a Room
+      </a>
+    </div>
+  <?php endif; ?>
+</div>
+
+
+
+        <!-- Payments Tab -->
         <div id="transaction-tab" class="tab-content p-6">
-          <div class="overflow-x-auto">
-            <table class="min-w-full divide-y divide-slate-200 dark:divide-slate-700">
-              <thead class="bg-slate-50 dark:bg-slate-700">
-                <tr>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-300 uppercase tracking-wider">Date</th>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-300 uppercase tracking-wider">Transaction ID</th>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-300 uppercase tracking-wider">Type</th>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-300 uppercase tracking-wider">Amount</th>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-300 uppercase tracking-wider">Status</th>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-300 uppercase tracking-wider">Actions</th>
-                </tr>
-              </thead>
-              <tbody class="bg-white dark:bg-slate-800 divide-y divide-slate-200 dark:divide-slate-700">
-                <!-- Sample transaction 1 -->
-                <tr>
-                  <td class="px-6 py-4 whitespace-nowrap">2023-06-15</td>
-                  <td class="px-6 py-4 whitespace-nowrap">TRX-789456</td>
-                  <td class="px-6 py-4 whitespace-nowrap">Booking Payment</td>
-                  <td class="px-6 py-4 whitespace-nowrap">₱8,000.00</td>
-                  <td class="px-6 py-4 whitespace-nowrap">
-                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
-                      Completed
-                    </span>
-                  </td>
-                  <td class="px-6 py-4 whitespace-nowrap">
-                    <button class="text-primary hover:text-primary-dark mr-3">
-                      <i class="fas fa-eye"></i> View
-                    </button>
-                    <button class="text-red-500 hover:text-red-700">
-                      <i class="fas fa-trash"></i> Delete
-                    </button>
-                  </td>
-                </tr>
-                <!-- Sample transaction 2 -->
-                <tr>
-                  <td class="px-6 py-4 whitespace-nowrap">2023-05-28</td>
-                  <td class="px-6 py-4 whitespace-nowrap">TRX-123456</td>
-                  <td class="px-6 py-4 whitespace-nowrap">Monthly Rent</td>
-                  <td class="px-6 py-4 whitespace-nowrap">₱8,000.00</td>
-                  <td class="px-6 py-4 whitespace-nowrap">
-                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
-                      Completed
-                    </span>
-                  </td>
-                  <td class="px-6 py-4 whitespace-nowrap">
-                    <button class="text-primary hover:text-primary-dark mr-3">
-                      <i class="fas fa-eye"></i> View
-                    </button>
-                    <button class="text-red-500 hover:text-red-700">
-                      <i class="fas fa-trash"></i> Delete
-                    </button>
-                  </td>
-                </tr>
-                <!-- Sample transaction 3 -->
-                <tr>
-                  <td class="px-6 py-4 whitespace-nowrap">2023-05-01</td>
-                  <td class="px-6 py-4 whitespace-nowrap">TRX-654321</td>
-                  <td class="px-6 py-4 whitespace-nowrap">Security Deposit</td>
-                  <td class="px-6 py-4 whitespace-nowrap">₱5,000.00</td>
-                  <td class="px-6 py-4 whitespace-nowrap">
-                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200">
-                      Pending
-                    </span>
-                  </td>
-                  <td class="px-6 py-4 whitespace-nowrap">
-                    <button class="text-primary hover:text-primary-dark mr-3">
-                      <i class="fas fa-eye"></i> View
-                    </button>
-                    <button class="text-red-500 hover:text-red-700">
-                      <i class="fas fa-trash"></i> Delete
-                    </button>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
+          <h2 class="text-xl font-bold mb-6">Payment History</h2>
+          
+          <?php if (!empty($payments)): ?>
+            <div class="overflow-x-auto">
+              <table class="min-w-full divide-y divide-slate-200 dark:divide-slate-700">
+                <thead class="bg-slate-50 dark:bg-slate-700">
+                  <tr>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-300 uppercase tracking-wider">Payment ID</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-300 uppercase tracking-wider">Booking</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-300 uppercase tracking-wider">Date</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-300 uppercase tracking-wider">Amount</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-300 uppercase tracking-wider">Method</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-300 uppercase tracking-wider">Status</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-300 uppercase tracking-wider">Actions</th>
+                  </tr>
+                </thead>
+                <tbody class="bg-white dark:bg-slate-800 divide-y divide-slate-200 dark:divide-slate-700">
+                  <?php foreach ($payments as $payment): ?>
+                    <tr>
+                      <td class="px-6 py-4 whitespace-nowrap">#<?php echo htmlspecialchars($payment['payment_id']); ?></td>
+                      <td class="px-6 py-4 whitespace-nowrap">
+                        Booking #<?php echo htmlspecialchars($payment['booking_id']); ?>
+                        <span class="block text-sm text-slate-500 dark:text-slate-400">
+                          Room <?php echo htmlspecialchars($payment['room_number']); ?>
+                        </span>
+                      </td>
+                      <td class="px-6 py-4 whitespace-nowrap"><?php echo date('M d, Y', strtotime($payment['payment_date'])); ?></td>
+                      <td class="px-6 py-4 whitespace-nowrap">₱<?php echo number_format($payment['amount_paid'], 2); ?></td>
+                      <td class="px-6 py-4 whitespace-nowrap"><?php echo ucfirst(htmlspecialchars($payment['payment_method'])); ?></td>
+                      <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="px-2 py-1 text-xs rounded-full <?php 
+                          echo $payment['remarks'] == 'completed' ? 'status-completed' : 
+                               ($payment['remarks'] == 'pending' ? 'status-pending' : 'status-cancelled');
+                        ?>">
+                          <?php echo ucfirst(htmlspecialchars($payment['remarks'])); ?>
+                        </span>
+                      </td>
+                      <td class="px-6 py-4 whitespace-nowrap">
+                        <button onclick="viewPaymentReceipt(<?php echo $payment['payment_id']; ?>)" 
+                                class="text-primary hover:text-primary-dark mr-3">
+                          <i class="fas fa-receipt"></i> Receipt
+                        </button>
+                      </td>
+                    </tr>
+                  <?php endforeach; ?>
+                </tbody>
+              </table>
+            </div>
+          <?php else: ?>
+            <div class="text-center py-12">
+              <i class="fas fa-receipt text-4xl text-slate-400 mb-4"></i>
+              <h3 class="text-lg font-medium text-slate-600 dark:text-slate-300">No payments found</h3>
+              <p class="text-slate-500 dark:text-slate-400 mt-2">You haven't made any payments yet.</p>
+            </div>
+          <?php endif; ?>
         </div>
+
+        <!-- Rest of the tabs (Profile, Security, Login History) remain the same -->
         <div id="profile-tab" class="tab-content p-6">
           <form action="functions/update_profile.php" method="post">
             <div class="grid md:grid-cols-2 gap-6">
@@ -307,7 +491,9 @@ $tenantData = loadTenantData($conn, $_SESSION['tenant_id']);
             </div>
           </form>
         </div>
-        <?php
+
+        <div id="history-tab" class="tab-content p-6">
+            <?php
           include "admin/functions/connection.php";
           if (isset($_SESSION['tenant_id'])) {
               $stmt = $conn->prepare("
@@ -326,7 +512,6 @@ $tenantData = loadTenantData($conn, $_SESSION['tenant_id']);
               $login_history = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
           }
           ?>
-        <div id="history-tab" class="tab-content p-6">
     <div class="overflow-x-auto">
         <table class="min-w-full divide-y divide-slate-200 dark:divide-slate-700">
             <thead class="bg-slate-50 dark:bg-slate-700">
@@ -400,192 +585,374 @@ $tenantData = loadTenantData($conn, $_SESSION['tenant_id']);
     </div>
   </main>
 
-<!-- Photo Upload Confirmation Modal -->
-<div id="previewModal" class="fixed inset-0 z-50 hidden items-center justify-center modal-backdrop">
-  <div class="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
-    <div class="bg-white dark:bg-slate-800 rounded-lg shadow-xl max-w-md w-full mx-4 relative">
-      <div class="flex justify-between items-center p-4 border-b border-slate-200 dark:border-slate-700">
-        <h3 class="text-lg font-semibold">Confirm Profile Photo</h3>
-        <button onclick="closeModal()" class="text-slate-400 hover:text-slate-500 dark:hover:text-slate-300">
-          <i class="fas fa-times"></i>
-        </button>
-      </div>
-      <div class="p-4">
-        <img id="imagePreview" src="#" alt="Preview" class="preview-image mx-auto rounded-lg">
-      </div>
-      <div class="flex justify-end gap-3 p-4 border-t border-slate-200 dark:border-slate-700">
-        <button onclick="closeModal()" class="px-4 py-2 text-sm font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg">
-          Cancel
-        </button>
-        <button onclick="uploadPhoto()" class="px-4 py-2 text-sm font-medium text-white bg-primary hover:bg-primary-dark rounded-lg">
-          Save Photo
-        </button>
+  <!-- Booking Details Modal -->
+  <div id="bookingModal" class="fixed inset-0 z-50 hidden items-center justify-center modal-backdrop">
+    <div class="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
+      <div class="bg-white dark:bg-slate-800 rounded-lg shadow-xl max-w-2xl w-full mx-4 relative max-h-[90vh] overflow-y-auto">
+        <div class="flex justify-between items-center p-4 border-b border-slate-200 dark:border-slate-700 sticky top-0 bg-white dark:bg-slate-800 z-10">
+          <h3 class="text-lg font-semibold">Booking Details</h3>
+          <button onclick="closeBookingModal()" class="text-slate-400 hover:text-slate-500 dark:hover:text-slate-300">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+        <div class="p-6" id="bookingDetailsContent">
+          <!-- Content will be loaded here via AJAX -->
+        </div>
+        <div class="flex justify-end gap-3 p-4 border-t border-slate-200 dark:border-slate-700 sticky bottom-0 bg-white dark:bg-slate-800">
+          <button onclick="closeBookingModal()" class="px-4 py-2 text-sm font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg">
+            Close
+          </button>
+        </div>
       </div>
     </div>
   </div>
-</div>
-<?php include "includes/footer.php" ?>
+
+  <!-- Payment Receipt Modal -->
+  <div id="paymentModal" class="fixed inset-0 z-50 hidden items-center justify-center modal-backdrop">
+    <div class="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
+      <div class="bg-white dark:bg-slate-800 rounded-lg shadow-xl max-w-2xl w-full mx-4 relative max-h-[90vh] overflow-y-auto">
+        <div class="flex justify-between items-center p-4 border-b border-slate-200 dark:border-slate-700 sticky top-0 bg-white dark:bg-slate-800 z-10">
+          <h3 class="text-lg font-semibold">Payment Receipt</h3>
+          <button onclick="closePaymentModal()" class="text-slate-400 hover:text-slate-500 dark:hover:text-slate-300">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+        <div class="p-6" id="paymentDetailsContent">
+          <!-- Content will be loaded here via AJAX -->
+        </div>
+        <div class="flex justify-end gap-3 p-4 border-t border-slate-200 dark:border-slate-700 sticky bottom-0 bg-white dark:bg-slate-800">
+          <button onclick="printReceipt()" class="px-4 py-2 text-sm font-medium text-primary hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg mr-2">
+            <i class="fas fa-print mr-2"></i>Print
+          </button>
+          <button onclick="closePaymentModal()" class="px-4 py-2 text-sm font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg">
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Photo Upload Confirmation Modal -->
+  <div id="previewModal" class="fixed inset-0 z-50 hidden items-center justify-center modal-backdrop">
+    <div class="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
+      <div class="bg-white dark:bg-slate-800 rounded-lg shadow-xl max-w-md w-full mx-4 relative">
+        <div class="flex justify-between items-center p-4 border-b border-slate-200 dark:border-slate-700">
+          <h3 class="text-lg font-semibold">Confirm Profile Photo</h3>
+          <button onclick="closeModal()" class="text-slate-400 hover:text-slate-500 dark:hover:text-slate-300">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+        <div class="p-4">
+          <img id="imagePreview" src="#" alt="Preview" class="preview-image mx-auto rounded-lg">
+        </div>
+        <div class="flex justify-end gap-3 p-4 border-t border-slate-200 dark:border-slate-700">
+          <button onclick="closeModal()" class="px-4 py-2 text-sm font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg">
+            Cancel
+          </button>
+          <button onclick="uploadPhoto()" class="px-4 py-2 text-sm font-medium text-white bg-primary hover:bg-primary-dark rounded-lg">
+            Save Photo
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <?php include "includes/footer.php" ?>
   
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  
 <script>
-  // Tab switching functionality
-  function openTab(tabId, event) {
-    document.querySelectorAll('.tab-content').forEach(function(content) {
-      content.classList.remove('active');
+// Booking details modal functions
+function viewBookingDetails(bookingId) {
+  fetch('functions/get_booking_details.php?booking_id=' + bookingId)
+    .then(response => response.text())
+    .then(data => {
+      document.getElementById('bookingDetailsContent').innerHTML = data;
+      document.getElementById('bookingModal').classList.remove('hidden');
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'Failed to load booking details'
+      });
     });
-    document.querySelectorAll('.tab-button').forEach(function(button) {
-      button.classList.remove('active');
-    });
-    document.getElementById(tabId).classList.add('active');
-    event.currentTarget.classList.add('active');
-  }
+}
 
-  // Initialize first tab as active
-  document.addEventListener('DOMContentLoaded', function() {
-    document.querySelector('.tab-button').classList.add('active');
-    document.querySelector('.tab-content').classList.add('active');
+function closeBookingModal() {
+  document.getElementById('bookingModal').classList.add('hidden');
+}
+
+function cancelBooking(bookingId) {
+    Swal.fire({
+        title: 'Are you sure?',
+        text: 'You are about to cancel this booking!',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Yes, cancel it!'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            fetch('functions/cancel_booking.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: 'booking_id=' + bookingId
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    // Update the specific row in the table
+                    updateBookingRow(data.booking);
+                    
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Cancelled!',
+                        text: data.message,
+                        timer: 2000,
+                        showConfirmButton: false
+                    });
+                } else {
+                    throw data;
+                }
+            })
+            .catch(error => {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: error.message || 'Failed to cancel booking'
+                });
+            });
+        }
+    });
+}
+
+function updateBookingRow(booking) {
+    // Find the row with the matching booking ID using data attribute
+    const row = document.querySelector(`tr[data-booking-id="${booking.booking_id}"]`);
     
-    // Show SweetAlert notification if status exists
-    <?php if (isset($_SESSION['status'])) : ?>
-      setTimeout(function() {
-        Swal.fire({
-          toast: true,
-          position: 'top-end',
-          icon: "<?php echo $_SESSION['status_icon']; ?>",
-          title: "<?php echo $_SESSION['status']; ?>",
-          showConfirmButton: false,
-          timer: 3000,
-          timerProgressBar: true
-        });
+    if (row) {
+        // Update status cell (5th td)
+        const statusCell = row.querySelector('td:nth-child(5)');
+        if (statusCell) {
+            statusCell.innerHTML = `
+                <span class="px-2 py-1 text-xs rounded-full status-cancelled">
+                    ${booking.status.charAt(0).toUpperCase() + booking.status.slice(1)}
+                </span>
+            `;
+        }
         
-        // Clear the status after showing
-        <?php 
-          unset($_SESSION['status']);
-          unset($_SESSION['status_icon']);
-        ?>
-      }, 100);
-    <?php endif; ?>
-  });
+        // Update actions cell (6th td) - remove the cancel button
+        const actionsCell = row.querySelector('td:nth-child(6)');
+        if (actionsCell) {
+            actionsCell.innerHTML = `
+                <button onclick="viewBookingDetails(${booking.booking_id})" 
+                        class="text-primary hover:text-primary-dark mr-3">
+                    <i class="fas fa-eye"></i> View
+                </button>
+            `;
+        }
+    }
+}
 
-  // Photo upload preview and confirmation
-  var photoUpload = document.getElementById('photoUpload');
-  var previewModal = document.getElementById('previewModal');
-  var imagePreview = document.getElementById('imagePreview');
-  var selectedFile = null;
-
-  photoUpload.addEventListener('change', function(event) {
-    var file = event.target.files[0];
-    if (!file) return;
-    
-    // Validate file type
-    var validTypes = ['image/jpeg', 'image/png', 'image/gif'];
-    if (validTypes.indexOf(file.type) === -1) {
+// Payment receipt modal functions
+function viewPaymentReceipt(paymentId) {
+  fetch('functions/get_payment_receipt.php?payment_id=' + paymentId)
+    .then(response => response.text())
+    .then(data => {
+      document.getElementById('paymentDetailsContent').innerHTML = data;
+      document.getElementById('paymentModal').classList.remove('hidden');
+    })
+    .catch(error => {
+      console.error('Error:', error);
       Swal.fire({
         icon: 'error',
-        title: 'Invalid File Type',
-        text: 'Please upload a JPG, PNG, or GIF image'
+        title: 'Error',
+        text: 'Failed to load payment receipt'
       });
-      photoUpload.value = '';
-      return;
-    }
-    
-    // Validate file size (5MB max)
-    if (file.size > 5 * 1024 * 1024) {
-      Swal.fire({
-        icon: 'error',
-        title: 'File Too Large',
-        text: 'Maximum file size is 5MB'
+    });
+}
+
+function closePaymentModal() {
+  document.getElementById('paymentModal').classList.add('hidden');
+}
+
+function printReceipt() {
+  const printContent = document.getElementById('paymentDetailsContent').innerHTML;
+  const originalContent = document.body.innerHTML;
+  
+  document.body.innerHTML = printContent;
+  window.print();
+  document.body.innerHTML = originalContent;
+  
+  // Re-open the modal after printing
+  document.getElementById('paymentModal').classList.remove('hidden');
+}
+</script>
+  <script>
+    // Tab switching functionality
+    function openTab(tabId, event) {
+      document.querySelectorAll('.tab-content').forEach(function(content) {
+        content.classList.remove('active');
       });
-      photoUpload.value = '';
-      return;
+      document.querySelectorAll('.tab-button').forEach(function(button) {
+        button.classList.remove('active');
+      });
+      document.getElementById(tabId).classList.add('active');
+      event.currentTarget.classList.add('active');
     }
 
-    selectedFile = file;
-    var reader = new FileReader();
-    reader.onload = function(e) {
-      imagePreview.src = e.target.result;
-      previewModal.classList.remove('hidden');
-    }
-    reader.readAsDataURL(file);
-  });
+    // Initialize first tab as active
+    document.addEventListener('DOMContentLoaded', function() {
+      document.querySelector('.tab-button').classList.add('active');
+      document.querySelector('.tab-content').classList.add('active');
+      
+      // Show SweetAlert notification if status exists
+      <?php if (isset($_SESSION['status'])) : ?>
+        setTimeout(function() {
+          Swal.fire({
+            toast: true,
+            position: 'top-end',
+            icon: "<?php echo $_SESSION['status_icon']; ?>",
+            title: "<?php echo $_SESSION['status']; ?>",
+            showConfirmButton: false,
+            timer: 3000,
+            timerProgressBar: true
+          });
+          
+          // Clear the status after showing
+          <?php 
+            unset($_SESSION['status']);
+            unset($_SESSION['status_icon']);
+          ?>
+        }, 100);
+      <?php endif; ?>
+    });
 
-  function closeModal() {
-    previewModal.classList.add('hidden');
-    photoUpload.value = '';
-    selectedFile = null;
-  }
-  function uploadPhoto() {
-    if (!selectedFile) {
+    // Photo upload preview and confirmation
+    var photoUpload = document.getElementById('photoUpload');
+    var previewModal = document.getElementById('previewModal');
+    var imagePreview = document.getElementById('imagePreview');
+    var selectedFile = null;
+
+    photoUpload.addEventListener('change', function(event) {
+      var file = event.target.files[0];
+      if (!file) return;
+      
+      // Validate file type
+      var validTypes = ['image/jpeg', 'image/png', 'image/gif'];
+      if (validTypes.indexOf(file.type) === -1) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Invalid File Type',
+          text: 'Please upload a JPG, PNG, or GIF image'
+        });
+        photoUpload.value = '';
+        return;
+      }
+      
+      // Validate file size (5MB max)
+      if (file.size > 5 * 1024 * 1024) {
+        Swal.fire({
+          icon: 'error',
+          title: 'File Too Large',
+          text: 'Maximum file size is 5MB'
+        });
+        photoUpload.value = '';
+        return;
+      }
+
+      selectedFile = file;
+      var reader = new FileReader();
+      reader.onload = function(e) {
+        imagePreview.src = e.target.result;
+        previewModal.classList.remove('hidden');
+      }
+      reader.readAsDataURL(file);
+    });
+
+    function closeModal() {
+      previewModal.classList.add('hidden');
+      photoUpload.value = '';
+      selectedFile = null;
+    }
+
+    function uploadPhoto() {
+      if (!selectedFile) {
         closeModal();
         return;
-    }
+      }
 
-    const submitBtn = document.querySelector('#previewModal button[onclick="uploadPhoto()"]');
-    const originalText = submitBtn.innerHTML;
-    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Uploading...';
-    submitBtn.disabled = true;
+      const submitBtn = document.querySelector('#previewModal button[onclick="uploadPhoto()"]');
+      const originalText = submitBtn.innerHTML;
+      submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Uploading...';
+      submitBtn.disabled = true;
 
-    const formData = new FormData();
-    formData.append('photo', selectedFile);
+      const formData = new FormData();
+      formData.append('photo', selectedFile);
 
-    // Show loading state
-    Swal.fire({
+      // Show loading state
+      Swal.fire({
         title: 'Uploading Photo',
         html: 'Please wait while we update your profile photo...',
         allowOutsideClick: false,
         didOpen: () => {
-            Swal.showLoading();
+          Swal.showLoading();
         }
-    });
+      });
 
-    fetch('functions/upload_photo.php', {  
+      fetch('functions/upload_photo.php', {  
         method: 'POST',
         body: formData
-    })
-    .then(response => {
+      })
+      .then(response => {
         if (!response.ok) {
-            return response.json().then(err => { throw err; });
+          return response.json().then(err => { throw err; });
         }
         return response.json();
-    })
-    .then(data => {
+      })
+      .then(data => {
         if (data.status === 'success') {
-            document.querySelector('.profile-photo').src = data.photo_url + '?' + new Date().getTime();
-            
-            Swal.fire({
-                icon: 'success',
-                title: 'Success!',
-                position: 'top',
-                toast: true,
-                text: data.message,
-                timer: 2000,
-                showConfirmButton: false
-            });
-            
-            closeModal();
-        } else {
-            throw data;
-        }
-    })
-    .catch(error => {
-        Swal.fire({
-            icon: 'error',
-            title: 'Error',
-            text: error.message || 'An error occurred during upload',
-            timer: 3000,
+          document.querySelector('.profile-photo').src = data.photo_url + '?' + new Date().getTime();
+          
+          Swal.fire({
+            icon: 'success',
+            title: 'Success!',
+            position: 'top',
+            toast: true,
+            text: data.message,
+            timer: 2000,
             showConfirmButton: false
+          });
+          
+          closeModal();
+        } else {
+          throw data;
+        }
+      })
+      .catch(error => {
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: error.message || 'An error occurred during upload',
+          timer: 3000,
+          showConfirmButton: false
         });
-    })
-    .finally(() => {
+      })
+      .finally(() => {
         submitBtn.innerHTML = originalText;
         submitBtn.disabled = false;
-    });
-}
+      });
+    }
 
-  document.getElementById('logoutBtn').addEventListener('click', function(e) {
-    e.preventDefault(); 
 
-    Swal.fire({
+    document.getElementById('logoutBtn').addEventListener('click', function(e) {
+      e.preventDefault(); 
+
+      Swal.fire({
         title: 'Are you sure?',
         text: 'You are about to log out!',
         icon: 'warning',
@@ -594,13 +961,14 @@ $tenantData = loadTenantData($conn, $_SESSION['tenant_id']);
         cancelButtonColor: '#3085d6',
         cancelButtonText: 'Cancel',
         confirmButtonText: 'Logout',
-    }).then((result) => {
+      }).then((result) => {
         if (result.isConfirmed) {
-            window.location.href = 'functions/logout.php';
+          window.location.href = 'functions/logout.php';
         }
+      });
     });
-});
-</script>
-<?php include "includes/chatbot.php" ?>
+  </script>
+
+  <?php include "includes/chatbot.php" ?>
 </body>
 </html>

@@ -9,7 +9,6 @@ if (isset($_SESSION['tenant_id'])) {
     $tenantData = loadTenantData($conn, $_SESSION['tenant_id']);
 }
 
-// Check if we have a booking ID and tenant is logged in
 if (!isset($_GET['booking_id'])) {
     header("Location: 404.php");
     exit;
@@ -23,7 +22,6 @@ if (!isset($_SESSION['tenant_id'])) {
 $bookingId = intval($_GET['booking_id']);
 $tenantId = intval($_SESSION['tenant_id']);
 
-// Get booking and payment details
 $query = $conn->prepare("
     SELECT b.*, r.room_number, r.room_type, r.photo, r.description, 
            p.payment_method, p.reference_number, p.payment_date
@@ -45,7 +43,6 @@ if (!$booking) {
     exit;
 }
 
-// Calculate duration
 $checkIn = new DateTime($booking['check_in_date']);
 $checkOut = new DateTime($booking['check_out_date']);
 $interval = $checkIn->diff($checkOut);
@@ -292,7 +289,10 @@ if ($months > 0) {
                         <?php if (isset($booking['reference_number']) && $booking['reference_number']): ?>
                         <p><strong>Reference No.:</strong> <?= htmlspecialchars($booking['reference_number']) ?></p>
                         <?php endif; ?>
-                        <p><strong>Payment Date:</strong> <?= isset($booking['payment_date']) ? date('M j, Y h:i A', strtotime($booking['payment_date'])) : 'Pending' ?></p>
+                      
+                    </div>
+                      <div class="receipt-section">
+                          <p><strong>Payment Date:</strong> <?= isset($booking['payment_date']) ? date('M j, Y h:i A', strtotime($booking['payment_date'])) : 'Pending' ?></p>
                         <p class="font-bold mt-4"><strong>Total Amount:</strong> ₱<?= number_format($booking['total_amount'], 2) ?></p>
                     </div>
                 </div>
@@ -312,7 +312,7 @@ if ($months > 0) {
                 </div>
                 <h1 class="text-3xl font-bold mb-4">Booking Confirmed!</h1>
                 <p class="text-lg text-slate-600 dark:text-slate-400 max-w-2xl mx-auto">
-                    Thank you for your booking. Here are your reservation details.
+                    Thank you for your booking. Here are your booking details.
                 </p>
             </div>
 
@@ -381,7 +381,8 @@ if ($months > 0) {
                                 <div class="mt-6 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-100 dark:border-blue-800/50">
                                     <h4 class="font-medium mb-3">GCash Payment Instructions</h4>
                                     <div class="qr-code-container mb-3">
-                                        <img src="assets/images/gcash-qr.png" alt="GCash QR Code">
+                                        <!-- admin\assets\img\image.png -->
+                                        <img src="admin\assets\img\image.png" alt="GCash QR Code">
                                         <p class="text-sm mt-2">Scan to pay</p>
                                     </div>
                                     <div class="text-sm">

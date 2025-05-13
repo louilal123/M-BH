@@ -1,6 +1,6 @@
 <!-- Sidebar -->
 <aside id="sidebar" class="hidden md:flex flex-col w-64 bg-white text-gray-900 transition-all duration-300 border-r border-gray-200">
-    <div class="flex items-center justify-between p-4 border-b border-gray-200">
+    <div class="flex items-center justify-between p-4 mt-1 border-b border-gray-200">
         <div class="flex items-center space-x-2">
             <h1 class="text-2xl text-indigo-700 font-bold">Mec</h1>
             <span class="font-bold text-xl">Mec BH</span>

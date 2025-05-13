@@ -3,11 +3,7 @@
     transition: all 0.3s ease;
     border: 1px solid rgba(226, 232, 240, 0.5);
 }
-.room-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
-    border-color: rgba(59, 130, 246, 0.5);
-}
+
 
 /* Enhanced geometric pattern background */
 .geometric-pattern {

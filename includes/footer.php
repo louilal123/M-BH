@@ -21,7 +21,9 @@
       document.documentElement.classList.toggle('dark');
       localStorage.setItem('darkMode', document.documentElement.classList.contains('dark') ? 'enabled' : 'disabled');
     }
-    
+     if (localStorage.getItem('darkMode') !== 'disabled') {
+    document.documentElement.classList.add('dark');
+  }
     // Check user preference
     if (localStorage.getItem('darkMode') === 'enabled' || 
         (localStorage.getItem('darkMode') === null && 

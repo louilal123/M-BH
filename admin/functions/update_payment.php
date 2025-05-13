@@ -10,7 +10,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 }
 
 // Validate required fields
-$required = ['booking_id', 'amount', 'payment_method', 'payment_date'];
+$required = ['payment_id', 'booking_id', 'amount', 'payment_method', 'payment_date'];
 foreach ($required as $field) {
     if (empty($_POST[$field])) {
         echo json_encode(['success' => false, 'message' => ucfirst(str_replace('_', ' ', $field)) . ' is required']);
@@ -18,24 +18,41 @@ foreach ($required as $field) {
     }
 }
 
-// Get booking details to validate payment
+$payment_id = intval($_POST['payment_id']);
 $booking_id = intval($_POST['booking_id']);
-$sql = "SELECT b.total_amount, 
-        (SELECT COALESCE(SUM(amount_paid), 0) FROM payments WHERE booking_id = b.booking_id) as paid_amount
-        FROM bookings b WHERE b.booking_id = ?";
-$stmt = $conn->prepare($sql);
-$stmt->bind_param("i", $booking_id);
-$stmt->execute();
-$result = $stmt->get_result();
+$amount = floatval($_POST['amount']);
 
-if ($result->num_rows === 0) {
+// Get current payment details
+$current_sql = "SELECT proof_photo FROM payments WHERE payment_id = ?";
+$current_stmt = $conn->prepare($current_sql);
+$current_stmt->bind_param("i", $payment_id);
+$current_stmt->execute();
+$current_result = $current_stmt->get_result();
+
+if ($current_result->num_rows === 0) {
+    echo json_encode(['success' => false, 'message' => 'Payment not found']);
+    exit;
+}
+
+$current_data = $current_result->fetch_assoc();
+$current_proof = $current_data['proof_photo'];
+
+// Get booking details to validate payment amount
+$booking_sql = "SELECT b.total_amount, 
+               (SELECT COALESCE(SUM(amount_paid), 0) FROM payments WHERE booking_id = b.booking_id AND payment_id != ?) as paid_amount
+               FROM bookings b WHERE b.booking_id = ?";
+$booking_stmt = $conn->prepare($booking_sql);
+$booking_stmt->bind_param("ii", $payment_id, $booking_id);
+$booking_stmt->execute();
+$booking_result = $booking_stmt->get_result();
+
+if ($booking_result->num_rows === 0) {
     echo json_encode(['success' => false, 'message' => 'Booking not found']);
     exit;
 }
 
-$booking = $result->fetch_assoc();
+$booking = $booking_result->fetch_assoc();
 $balance = $booking['total_amount'] - $booking['paid_amount'];
-$amount = floatval($_POST['amount']);
 
 // Validate payment amount doesn't exceed balance
 if ($amount > $balance) {
@@ -44,7 +61,7 @@ if ($amount > $balance) {
 }
 
 // Handle file upload
-$proof_photo = null;
+$proof_photo = $current_proof;
 if (isset($_FILES['proof_photo']) && $_FILES['proof_photo']['error'] === UPLOAD_ERR_OK) {
     $allowed_types = ['image/jpeg', 'image/png', 'image/gif'];
     $file_type = $_FILES['proof_photo']['type'];
@@ -57,6 +74,11 @@ if (isset($_FILES['proof_photo']) && $_FILES['proof_photo']['error'] === UPLOAD_
     $upload_dir = '../assets/uploads/payments/';
     if (!is_dir($upload_dir)) {
         mkdir($upload_dir, 0755, true);
+    }
+
+    // Delete old file if exists
+    if ($current_proof && file_exists($upload_dir . $current_proof)) {
+        unlink($upload_dir . $current_proof);
     }
 
     $file_ext = pathinfo($_FILES['proof_photo']['name'], PATHINFO_EXTENSION);
@@ -75,20 +97,22 @@ $reference_number = !empty($_POST['reference_number']) ? $conn->real_escape_stri
 $payment_date = $conn->real_escape_string(trim($_POST['payment_date']));
 $remarks = !empty($_POST['remarks']) ? $conn->real_escape_string(trim($_POST['remarks'])) : null;
 
-// Insert payment
-$sql = "INSERT INTO payments (booking_id, amount_paid, payment_method, reference_number, payment_date, proof_photo, remarks)
-        VALUES (?, ?, ?, ?, ?, ?, ?)";
+// Update payment
+$sql = "UPDATE payments SET 
+        amount_paid = ?,
+        payment_method = ?,
+        reference_number = ?,
+        payment_date = ?,
+        proof_photo = ?,
+        remarks = ?
+        WHERE payment_id = ?";
 $stmt = $conn->prepare($sql);
-$stmt->bind_param("idsssss", $booking_id, $amount, $payment_method, $reference_number, $payment_date, $proof_photo, $remarks);
+$stmt->bind_param("dsssssi", $amount, $payment_method, $reference_number, $payment_date, $proof_photo, $remarks, $payment_id);
 
 if ($stmt->execute()) {
-    echo json_encode(['success' => true, 'message' => 'Payment recorded successfully']);
+    echo json_encode(['success' => true, 'message' => 'Payment updated successfully']);
 } else {
-    // Delete uploaded file if insert failed
-    if ($proof_photo && file_exists($upload_dir . $proof_photo)) {
-        unlink($upload_dir . $proof_photo);
-    }
-    echo json_encode(['success' => false, 'message' => 'Failed to record payment: ' . $conn->error]);
+    echo json_encode(['success' => false, 'message' => 'Failed to update payment: ' . $conn->error]);
 }
 
 $stmt->close();

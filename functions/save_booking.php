@@ -1,33 +1,26 @@
 <?php
+// C:\xampp\htdocs\M-BH\functions\save_booking.php
 header('Content-Type: application/json');
 session_start();
 require_once '../admin/functions/connection.php';
 
-$response = ['success' => false, 'message' => '', 'booking_id' => 0];
+$response = ['success' => false, 'message' => '', 'booking_id' => 0, 'type' => 'error'];
 
 try {
-    if (!isset($_SESSION['tenant_id'])) {
-        throw new Exception("Session expired. Please login again.");
-    }
+    if (!isset($_SESSION['tenant_id'])) throw new Exception("Session expired. Please login again.");
+    if ($_SERVER['REQUEST_METHOD'] !== 'POST') throw new Exception("Invalid request method.");
 
-    if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-        throw new Exception("Invalid request method.");
-    }
-
-    $required = ['payment_method', 'room_id', 'check_in_date', 'check_out_date', 'total_amount'];
+    $required = ['room_id', 'check_in_date', 'check_out_date', 'total_amount'];
     foreach ($required as $field) {
-        if (empty($_POST[$field])) {
-            throw new Exception("Missing required field: $field");
-        }
+        if (empty($_POST[$field])) throw new Exception("Missing required field: $field");
     }
 
     $conn->begin_transaction();
 
-    // Insert booking
     $bookingQuery = $conn->prepare("
         INSERT INTO bookings 
         (tenant_id, room_id, check_in_date, check_out_date, booking_date, status, special_requests, total_amount) 
-        VALUES (?, ?, ?, ?, NOW(), 'confirmed', ?, ?)
+        VALUES (?, ?, ?, ?, NOW(), 'pending', ?, ?)
     ");
     
     $special_requests = $_POST['special_requests'] ?? '';
@@ -43,56 +36,26 @@ try {
         $total_amount
     );
     
-    if (!$bookingQuery->execute()) {
-        throw new Exception("Failed to create booking: " . $bookingQuery->error);
-    }
+    if (!$bookingQuery->execute()) throw new Exception("Failed to create booking: " . $bookingQuery->error);
     
     $bookingId = $conn->insert_id;
-    
-    // Insert payment - with proper reference number handling
-    $paymentQuery = $conn->prepare("
-        INSERT INTO payments 
-        (booking_id, amount_paid, payment_method, reference_number, payment_date, remarks) 
-        VALUES (?, ?, ?, ?, NOW(), ?)
-    ");
-    
-    $remarks = "Payment for booking #$bookingId";
-    $referenceNumber = isset($_POST['reference_number']) && !empty($_POST['reference_number']) 
-        ? $_POST['reference_number'] 
-        : NULL;
-    
-    $paymentQuery->bind_param(
-        "idsss",
-        $bookingId,
-        $total_amount,
-        $_POST['payment_method'],
-        $referenceNumber,
-        $remarks
-    );
-    
-    if (!$paymentQuery->execute()) {
-        error_log("Payment Error: " . $paymentQuery->error);
-        throw new Exception("Failed to record payment: " . $paymentQuery->error);
-    }
-
     $conn->commit();
     unset($_SESSION['pending_booking']);
 
     $response = [
         'success' => true,
-        'message' => 'Booking and payment saved successfully!',
-        'booking_id' => $bookingId
+        'message' => 'Booking saved successfully! Redirecting to payment...',
+        'booking_id' => $bookingId,
+        'type' => 'success'
     ];
 
 } catch (Exception $e) {
-    if (isset($conn) && $conn instanceof mysqli) {
-        $conn->rollback();
-    }
+    if (isset($conn) && $conn instanceof mysqli) $conn->rollback();
     $response['message'] = $e->getMessage();
+    $response['type'] = 'error';
     error_log("Booking Error: " . $e->getMessage());
 }
 
-// Ensure clean output
 ob_end_clean();
 echo json_encode($response);
 exit;
